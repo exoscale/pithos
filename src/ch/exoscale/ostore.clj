@@ -15,25 +15,36 @@
 
 (defprotocol Path
   (directory? [this])
-  (read! [this instream] [this instream options])
-  (write! [this outstream] [this outstream options]))
+  (read! [this stream] [this stream options])
+  (write! [this stream] [this stream options]))
 
 (defn path!
   [session orga {:keys [id] :as bucket} {:keys [path]}]
   (let [bucket_id id]
     (reify
-      Common
-      (details! [this]
-        (a/execute
-         (h/select :path
-                   (h/where {:organisation organisation
-                             :bucket_id bucket_id
-                             :path path}))))
       Path
-      (directory? [this]
-        ()
-        )))
-  )
+      (read! [this stream]
+        (let [chunks (a/execute
+                      (h/select
+                       :file
+                       (h/where {:id path
+                                 :version 1})))]
+          (doseq [{:keys [offset chunksize blob]}]
+            (.write stream offset chunksize))))
+      (write! [this stream]
+        (loop [offset 0] 
+          (if (> (.availabe stream) 0)
+            (let [ba  (byte-array 512)
+                  len (.read stream ba 0 512)]
+              (.reset ba)
+              (a/execute
+               (h/insert :file 
+                         (values {:id path :version 1 :offset offset :payload })))
+              
+            
+            )
+)
+          )))))
 
 (defn bucket!
   [session organisation bucket]
