@@ -12,6 +12,6 @@
                  [ring/ring-core          "1.2.0"]
                  [ring/ring-jetty-adapter "1.2.0"]
                  [ring/ring-json          "0.2.0"]
-                 [cc.qbits/alia           "1.8.0"]])
+                 [cc.qbits/alia           "1.8.2"]])
 
 

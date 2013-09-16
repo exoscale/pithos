@@ -65,4 +65,4 @@ elif sys.argv[1] == 'getkey':
     b = conn.get_bucket('aurelais.web', validate=False)
     k = boto.s3.key.Key(b)
     k.key = 'foo.txt'
-    print(k.get_contents_as_string("foobarbaz\n"))
+    print(k.get_contents_as_string())

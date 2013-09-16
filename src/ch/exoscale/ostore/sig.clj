@@ -20,8 +20,7 @@
   [{:keys [headers request-method uri] :as request}]
   (let [content-md5  (get headers "content-md5")
         content-type (get headers "content-type")
-        date         (or (get headers "date")
-                         (get headers "x-amz-date" ""))]
+        date         (get headers "date")]
     (s/join
      "\n"
      [(-> request-method name s/upper-case)

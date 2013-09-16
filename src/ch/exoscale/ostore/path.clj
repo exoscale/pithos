@@ -30,10 +30,7 @@
                (where (select-keys this [:organization :bucket :path]))))
 
       ;; then upload file
-      (file/put-file! store id version stream)
-
-      ;; return new record
-      (assoc this :id id :version version))))
+      (file/put-file! store id version stream))))
 
 (defn path!
   [store organization bucket path]
@@ -44,7 +41,10 @@
                                 :path path})
                         (limit 1)))
        (first)
-       (merge {:store store})
+       (merge {:store store
+               :organization organization
+               :bucket bucket
+               :path path})
        (map->Path)))
 
 (defn filter-content
@@ -68,13 +68,11 @@
 
 (defn paths!
   [store organization bucket {:keys [prefix delimiter max-keys]}]
-  (let [path-def (if (and prefix (not (empty? prefix)))
-                   {:organization organization
-                    :bucket       bucket
-                    :path         [:>= prefix]
-                    'path         [:< (inc-path prefix)]}
-                   {:organization organization
-                    :bucket       bucket})
+  (let [path-def (-> {:organization organization
+                      :bucket       bucket}
+                     (cond-> (and prefix (not (empty? prefix)))
+                             (concat [[:path [:>= prefix]]
+                                      [:path [:< (inc-path prefix)]]])))
         paths    (->> (execute store (select :path (where path-def)))
                       (filter #(.startsWith (:path %) (or prefix ""))))
         prefixes (if delimiter (filter-prefixes paths prefix delimiter) #{})
