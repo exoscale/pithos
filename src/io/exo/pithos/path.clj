@@ -1,12 +1,11 @@
-(ns ch.exoscale.pithos.path
-  (:require [qbits.alia              :refer [connect cluster execute]]
-            [qbits.hayt              :refer [select where set-columns
-                                             update limit]]
-            [ch.exoscale.pithos      :refer [sync! list! get! put! bump! del!]]
-            [ch.exoscale.pithos.file :as file]))
+(ns io.exo.pithos.path
+  (:require [qbits.alia         :refer [connect cluster execute]]
+            [qbits.hayt         :refer [select where set-columns update limit]]
+            [io.exo.pithos      :refer [sync! list! get! put! bump! del!]]
+            [io.exo.pithos.file :as file]))
 
 (defrecord Path [store organization bucket path id version attrs tags]
-  ch.exoscale.pithos.Common
+  io.exo.pithos.Common
   (sync! [this]
     (execute
      store

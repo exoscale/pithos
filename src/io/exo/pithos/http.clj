@@ -1,18 +1,17 @@
-(ns ch.exoscale.pithos.http
-  (:require [clojure.data.xml          :refer [indent-str]]
-            [ring.adapter.jetty        :refer [run-jetty]]
-            [ring.util.response        :refer [response header response?
-                                               content-type status]]
-            [ring.middleware.resource  :refer [wrap-resource]]
-            [compojure.core            :refer [GET POST PUT DELETE routes]]
-            [compojure.handler         :refer [api]]
-            [clojure.repl              :refer [pst]]
-            [ch.exoscale.pithos        :refer [put!]]
-            [ch.exoscale.pithos.sig    :refer [validate]]
-            [ch.exoscale.pithos.bucket :refer [buckets!]]
-            [ch.exoscale.pithos.path   :refer [paths! path!]]
-            [ch.exoscale.pithos.file   :refer [get-stream! file-sum!]]
-            [ch.exoscale.pithos.xml    :as xml]))
+(ns io.exo.pithos.http
+  (:require [clojure.data.xml     :refer [indent-str]]
+            [ring.adapter.jetty   :refer [run-jetty]]
+            [ring.util.response   :refer [response header response?
+                                          content-type status]]
+            [compojure.core       :refer [GET POST PUT DELETE routes]]
+            [compojure.handler    :refer [api]]
+            [clojure.repl         :refer [pst]]
+            [io.exo.pithos        :refer [put!]]
+            [io.exo.pithos.sig    :refer [validate]]
+            [io.exo.pithos.bucket :refer [buckets!]]
+            [io.exo.pithos.path   :refer [paths! path!]]
+            [io.exo.pithos.file   :refer [get-stream! file-sum!]]
+            [io.exo.pithos.xml    :as xml]))
 
 (defn handler
   [store]
@@ -73,20 +72,22 @@
   (fn [request]
     (let [id      (java.util.UUID/randomUUID)
           request (update-host request)
-          body    (try (let [authorization
-                             (validate keystore request)]
-                         (handler (assoc request
-                                    :reqid id
-                                    :authorization authorization)))
-                       (catch Exception e
-                         (pst e)
-                         (xml/exception
-                          (merge {:exception e :code 500 :type :generic}
-                                 (ex-data e)))))
-          code    (if (instance? Exception body) (get body :code 500) 200)
-          resp    (if (response? body) body (response body))]
-      (-> resp
-          (status code)
+          body    (try 
+                    (let [authorization
+                          (validate keystore request)]
+                      (handler (assoc request
+                                 :reqid id
+                                 :authorization authorization)))
+                    (catch Exception e
+                      (pst e)
+                      (let [{:keys [code] :as data} 
+                            (merge {:exception e 
+                                    :code 500 
+                                    :type :generic}
+                                   (ex-data e))]
+                        (-> (response (xml/exception data))
+                            (status code)))))]
+      (-> body
           (header "x-amz-request-id" (str id))
           (header "Server" "OmegaS3")))))
 

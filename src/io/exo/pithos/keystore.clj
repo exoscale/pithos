@@ -1,4 +1,4 @@
-(ns ch.exoscale.pithos.keystore)
+(ns io.exo.pithos.keystore)
 
 (def keystore
   {"AKIAIOSFODNN7EXAMPLE"

@@ -1,9 +1,8 @@
-(ns ch.exoscale.pithos.xml
-  (:require [clojure.data.xml :refer [->Element emit-str indent-str]]
-            [clojure.string         :as s]
-            [ch.exoscale.pithos.sig :as sig]
-            [compojure.response])
-)
+(ns io.exo.pithos.xml
+  (:require [clojure.data.xml  :refer [->Element emit-str indent-str]]
+            [clojure.string    :as s]
+            [io.exo.pithos.sig :as sig]
+            [compojure.response]))
 
 (defn e
   ([x]

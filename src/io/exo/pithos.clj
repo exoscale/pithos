@@ -1,4 +1,4 @@
-(ns ch.exoscale.pithos)
+(ns io.exo.pithos)
 
 (defprotocol Common
   (list! [this] [this path])
