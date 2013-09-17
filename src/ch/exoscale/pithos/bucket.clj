@@ -1,10 +1,10 @@
-(ns ch.exoscale.ostore.bucket
+(ns ch.exoscale.pithos.bucket
   (:require [qbits.alia :refer [connect cluster execute]]
             [qbits.hayt :refer [select where set-columns update limit]]
-            [ch.exoscale.ostore.path :refer [map->Path]]))
+            [ch.exoscale.pithos.path :refer [map->Path]]))
 
 (defrecord Bucket [store organization bucket attrs tags]
-  ch.exoscale.ostore.Common
+  ch.exoscale.pithos.Common
   (list! [this]
     (map (comp map->Path (partial merge {:store store}))
          (execute store (select :path

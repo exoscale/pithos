@@ -1,9 +1,9 @@
-(ns ch.exoscale.ostore.sig
+(ns ch.exoscale.pithos.sig
   "Compute request signatures as described in
    http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html"
   (:require [clojure.string              :as s]
             [clojure.data.codec.base64   :as base64]
-            [ch.exoscale.ostore.keystore :as keystore])
+            [ch.exoscale.pithos.keystore :as keystore])
   (:import  javax.crypto.Mac javax.crypto.spec.SecretKeySpec))
 
 (defn canonicalized

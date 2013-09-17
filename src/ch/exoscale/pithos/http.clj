@@ -1,4 +1,4 @@
-(ns ch.exoscale.ostore.http
+(ns ch.exoscale.pithos.http
   (:require [clojure.data.xml          :refer [indent-str]]
             [ring.adapter.jetty        :refer [run-jetty]]
             [ring.util.response        :refer [response header response?
@@ -7,12 +7,12 @@
             [compojure.core            :refer [GET POST PUT DELETE routes]]
             [compojure.handler         :refer [api]]
             [clojure.repl              :refer [pst]]
-            [ch.exoscale.ostore        :refer [put!]]
-            [ch.exoscale.ostore.sig    :refer [validate]]
-            [ch.exoscale.ostore.bucket :refer [buckets!]]
-            [ch.exoscale.ostore.path   :refer [paths! path!]]
-            [ch.exoscale.ostore.file   :refer [get-stream! file-sum!]]
-            [ch.exoscale.ostore.xml    :as xml]))
+            [ch.exoscale.pithos        :refer [put!]]
+            [ch.exoscale.pithos.sig    :refer [validate]]
+            [ch.exoscale.pithos.bucket :refer [buckets!]]
+            [ch.exoscale.pithos.path   :refer [paths! path!]]
+            [ch.exoscale.pithos.file   :refer [get-stream! file-sum!]]
+            [ch.exoscale.pithos.xml    :as xml]))
 
 (defn handler
   [store]
@@ -51,9 +51,8 @@
         {{bucket :bucket path :*} :route-params
          {:keys [organization]}   :authorization
          :as req}
-        (let [{:keys [version id]} (path! store organization bucket path)
-              stream               (get-stream! store id version)]
-          (-> (response stream)
+        (let [{:keys [version id]} (path! store organization bucket path)]
+          (-> (response (get-stream! store id version))
               (header "ETag" (file-sum! store id version))
               (content-type "application/download"))))))
 

@@ -59,6 +59,7 @@ CREATE TABLE path (
   id uuid,
   tags set<text>,
   version int,
+  etag text,
   PRIMARY KEY ((organization, bucket), path)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND

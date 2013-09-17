@@ -1,6 +1,6 @@
-(ns ch.exoscale.ostore.main
-  (:require [ch.exoscale.ostore.http     :as http]
-            [ch.exoscale.ostore.keystore :as keystore]
+(ns ch.exoscale.pithos.main
+  (:require [ch.exoscale.pithos.http     :as http]
+            [ch.exoscale.pithos.keystore :as keystore]
             [qbits.alia                  :as alia])
   (:gen-class))
 

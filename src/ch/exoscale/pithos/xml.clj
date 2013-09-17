@@ -1,7 +1,7 @@
-(ns ch.exoscale.ostore.xml
+(ns ch.exoscale.pithos.xml
   (:require [clojure.data.xml :refer [->Element emit-str indent-str]]
             [clojure.string         :as s]
-            [ch.exoscale.ostore.sig :as sig]
+            [ch.exoscale.pithos.sig :as sig]
             [compojure.response])
 )
 
