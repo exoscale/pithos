@@ -1,50 +1,38 @@
 (ns io.exo.pithos.path
-  (:require [qbits.alia         :refer [connect cluster execute]]
-            [qbits.hayt         :refer [select where set-columns update limit]]
-            [io.exo.pithos      :refer [sync! list! get! put! bump! del!]]
-            [io.exo.pithos.file :as file]))
+  (:import java.util.UUID)
+  (:require [qbits.alia :refer [execute]]
+            [qbits.hayt :refer [select where set-columns delete update limit]]))
 
-(defrecord Path [store organization bucket path id version attrs tags]
-  io.exo.pithos.Common
-  (sync! [this]
-    (execute
-     store
-     (update :path
-             (set-columns (select-keys this [:id :version :attrs :tags]))
-             (where (select-keys this [:organization :bucket :path])))))
-  (get! [this stream]
-    (let [id      (or id (java.util.UUID/randomUUID))
-          version (or version 0)
-          p       (map->Path (assoc this :id id :version version))]
-      (sync! p)
-      (file/get-file! store id version stream)))
-  (put! [this stream]
-    (let [id      (or id (java.util.UUID/randomUUID))
-          version (if version (inc version) 0)]
-      ;; first, bump version
-      (execute 
-       store
-       (update :path
-               (set-columns {:version version :id id})
-               (where (select-keys this [:organization :bucket :path]))))
+(defn inc-path
+  "Given a path, yield the next semantic one."
+  [p]
+  (let [[c & s] (reverse p)
+        reversed (conj s (-> c int inc char))]
+    (apply str (reverse reversed))))
 
-      ;; then upload file
-      (file/put-file! store id version stream))))
+(defn fetch-path-q
+  [^String tenant ^String bucket ^String prefix]
+  (let [path-def    [[:tenant tenant] [:bucket bucket]]
+        next-prefix (inc-path prefix)
+        prefix-def  [[:path [:>= prefix]] [:path [:< next-prefix]]]]
+    (select :path (where (cond-> path-def
+                                 (seq prefix) (concat prefix-def))))))
 
-(defn path!
-  [store organization bucket path]
-  (->> (execute store
-                (select :path
-                        (where {:organization organization
-                                :bucket bucket
-                                :path path})
-                        (limit 1)))
-       (first)
-       (merge {:store store
-               :organization organization
-               :bucket bucket
-               :path path})
-       (map->Path)))
+(defn get-path-q
+  [^String tenant ^String bucket ^String path]
+  (select :path 
+          (where {:tenant tenant :bucket bucket :path path})
+          (limit 1)))
+
+(defn update-path-q
+  [^String tenant ^String bucket ^String path ^UUID inode ^Long version]
+  (update :path
+          (set-columns {:inode inode :version version})
+          (where {:tenant tenant :bucket bucket :path path})))
+
+(defn delete-path-q
+  [^String tenant ^String bucket ^String path]
+  (delete :path (where {:tenant tenant :bucket bucket :path path})))
 
 (defn filter-content
   [paths prefix delimiter]
@@ -59,21 +47,21 @@
          (remove nil?)
          (set))))
 
-(defn inc-path
-  [p]
-  (let [[c & s] (reverse p)
-        reversed (conj s (-> c int inc char))]
-    (apply str (reverse reversed))))
+(defn fetch
+  ([^String tenant ^String bucket {}]
+     (fetch tenant bucket ""))
+  ([^String tenant ^String bucket & {:keys [path prefix delimiter max-keys]}]
+     (if path
+       (first (execute (get-path-q tenant bucket path)))
+       (let [paths    (execute (fetch-paths-q tenant bucket prefix))
+             prefixes (if delimiter (filter-prefixes paths prefix delimiter) #{})
+             contents (if delimiter (filter-content paths prefix delimiter) paths)]
+         [(remove prefixes contents) prefixes]))))
 
-(defn paths!
-  [store organization bucket {:keys [prefix delimiter max-keys]}]
-  (let [path-def (-> {:organization organization
-                      :bucket       bucket}
-                     (cond-> (and prefix (not (empty? prefix)))
-                             (concat [[:path [:>= prefix]]
-                                      [:path [:< (inc-path prefix)]]])))
-        paths    (->> (execute store (select :path (where path-def)))
-                      (filter #(.startsWith (:path %) (or prefix ""))))
-        prefixes (if delimiter (filter-prefixes paths prefix delimiter) #{})
-        contents (if delimiter (filter-content paths prefix delimiter) paths)]
-    [(remove prefixes contents) prefixes]))
+(defn update!
+  [^String tenant ^String bucket ^String path ^UUID inode ^Long version]
+  (execute (update-path-q tenant bucket path inode)))
+
+(defn delete!
+  [^String tenant ^String bucket ^String path]
+  (execute (delete-path-q tenant bucket path)))
