@@ -1,0 +1,5 @@
+#+TITTLE: pithos object storage
+
+* Objectives
+
+Pithos is a cassandra-backed object storage solution.

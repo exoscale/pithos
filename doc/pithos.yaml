@@ -1,0 +1,70 @@
+#
+# pithos main configuration
+# -------------------------
+#
+# 
+options:
+  server-name: 'storage.api.exoscale.ch'
+  chunksize: '256K'
+  maxsize: '10G'
+features:
+  reporting: true
+  server-side-encryption: true
+  multipart-upload: true
+  masterkey-provisioning: true
+  masterkey-access: true
+# The master key allows provisinning operations
+# when the masterkey-provisioning feature is
+# set to true and will allow access to all
+# buckets when masterkey-access is set to true
+#
+masterkey:
+  access: 'BKIAIOSFODNN7EXAMPLE'
+  secret: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+#
+# Keystores associate an access key with
+# an organization and secret key.
+# 
+# They may offer provisioning capacities with the
+# masterkey
+keystore:
+  use: io.exo.pithos.keystore.MapKeystore
+  keys:
+    AKIAIOSFODNN7EXAMPLE:
+      organization: 'pyr@spootnik.org'
+      secret: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+userstore:
+# A cluster may be defined as a single host definition or as
+# a list of host definitions.
+#
+# A host may be defined as a string, or as a map
+# containing at least a 'host' key and an optional
+# 'port' key which defaults to 9160.
+# 
+# Examples:
+#
+# cluster: 'localhost'
+#
+# cluster:
+#   host: 'localhost'
+#   port: 9160
+#
+# cluster:
+#   - 'host1'
+#   - 'host2'
+#   - host: 'host3'
+#     port: 9162
+#
+  cluster: 'localhost'
+  keyspace: 'storage'
+datastore:
+  cluster: 'localhost'
+  keyspace: 'storage'
+#
+# reports are only generated
+reportstore:
+  use:
+    - io.exo.pithos.reports.RiemannReporter
+    - io.exo.pithos.reports.CassandraReporter
+  cluster: 'localhost'
+  keyspace: 'storage'
