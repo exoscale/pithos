@@ -1,8 +1,7 @@
 (ns io.exo.pithos.http
   (:require [clojure.data.xml     :refer [indent-str]]
             [ring.adapter.jetty   :refer [run-jetty]]
-            [ring.util.response   :refer [response header response?
-                                          content-type status]]
+            [ring.util.response   :refer [response header content-type status]]
             [compojure.core       :refer [GET POST PUT DELETE routes]]
             [compojure.handler    :refer [api]]
             [clojure.repl         :refer [pst]]
@@ -55,13 +54,6 @@
               (header "ETag" (file-sum! store id version))
               (content-type "application/download"))))))
 
-(defn update-host
-  [{:keys [uri server-name] :as request}]
-  (if-let [[_ bucket] (re-find #"^(.*).s3.amazonaws.com$" server-name)]
-    (assoc request :uri 
-           (str "/" bucket (if (and uri (not (empty? uri))) uri "/")))
-    request))
-
 (defn wrap-aws-api
   "Behave like AWS, namely:
     - authenticate requests
@@ -69,9 +61,12 @@
     - coerce output to XML
     - Indicate who we are in the Server header"
   [handler keystore]
-  (fn [request]
+  (fn [{:keys [uri server-name] :as request}]
     (let [id      (java.util.UUID/randomUUID)
-          request (update-host request)
+          uri     (if-let [[_ bucket]
+                           (re-find #"^(.*).s3.amazonaws.com$" server-name)]
+                    (str "/" bucket (if (not (empty? uri)) uri "/")) uri)
+          request (assoc request :uri uri)
           body    (try 
                     (let [authorization
                           (validate keystore request)]
