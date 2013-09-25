@@ -1,8 +1,8 @@
 (ns io.exo.pithos.path
   (:import java.util.UUID)
   (:require [qbits.alia          :refer [execute]]
-            [qbits.hayt          :refer [select where set-columns
-                                         delete update limit]]
+            [qbits.hayt          :refer [select where set-columns columns
+                                         delete update limit order-by]]
             [io.exo.pithos.inode :as inode]))
 
 (defn inc-path
@@ -36,6 +36,15 @@
   [^String tenant ^String bucket ^String path]
   (delete :path (where {:tenant tenant :bucket bucket :path path})))
 
+(defn published-versions-q
+  [^UUID inode]
+  (select :inode
+          (columns :version)
+          (where {:inode inode
+                  :published true})
+          (order-by [:version :desc])
+          (limit 1)))
+
 (defn filter-content
   [paths prefix delimiter]
   (let [pat (re-pattern (str "^" prefix "[^\\" delimiter "]+$"))]
@@ -49,19 +58,24 @@
          (remove nil?)
          (set))))
 
+(defn published-path?
+  [inode]
+  (not (nil? (first (execute (published-versions-q inode))))))
+
 (defn fetch
-  ([^String tenant ^String bucket {}]
-     (fetch tenant bucket ""))
-  ([^String tenant ^String bucket {:keys [path prefix delimiter max-keys]}]
+  ([^String tenant ^String bucket]
+     (fetch tenant bucket {}))
+  ([tenant bucket {:keys [path prefix delimiter max-keys hidden]}]
      (if path
        (first (execute (get-path-q tenant bucket path)))
-       (let [paths    (execute (fetch-paths-q tenant bucket prefix))
-             prefixes (if delimiter 
-                        (filter-prefixes paths prefix delimiter)
-                        #{})
-             contents (if delimiter
-                        (filter-content paths prefix delimiter) 
-                        paths)]
+       (let [raw-paths (execute (fetch-path-q tenant bucket prefix))
+             paths     (if hidden raw-paths (filter published-path? raw-paths))
+             prefixes  (if delimiter 
+                         (filter-prefixes paths prefix delimiter)
+                         #{})
+             contents  (if delimiter
+                         (filter-content paths prefix delimiter) 
+                         paths)]
          [(remove prefixes contents) prefixes]))))
 
 (defn update!
