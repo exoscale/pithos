@@ -58,6 +58,7 @@ CREATE TABLE inode (
   version timeuuid,
   atime timestamp,
   attrs map<text, text>,
+  checksum text,
   multipart boolean,
   tags set<text>,
   PRIMARY KEY ((inode, published), version)
