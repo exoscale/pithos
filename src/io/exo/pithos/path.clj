@@ -1,5 +1,4 @@
 (ns io.exo.pithos.path
-  (:import java.util.UUID)
   (:require [qbits.alia          :refer [execute]]
             [qbits.hayt          :refer [select where set-columns columns
                                          delete update limit order-by]]
@@ -13,7 +12,7 @@
     (apply str (reverse reversed))))
 
 (defn fetch-path-q
-  [^String tenant ^String bucket ^String prefix]
+  [tenant bucket prefix]
   (let [path-def    [[:tenant tenant] [:bucket bucket]]
         next-prefix (inc-path prefix)
         prefix-def  [[:path [:>= prefix]] [:path [:< next-prefix]]]]
@@ -21,23 +20,23 @@
                                  (seq prefix) (concat prefix-def))))))
 
 (defn get-path-q
-  [^String tenant ^String bucket ^String path]
+  [tenant bucket path]
   (select :path 
           (where {:tenant tenant :bucket bucket :path path})
           (limit 1)))
 
 (defn update-path-q
-  [^String tenant ^String bucket ^String path ^UUID inode]
+  [tenant bucket path inode]
   (update :path
           (set-columns {:inode inode})
           (where {:tenant tenant :bucket bucket :path path})))
 
 (defn delete-path-q
-  [^String tenant ^String bucket ^String path]
+  [tenant bucket path]
   (delete :path (where {:tenant tenant :bucket bucket :path path})))
 
 (defn published-versions-q
-  [^UUID inode]
+  [inode]
   (select :inode
           (columns :version)
           (where {:inode inode
@@ -63,7 +62,7 @@
   (not (nil? (first (execute (published-versions-q inode))))))
 
 (defn fetch
-  ([^String tenant ^String bucket]
+  ([tenant bucket]
      (fetch tenant bucket {}))
   ([tenant bucket {:keys [path prefix delimiter max-keys hidden]}]
      (if path
@@ -79,9 +78,9 @@
          [(remove prefixes contents) prefixes]))))
 
 (defn update!
-  [^String tenant ^String bucket ^String path ^UUID inode]
+  [tenant bucket path inode]
   (execute (update-path-q tenant bucket path inode)))
 
 (defn delete!
-  [^String tenant ^String bucket ^String path]
+  [tenant bucket path]
   (execute (delete-path-q tenant bucket path)))

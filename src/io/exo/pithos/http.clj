@@ -5,8 +5,9 @@
             [compojure.core       :refer [GET POST PUT DELETE routes]]
             [compojure.handler    :refer [api]]
             [clojure.repl         :refer [pst]]
-            [io.exo.pithos        :refer [put!]]
             [io.exo.pithos.sig    :refer [validate]]
+            [qbits.alia           :refer [with-session]]
+            [qbits.alia.uuid      :as uuid]
             [io.exo.pithos.inode  :as inode]
             [io.exo.pithos.bucket :as bucket]
             [io.exo.pithos.path   :as path]
@@ -37,9 +38,9 @@
          {:keys [tenant]} :authorization
          body :body
          :as req}
-        (let [{:keys [version id] :as p}
-              (path/fetch store tenant bucket path)
-              hash (put! p body)]
+        (let [{:keys [inode]} (path/fetch tenant bucket path)
+              version         (inode/bump! inode)
+              hash            (inode/append-stream inode version body)]
           (-> (response "")
               (header "ETag" hash)
               (header "Content-Length" "0")
@@ -49,10 +50,7 @@
         {{bucket :bucket path :*} :route-params
          {:keys [tenant]} :authorization
          :as req}
-        (let [{:keys [version id]} (path/fetch store tenant bucket path)]
-          (-> (response (get-stream! store id version))
-              (header "ETag" (file-sum! store id version))
-              (content-type "application/download"))))))
+        (throw (ex-info "not supported yet" {})))))
 
 (defn wrap-aws-api
   "Behave like AWS, namely:
@@ -62,7 +60,7 @@
     - Indicate who we are in the Server header"
   [handler keystore]
   (fn [{:keys [uri server-name] :as request}]
-    (let [id      (java.util.UUID/randomUUID)
+    (let [id      (uuid/random)
           uri     (if-let [[_ bucket]
                            (re-find #"^(.*).s3.amazonaws.com$" server-name)]
                     (str "/" bucket (if (not (empty? uri)) uri "/")) uri)

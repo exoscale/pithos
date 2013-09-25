@@ -8,6 +8,10 @@ Pithos is a cassandra-backed object storage solution.
 
 ** Metadata Keyspace
 
+Buckets are indexed by tenant and bucket name. They
+are a simple entity that can aggregate common properties
+across all descendant paths and inodes.
+
 | bucket | key: (tenant,bucket) |
 |--------+----------------------|
 | tenant | text                 |
@@ -15,36 +19,63 @@ Pithos is a cassandra-backed object storage solution.
 | attrs  | map<text,text>       |
 | tags   | set<text>            |
 
+Paths allow the construction of an arbitrary
+tree of inodes. Paths are semantically sorted
+and although the data model does not account
+for hierarchy, the use of user-supplied delimiters
+can realize ad-hoc hierarchies.
+
+As a side-effect, for a specific path prefix,
+hierarchies are built by retrieving all children paths.
+
 | path    | key: ((tenant,bucket),path) |
 |---------+-----------------------------|
 | tenant  | text                        |
 | bucket  | text                        |
 | path    | text                        |
 | inode   | uuid                        |
-| version | bigint                      |
 
-| inode    | key ((inode,version)) |
-|----------+-----------------------|
-| inode    | uuid                  |
-| version  | bigint                |
-| checksum | text                  |
-| attrs    | map<text,text>        |
-| tags     | set<text>             |
+Inodes represent an object, independent of its
+actual location on the hierarchy, to allow for
+efficient operations on the file system (links,
+moves). 
+
+Inodes are versioned, each object update resulting in
+a new version. Inodes might not be published, i.e: not
+yet ready to be seem in the path hierarchy.
+
+Inode versions do not store data, data is instead
+stored in a list of blocks.
+
+| inode     | key ((inode, published)version) |
+|-----------+---------------------------------|
+| inode     | uuid                            |
+| published | boolean                         |
+| version   | timeuuid                        |
+| atime     | timestamp                       | 
+| attrs     | map<text,text>                  |
+| tags      | set<text>                       |
+| checksum  | text                            |
+
+Inode blocks are a relation table holding a list
+of offsets at which blocks start.
+
+| inode_blocks | key ((inode,version), block) |
+|--------------+------------------------------|
+| inode        | uuid                         |
+| version      | timeuuid                     |
+| block        | bigint                       |
+
+** Data KeyspaceBlocks 
 
 
-| inode_blocks | key ((inode,version)) |
-|--------------+-----------------------|
-| inode        | uuid                  |
-| version      | bigint                |
-| blocks       | counter               |
+store data in a list of chunks.
 
-** Data Keyspace
-
-| block   | key ((inode,version,block)) |
-|---------+-----------------------------|
-| inode   | uuid                        |
-| version | bigint                      |
-| block   | bigint                      |
-| offset  | bigint                      |
-| payload | blob                        |
-
+| block     | key ((inode, version,block), offset) |
+|-----------+--------------------------------------|
+| inode     | uuid                                 |
+| version   | timeuuid                             |
+| block     | bigint                               |
+| offset    | bigint                               |
+| chunksize | int                                  |
+| payload   | blob                                 |

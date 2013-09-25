@@ -1,13 +1,21 @@
 (ns io.exo.pithos.inode
   (:import java.util.UUID
            java.nio.ByteBuffer)
-  (:require [qbits.alia  :refer [execute]]
-            [qbits.hayt  :refer [select where columns order-by
-                                 insert values limit]]))
+  (:require [clojure.java.io :as io]
+            [qbits.alia.uuid :as uuid]
+            [qbits.alia      :refer [execute]]
+            [qbits.hayt      :refer [select where columns order-by
+                                     insert values limit delete]]))
 
+
+;;
+;; XXX: these should be fetched from configuration
+;;
 (def maxchunk (* 512 1024))      ;; 512k
 (def maxblock (* 200 maxchunk))  ;; 100mb
 
+;;
+;; start declaring CQL queries
 (defn get-block-q
   [inode version]
   (select :inode_blocks
@@ -37,6 +45,16 @@
                    :offset offset
                    :chunksize size
                    :payload chunk})))
+
+(defn publish-q
+  [inode version size checksum]
+  (insert :inode
+          (values {:inode inode
+                   :version version
+                   :size size
+                   :checksum checksum
+                   :published true})))
+;; end query 
 
 (defn get-chunk
   [stream hash]
@@ -69,10 +87,23 @@
    (set-block-q inode version block)))
 
 (defn finalize!
-  [inode verison hash]
-  (let [etag (.toString (java.math.BigInteger. 1 (.digest hash)) 16)]
-    (println "found etag: " etag)
-    etag))
+  [inode version size hash]
+  (let [cksum (.toString (java.math.BigInteger. 1 (.digest hash)) 16)]
+    (execute (publish-q inode version size cksum))
+    (println "found cksum:" cksum)
+    cksum))
+
+(defn bump!
+  [inode]
+  (let [version (uuid/time-based)]
+    ;;
+    ;; XXX: this needs to be looked into
+    ;; we very well might be able to get
+    ;; by just yielding a version.
+    ;;
+    ;; some tricks might need to be applied in 
+    ;; the GC thread
+    version))
 
 (defn append-stream
   [inode version stream]
@@ -102,4 +133,6 @@
           (recur (+ offset size) block)
 
           ;; no more data to read, finalize and return
-          (finalize! inode version hash))))))
+          (finalize! inode version offset hash))))))
+
+
