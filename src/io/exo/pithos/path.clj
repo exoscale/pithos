@@ -1,8 +1,9 @@
 (ns io.exo.pithos.path
   (:import java.util.UUID)
-  (:require [qbits.alia :refer [execute]]
-            [qbits.hayt :refer [select where set-columns
-                                delete update limit]]))
+  (:require [qbits.alia          :refer [execute]]
+            [qbits.hayt          :refer [select where set-columns
+                                         delete update limit]]
+            [io.exo.pithos.inode :as inode]))
 
 (defn inc-path
   "Given a path, yield the next semantic one."
@@ -26,9 +27,9 @@
           (limit 1)))
 
 (defn update-path-q
-  [^String tenant ^String bucket ^String path ^UUID inode ^Long version]
+  [^String tenant ^String bucket ^String path ^UUID inode]
   (update :path
-          (set-columns {:inode inode :version version})
+          (set-columns {:inode inode})
           (where {:tenant tenant :bucket bucket :path path})))
 
 (defn delete-path-q
@@ -64,7 +65,7 @@
          [(remove prefixes contents) prefixes]))))
 
 (defn update!
-  [^String tenant ^String bucket ^String path ^UUID inode ^Long version]
+  [^String tenant ^String bucket ^String path ^UUID inode]
   (execute (update-path-q tenant bucket path inode)))
 
 (defn delete!
