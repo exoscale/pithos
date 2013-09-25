@@ -6,11 +6,11 @@
                                  insert values limit]]))
 
 (def maxchunk (* 512 1024))      ;; 512k
-(def maxblock (* 200 chunksize)) ;; 100mb
+(def maxblock (* 200 maxchunk))  ;; 100mb
 
 (defn get-block-q
   [inode version]
-  (select :blocklist
+  (select :inode_blocks
           (columns :block)
           (where {:inode inode :version version})
           (order-by [:block :desc])
@@ -18,7 +18,7 @@
 
 (defn set-block-q
   [inode version block]
-  (insert :blocklist
+  (insert :inode_blocks
           (values {:inode inode :version version :block block})))
 
 (defn last-chunk-q
