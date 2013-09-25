@@ -7,38 +7,38 @@
             [clojure.repl         :refer [pst]]
             [io.exo.pithos        :refer [put!]]
             [io.exo.pithos.sig    :refer [validate]]
-            [io.exo.pithos.bucket :refer [buckets!]]
-            [io.exo.pithos.path   :refer [paths! path!]]
-            [io.exo.pithos.file   :refer [get-stream! file-sum!]]
+            [io.exo.pithos.inode  :as inode]
+            [io.exo.pithos.bucket :as bucket]
+            [io.exo.pithos.path   :as path]
             [io.exo.pithos.xml    :as xml]))
 
 (defn handler
   [store]
   (routes
    (GET "/"
-        {{:keys [organization]} :authorization}
+        {{:keys [tenant]} :authorization}
         (-> (xml/list-all-my-buckets
-             (buckets! store organization))
+             (bucket/fetch tenant))
             (response)
             (content-type "application/xml")))
 
    (GET "/:bucket/"
         {{:keys [delimiter marker max-keys prefix bucket] :as opts} :params
-         {:keys [organization]} :authorization}
+         {:keys [tenant]} :authorization}
         (let [opts (select-keys opts [:delimiter :prefix :max-keys])
-              [contents prefixes] (paths! store organization bucket opts)]
-          (-> (xml/list-bucket organization prefix delimiter
+              [contents prefixes] (path/fetch store tenant bucket opts)]
+          (-> (xml/list-bucket tenant prefix delimiter
                                1000 bucket contents prefixes)
               (response)
               (content-type "application/xml"))))
 
    (PUT "/:bucket/*"
         {{bucket :bucket path :*} :route-params
-         {:keys [organization]}   :authorization
-         body                     :body
+         {:keys [tenant]} :authorization
+         body :body
          :as req}
         (let [{:keys [version id] :as p}
-              (path! store organization bucket path)
+              (path/fetch store tenant bucket path)
               hash (put! p body)]
           (-> (response "")
               (header "ETag" hash)
@@ -47,9 +47,9 @@
 
    (GET "/:bucket/*"
         {{bucket :bucket path :*} :route-params
-         {:keys [organization]}   :authorization
+         {:keys [tenant]} :authorization
          :as req}
-        (let [{:keys [version id]} (path! store organization bucket path)]
+        (let [{:keys [version id]} (path/fetch store tenant bucket path)]
           (-> (response (get-stream! store id version))
               (header "ETag" (file-sum! store id version))
               (content-type "application/download"))))))
@@ -86,10 +86,16 @@
           (header "x-amz-request-id" (str id))
           (header "Server" "OmegaS3")))))
 
+(defn wrap-filestore
+  [handler filestore]
+  (fn [request]
+    (with-session filestore (handler request))))
+
 (defn run-api
   [keystore filestore opts]
   (run-jetty
    (-> (handler filestore)
+       (wrap-filestore filestore)
        (wrap-aws-api keystore)
        (api))
    (merge {:host "127.0.0.1" :port 8080} opts)))

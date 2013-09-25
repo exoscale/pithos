@@ -1,7 +1,8 @@
 (ns io.exo.pithos.path
   (:import java.util.UUID)
   (:require [qbits.alia :refer [execute]]
-            [qbits.hayt :refer [select where set-columns delete update limit]]))
+            [qbits.hayt :refer [select where set-columns
+                                delete update limit]]))
 
 (defn inc-path
   "Given a path, yield the next semantic one."
@@ -50,12 +51,16 @@
 (defn fetch
   ([^String tenant ^String bucket {}]
      (fetch tenant bucket ""))
-  ([^String tenant ^String bucket & {:keys [path prefix delimiter max-keys]}]
+  ([^String tenant ^String bucket {:keys [path prefix delimiter max-keys]}]
      (if path
        (first (execute (get-path-q tenant bucket path)))
        (let [paths    (execute (fetch-paths-q tenant bucket prefix))
-             prefixes (if delimiter (filter-prefixes paths prefix delimiter) #{})
-             contents (if delimiter (filter-content paths prefix delimiter) paths)]
+             prefixes (if delimiter 
+                        (filter-prefixes paths prefix delimiter)
+                        #{})
+             contents (if delimiter
+                        (filter-content paths prefix delimiter) 
+                        paths)]
          [(remove prefixes contents) prefixes]))))
 
 (defn update!

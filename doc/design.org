@@ -3,3 +3,48 @@
 * Objectives
 
 Pithos is a cassandra-backed object storage solution.
+
+* Data Layout
+
+** Metadata Keyspace
+
+| bucket | key: (tenant,bucket) |
+|--------+----------------------|
+| tenant | text                 |
+| bucket | text                 |
+| attrs  | map<text,text>       |
+| tags   | set<text>            |
+
+| path    | key: ((tenant,bucket),path) |
+|---------+-----------------------------|
+| tenant  | text                        |
+| bucket  | text                        |
+| path    | text                        |
+| inode   | uuid                        |
+| version | bigint                      |
+
+| inode    | key ((inode,version)) |
+|----------+-----------------------|
+| inode    | uuid                  |
+| version  | bigint                |
+| checksum | text                  |
+| attrs    | map<text,text>        |
+| tags     | set<text>             |
+
+
+| inode_blocks | key ((inode,version)) |
+|--------------+-----------------------|
+| inode        | uuid                  |
+| version      | bigint                |
+| blocks       | counter               |
+
+** Data Keyspace
+
+| block   | key ((inode,version,block)) |
+|---------+-----------------------------|
+| inode   | uuid                        |
+| version | bigint                      |
+| block   | bigint                      |
+| offset  | bigint                      |
+| payload | blob                        |
+
