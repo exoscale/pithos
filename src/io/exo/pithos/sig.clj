@@ -2,6 +2,7 @@
   "Compute request signatures as described in
    http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html"
   (:require [clojure.string            :as s]
+            [clojure.tools.logging     :refer [info]]
             [clojure.data.codec.base64 :as base64]
             [io.exo.pithos.keystore    :as ks])
   (:import  javax.crypto.Mac javax.crypto.spec.SecretKeySpec))
@@ -43,7 +44,7 @@
     (let [[_ access-key sig] (re-matches #"^AWS (.*):(.*)$" auth-str)
           {:keys [secret] :as authorization} (ks/fetch keystore access-key)]
 
-      (println "got authorization: " authorization)
+      (info "got authorization: " authorization)
 
       (when-not (= sig (sign-request request access-key secret))
         (throw (ex-info "invalid request signature"

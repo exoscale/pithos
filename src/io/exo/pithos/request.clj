@@ -85,7 +85,6 @@
   "Move from a vhost based access method to a full resource access path"
   [service-uri]
   (let [pattern-str (str "^(.*)." service-uri "$")
-        _           (println "built pattern: " pattern-str)
         pattern     (re-pattern pattern-str)
         transformer (fn [bucket uri] (str "/" bucket (if (seq uri) uri "/")))]
     (fn [{:keys [uri server-name] :as request}]
@@ -118,5 +117,5 @@
         (assoc-target)
         (assoc-operation)
         ;; (authorize filestore)
-        (debug)
+;;        (debug)
         )))

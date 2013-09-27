@@ -2,7 +2,8 @@
   (:require [qbits.alia      :refer [execute]]
             [qbits.hayt      :refer [select insert where values
                                      columns order-by limit]]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [clojure.tools.logging :refer [error info]])
   (:import java.nio.ByteBuffer))
 
 (comment
@@ -42,7 +43,7 @@
           (.get payload ba)
           (.write stream ba)))
       (catch Exception e
-        (println "GOT EXCEPTION " e))))
+        (error e "could not get file"))))
 
   (defn get-size!
     [store id version]

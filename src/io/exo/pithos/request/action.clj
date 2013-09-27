@@ -1,6 +1,5 @@
 (ns io.exo.pithos.request.action
   (:require [clout.core     :refer [route-matches route-compile]]
-            [clojure.pprint]
             [clojure.string :refer [join]]))
 
 (defn action-routes
@@ -9,10 +8,10 @@
         broute1 (route-compile "/:bucket")
         broute2 (route-compile "/:bucket/")
         oroute (route-compile "/:bucket/*")]
-    [[:service (fn [r] (println "service match " (:uri r)) (route-matches sroute r))
-      :bucket  (fn [r] (println "bucket match " (:uri r)) (route-matches broute1 r))
-      :bucket  (fn [r] (println "bucket match " (:uri r)) (route-matches broute2 r))
-      :object  (fn [r] (println "object match " (:uri r)) (route-matches oroute r))]]))
+    [[:service (partial route-matches sroute)
+      :bucket  (partial route-matches broute1)
+      :bucket  (partial route-matches broute2)
+      :object  (partial route-matches oroute)]]))
 
 (defn match-action-route
   [request [target matcher]]

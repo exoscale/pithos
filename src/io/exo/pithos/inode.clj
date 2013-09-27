@@ -2,6 +2,7 @@
   (:import java.util.UUID
            java.nio.ByteBuffer)
   (:require [clojure.java.io :as io]
+            [clojure.tools.logging :refer [debug info]]
             [qbits.alia.uuid :as uuid]
             [qbits.alia      :refer [execute]]
             [qbits.hayt      :refer [select where columns order-by
@@ -100,7 +101,6 @@
   [inode version size hash]
   (let [cksum (.toString (java.math.BigInteger. 1 (.digest hash)) 16)]
     (execute (publish-q inode version size cksum))
-    (println "found cksum:" cksum)
     cksum))
 
 (defn bump!
@@ -129,7 +129,7 @@
       ;; declare it
       (when (= offset block)
         (set-block! inode version offset))
-      (println "writing at offset " offset " for block " block)
+      (debug "writing at offset " offset " for block " block)
 
       (if (>= (- offset block) maxblock)
 
@@ -144,5 +144,3 @@
 
           ;; no more data to read, finalize and return
           (finalize! inode version offset hash))))))
-
-

@@ -3,6 +3,8 @@
   (:require [io.exo.pithos.api    :as api]
             [io.exo.pithos.config :as config]))
 
-(defn -main [& [path]]
-  (api/run (config/init path)))
+(defn -main 
+  [& [path]]
+  (-> path config/init api/run)
+  nil)
 

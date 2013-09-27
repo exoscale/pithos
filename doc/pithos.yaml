@@ -2,10 +2,33 @@
 # pithos main configuration
 # -------------------------
 #
-# 
+# This file contains the following sections
+#   - service
+#   - logging
+#   - options
+#   - keystore
+#   - userstore
+#   - datastore
+ 
+
+## service configuration
+#
 service:
   host: '127.0.0.1'
   port: 8080
+
+
+## logging configuration
+logging:
+  level: info
+  console: true
+  files:
+    - "/tmp/pithos.log"
+# overrides:
+#   io.exo.pithos: debug
+
+
+## global options
 options:
 #  server-name: 'storage.api.exoscale.ch'
   service-uri: 's3.amazonaws.com' 
@@ -20,10 +43,12 @@ options:
 # when the masterkey-provisioning feature is
 # set to true and will allow access to all
 # buckets when masterkey-access is set to true
-#
   masterkey:
     access: 'BKIAIOSFODNN7EXAMPLE'
     secret: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+
+
+## keystore configuration
 #
 # Keystores associate an access key with
 # an organization and secret key.
@@ -36,6 +61,11 @@ keystore:
     AKIAIOSFODNN7EXAMPLE:
       tenant: 'pyr@spootnik.org'
       secret: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+
+
+## userstore
+#
+# The userstore contains metadata.
 userstore:
 # A cluster may be defined as a single host definition or as
 # a list of host definitions.
@@ -60,15 +90,12 @@ userstore:
 #
   cluster: 'localhost'
   keyspace: 'storage'
+
+
+## datastore
+#
+# the datastore cluster contains actual file data
 datastore:
   use: io.exo.pithos.store/cassandra-store
-  cluster: 'localhost'
-  keyspace: 'storage'
-#
-# reports are only generated
-reportstore:
-  use:
-    - io.exo.pithos.reports.RiemannReporter
-    - io.exo.pithos.reports.CassandraReporter
   cluster: 'localhost'
   keyspace: 'storage'
