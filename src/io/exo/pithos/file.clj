@@ -2,7 +2,6 @@
   (:require [qbits.alia      :refer [execute]]
             [qbits.hayt      :refer [select insert where values
                                      columns order-by limit]]
-            [ring.util.io    :refer [piped-input-stream]]
             [clojure.java.io :as io])
   (:import java.nio.ByteBuffer))
 

@@ -1,8 +1,7 @@
 (ns io.exo.pithos.xml
   (:require [clojure.data.xml  :refer [->Element emit-str indent-str]]
             [clojure.string    :as s]
-            [io.exo.pithos.sig :as sig]
-            [compojure.response]))
+            [io.exo.pithos.sig :as sig]))
 
 (defn e
   ([x]
@@ -18,8 +17,8 @@
    (e :ListAllMyBucketsResult
       xml-ns
       (e :Owner {}
-         (e :ID {} (:organization bucket))
-         (e :DisplayName {} (:organization bucket)))
+         (e :ID {} (:tenant bucket))
+         (e :DisplayName {} (:tenant bucket)))
       (e :Buckets {}
          (doall
           (for [{:keys [bucket]} buckets]
@@ -27,8 +26,16 @@
                (e :Name {} bucket)
                (e :CreationDate {} "2013-09-12T16:16:38.000Z"))))))))
 
+(defn unknown
+  [{:keys [action]}]
+  (indent-str
+   (e :UnknownAction
+      xml-ns
+      (e :Action {}
+         (e :Code {} (name action))))))
+
 (defn list-bucket
-  [organization prefix delimiter max-keys bucket files prefixes]
+  [tenant prefix delimiter max-keys bucket files prefixes]
   (indent-str
    (e :ListBucketResult {}
       (e :Name {} bucket)
@@ -43,8 +50,8 @@
            (e :ETag {} "41d8cd98f00b204e9800998ecf8427")
            (e :Size {} (str size))
            (e :Owner {}
-              (e :ID {} organization)
-              (e :DisplayName {} organization))
+              (e :ID {} tenant)
+              (e :DisplayName {} tenant))
            (e :StorageClass {} "Standard")))
       (for [prefix prefixes]
         (e :CommonPrefixes {}

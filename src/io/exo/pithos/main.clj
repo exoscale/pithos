@@ -1,11 +1,8 @@
 (ns io.exo.pithos.main
-  (:require [io.exo.pithos.http     :as http]
-            [io.exo.pithos.keystore :as keystore]
-            [qbits.alia             :as alia])
-  (:gen-class))
+  (:gen-class)
+  (:require [io.exo.pithos.api    :as api]
+            [io.exo.pithos.config :as config]))
 
-(defn -main [& args]
-  (let [cluster (alia/cluster "localhost")
-        store   (alia/connect cluster "storage")]
-    (http/run-api keystore/keystore store {})))
+(defn -main [& [path]]
+  (api/run (config/init path)))
 

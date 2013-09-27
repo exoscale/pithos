@@ -3,14 +3,14 @@
   :url "https://github.com/exoscale/ostore"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-;;  :main io.exo.pithos.main
+  :main io.exo.pithos.main
   :dependencies [[org.clojure/clojure     "1.5.1"]
                  [org.clojure/data.codec  "0.1.0"]
                  [org.clojure/data.xml    "0.0.7"]
-                 [compojure               "1.1.5"]
-                 [ring/ring-core          "1.2.0"]
-                 [ring/ring-jetty-adapter "1.2.0"]
-                 [ring/ring-json          "0.2.0"]
+                 [http-kit                "2.1.10"]
+                 [clj-yaml                "0.4.0"]
+                 [clout                   "1.1.0"]
+                 [ring/ring-codec         "1.0.0"]
                  [cc.qbits/alia           "1.8.2"]])
 
 

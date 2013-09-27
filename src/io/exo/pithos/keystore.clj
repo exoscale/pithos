@@ -1,10 +1,9 @@
 (ns io.exo.pithos.keystore)
 
-(def keystore
-  {"AKIAIOSFODNN7EXAMPLE"
-   {:organization "pyr@spootnik.org"
-    :secret       "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"}})
+(defprotocol Keystore
+  (fetch [this id]))
 
-(defn get!
-  [access-key]
-  (get keystore access-key))
+(defrecord MapKeystore [keys]
+  Keystore
+  (fetch [this id]
+    (get keys (keyword id))))

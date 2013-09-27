@@ -36,6 +36,16 @@
           (order-by [:offset :desc])
           (limit 1)))
 
+(defn get-chunk-q
+  [inode version block offset max-chunks-per-req]
+  (select :block
+          (where {:inode inode
+                  :version version
+                  :block block
+                  :offset [:>= offset]})
+          (order-by [:offset :asc])
+          (limit max-chunks-per-req)))
+
 (defn set-chunk-q
   [inode version block offset size chunk]
   (insert :block

@@ -3,7 +3,7 @@
    http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html"
   (:require [clojure.string            :as s]
             [clojure.data.codec.base64 :as base64]
-            [io.exo.pithos.keystore    :as keystore])
+            [io.exo.pithos.keystore    :as ks])
   (:import  javax.crypto.Mac javax.crypto.spec.SecretKeySpec))
 
 (defn canonicalized
@@ -41,7 +41,9 @@
   [keystore request]
   (if-let [auth-str (get-in request [:headers "authorization"])]
     (let [[_ access-key sig] (re-matches #"^AWS (.*):(.*)$" auth-str)
-          {:keys [secret] :as authorization} (keystore/get! access-key)]
+          {:keys [secret] :as authorization} (ks/fetch keystore access-key)]
+
+      (println "got authorization: " authorization)
 
       (when-not (= sig (sign-request request access-key secret))
         (throw (ex-info "invalid request signature"
