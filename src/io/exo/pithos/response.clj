@@ -1,22 +1,22 @@
 (ns io.exo.pithos.response)
 
 (defn response
-  [body]
-  {:status 200
-   :headers {}
-   :body body})
+  ([]
+     {:status 200 :headers {}})
+  ([body]
+     {:status 200 :headers {} :body body}))
 
 (defn header
-  [req header val]
-  (assoc-in req [:headers header] val))
+  [resp header val]
+  (assoc-in resp [:headers header] val))
 
 (defn content-type
-  [req type]
-  (header req "Content-Type" type))
+  [resp type]
+  (header resp "Content-Type" type))
 
 (defn status
-  [req status]
-  (assoc req :status status))
+  [resp status]
+  (assoc resp :status status))
 
 (defn xml-response
   [body]
@@ -29,3 +29,9 @@
   (-> (response body)
       (header "Content-Type" "text/html")))
 
+(defn request-id
+  [resp {:keys [reqid]}]
+  (-> resp
+      (header "Server" "Pithos")
+      (header "x-amz-id-2" (str reqid))
+      (header "x-amz-request-id" (str reqid))))
