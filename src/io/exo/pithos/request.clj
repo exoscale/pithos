@@ -117,5 +117,5 @@
         (assoc-target)
         (assoc-operation)
         ;; (authorize filestore)
-;;        (debug)
+        (debug)
         )))
