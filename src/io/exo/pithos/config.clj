@@ -1,5 +1,6 @@
 (ns io.exo.pithos.config
-  (:require [clj-yaml.core :refer [parse-string]]))
+  (:require [clj-yaml.core      :refer [parse-string]]
+            [io.exo.pithos.util :refer [to-bytes]]))
 
 (def default-logging
   {:use "io.exo.pithos.logging/start-logging"
@@ -65,4 +66,7 @@
       (update-in [:options] (partial merge default-options))
       (assoc-in [:logging] (partial merge  {}))
       (update-in [:keystore] get-instance)
-      (update-in [:datastore] get-instance)))
+      (update-in [:datastore] get-instance)
+      (update-in [:options :chunksize] to-bytes)
+      (update-in [:options :maxsize] to-bytes)
+      (update-in [:service :max-body] to-bytes)))

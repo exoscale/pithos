@@ -14,8 +14,9 @@
 ## service configuration
 #
 service:
-  host: '127.0.0.1'
+  ip: '127.0.0.1'
   port: 8080
+  max-body: '1G'
 
 
 ## logging configuration
