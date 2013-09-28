@@ -35,3 +35,9 @@
       (header "Server" "Pithos")
       (header "x-amz-id-2" (str reqid))
       (header "x-amz-request-id" (str reqid))))
+
+(defn exception-status
+  [resp exception]
+  (let [{:keys [status-code] :or {status-code 500}} (ex-data exception)]
+    (-> resp
+        (status status-code))))

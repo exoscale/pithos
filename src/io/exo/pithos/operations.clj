@@ -1,6 +1,7 @@
 (ns io.exo.pithos.operations
-  (:require [io.exo.pithos.response :refer [header response
-                                            xml-response request-id]]
+  (:require [io.exo.pithos.response :refer [header response status
+                                            xml-response request-id
+                                            exception-status]]
             [io.exo.pithos.store    :as store]
             [io.exo.pithos.bucket   :as bucket]
             [io.exo.pithos.xml      :as xml]))
@@ -22,6 +23,13 @@
       (header "Location" (str "/" bucket))
       (header "Connection" "close")))
 
+(defn delete-bucket
+  [{{:keys [tenant]} :authorization :keys [bucket] :as request} filestore]
+  (store/execute filestore (bucket/delete! tenant bucket))
+  (-> (response)
+      (request-id request)
+      (status 204)))
+
 (defn unknown
   "unknown operation"
   [req filestore]
@@ -30,11 +38,21 @@
 
 (def opmap
   {:get-service get-service
-   :put-bucket  put-bucket})
+   :put-bucket  put-bucket
+   :delete-bucket delete-bucket})
+
+(defn ex-handler
+  [request exception]
+  (-> (xml-response (xml/exception exception))
+      (exception-status exception)
+      (request-id request)))
 
 (defn dispatch
   [{:keys [operation] :as request} filestore]
   (let [handler (get opmap operation unknown)]
+    (try (handler request filestore)
+         (catch Exception e
+           (ex-handler request e)))
     (handler request filestore)))
 
 
