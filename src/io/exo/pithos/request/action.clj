@@ -8,10 +8,10 @@
         broute1 (route-compile "/:bucket")
         broute2 (route-compile "/:bucket/")
         oroute (route-compile "/:bucket/*")]
-    [[:service (partial route-matches sroute)
-      :bucket  (partial route-matches broute1)
-      :bucket  (partial route-matches broute2)
-      :object  (partial route-matches oroute)]]))
+    [[:service (partial route-matches sroute)]
+     [:bucket  (partial route-matches broute1)]
+     [:bucket  (partial route-matches broute2)]
+     [:object  (partial route-matches oroute)]]))
 
 (defn match-action-route
   [request [target matcher]]
