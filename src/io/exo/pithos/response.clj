@@ -3,7 +3,7 @@
 (defn response
   [body]
   {:status 200
-   :headers {"Content-Type" "text/html"}
+   :headers {}
    :body body})
 
 (defn header
@@ -23,4 +23,9 @@
   (-> body
       response
       (header "Content-Type" "application/xml")))
+
+(defn html-response
+  [body]
+  (-> (response body)
+      (header "Content-Type" "text/html")))
 
