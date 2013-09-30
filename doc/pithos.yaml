@@ -31,7 +31,7 @@ logging:
 
 ## global options
 options:
-#  server-name: 'storage.api.exoscale.ch'
+#  server-name: 'sos.exoscale.ch'
   service-uri: 's3.amazonaws.com' 
   chunksize: '256K'
   maxsize: '10G'
@@ -40,6 +40,7 @@ options:
   multipart-upload: true
   masterkey-provisioning: true
   masterkey-access: true
+  default-region: 'CH-GV1'
 
 
 ## keystore configuration
@@ -50,7 +51,8 @@ options:
 # They may offer provisioning capacities with the
 # masterkey
 keystore:
-  use: io.exo.pithos.keystore/map->MapKeystore
+#  default provider
+#  use: io.exo.pithos.keystore/map->MapKeystore
   keys:
     AKIAIOSFODNN7EXAMPLE:
 # The master key allows provisinning operations
@@ -60,12 +62,15 @@ keystore:
       master: true
       tenant: 'pyr@spootnik.org'
       secret: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+    BKIAIOSFODNN7EXAMPLE:
+      tenant: 'exoscale'
+      secret: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
 
 
 ## userstore
 #
 # The userstore contains metadata.
-userstore:
+metastore:
 # A cluster may be defined as a single host definition or as
 # a list of host definitions.
 #
@@ -87,15 +92,19 @@ userstore:
 #   - host: 'host3'
 #     port: 9162
 #
-  use: io.exo.pithos.store/cassandra-store
   cluster: 'localhost'
   keyspace: 'storage'
 
 
-## datastore
+# regions
+# =======
 #
-# the datastore cluster contains actual file data
-datastore:
-  use: io.exo.pithos.store/cassandra-store
-  cluster: 'localhost'
-  keyspace: 'storage'
+regions:
+  CH-GV1:
+    metastore:
+      cluster: 'localhost'
+      keyspace: 'storage'
+    storage-classes:
+      standard:
+        cluster: 'localhost'
+        keyspace: 'storage'
