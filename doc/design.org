@@ -1,8 +1,108 @@
 #+TITTLE: pithos object storage
 
-* Objectives
+pithos: cassandra backed object storage
 
-Pithos is a cassandra-backed object storage solution.
+* Introduction
+
+Pithos aims to be a simple and effective solution for object storage needs.
+It focuses on the following aspects:
+
+- Compatibility with the S3 REST API
+- Simple configuration
+- Ease of integration in existing environments
+
+* Concepts
+
+Pithos splits object storage accross regions, each having
+one or more storage class. Metadata is stored globally,
+object data is isolated on a region. Bucket objects may
+only be stored in a single region.
+
+Most terminology in Pithos is inherited from Amazon S3.
+Data is spread amongst several *regions* which only share
+metadata.
+
+#+begin_src plantuml :file metadata.png
+
+@startuml
+class Region {
+  StorageClasses
+}
+
+class Bucket {
+  ACL
+  Tenant
+  CreationDate
+  Attributes
+  Tags
+}
+
+class Object {
+  Path,
+  Inode
+  CreationDate,
+  LastModified,
+  Attributes,
+  Tags
+}
+
+Region - Bucket : has many
+Bucket - Object : has many
+@enduml 
+#+end_src
+
+Pithos works by exposing the following entities:
+
+- Ring: The global storage service.
+- Region: A location denominator, mapping to a physical location where bucket object data is stored.
+- Storage Class: Denotes the redundancy at which data is stored, see the [[#storage-classes][storage classes]] documentation for per storage-class specifics.
+- Bucket: Logical aggregation of objects sharing common properties.
+- Object: Representation of a file as uploaded by a client.
+- Tenant: A client-organization
+- User: A member of a tenant, identified by a unique ID or email address
+
+Additionally, pithos internals stores information in different location:
+
+- Keystore: ring global ID to details storage
+- Metastore: ring global lightweight storage of bucket owner and location
+
+- Keystore: Interface allowing ID to tenant, group and other details lookup
+- Metastore: Interface allowing interaction with the global ring metadata
+- RegionMetastore: 
+- Regionstore: Interface allowing interfaction with 
+
+* Configuration
+
+Pithos is configured  y editing a single file: ~/etc/pithos/pithos.yaml~. The
+
+* REST API
+
+* Cassandra Data Model
+
+* Request Lifecycle
+
+#+begin_src plantuml :file request_lifecycle.png
+title Request Lifecycle
+Request --> "Attach Request ID"
+-> "Attach Host ID"
+-> "Parse parameters"
+-> "Get absolute resource URI"
+if "Valid Authorization ?" then
+  --> [yes] "parse route"
+  if "valid request ?" then
+    --> [yes] if "sufficient permissions ?" then
+      --> [yes] "Dispatch"
+    else
+      -> [no] "insufficient permissions error response"
+    endif
+  else
+    -> [no] "invalid request error response"
+  endif
+else
+  -> [no] "authentication error response"
+endif
+
+#+end_src
 
 * Data Layout
 
@@ -38,7 +138,7 @@ hierarchies are built by retrieving all children paths.
 Inodes represent an object, independent of its
 actual location on the hierarchy, to allow for
 efficient operations on the file system (links,
-moves). 
+moves).
 
 Inodes are versioned, each object update resulting in
 a new version. Inodes might not be published, i.e: not
@@ -52,7 +152,7 @@ stored in a list of blocks.
 | inode     | uuid                            |
 | published | boolean                         |
 | version   | timeuuid                        |
-| atime     | timestamp                       | 
+| atime     | timestamp                       |
 | attrs     | map<text,text>                  |
 | tags      | set<text>                       |
 | checksum  | text                            |
@@ -66,7 +166,7 @@ of offsets at which blocks start.
 | version      | timeuuid                     |
 | block        | bigint                       |
 
-** Data KeyspaceBlocks 
+** Data KeyspaceBlocks
 
 
 store data in a list of chunks.
