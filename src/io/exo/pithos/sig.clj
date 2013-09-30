@@ -48,8 +48,9 @@
 
       (when-not (= sig (sign-request request access-key secret))
         (throw (ex-info "invalid request signature"
-                        {:type :invalid-signature
+                        {:type :signature-does-not-match
                          :auth-string auth-str
+                         :request request
                          :expected (sign-request request access-key secret)
                          :to-sign (string-to-sign request)})))
       authorization)
