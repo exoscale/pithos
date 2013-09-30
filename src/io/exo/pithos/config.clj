@@ -11,6 +11,15 @@
    :level  "info"
    :overrides {:io.exo.pithos "debug"}})
 
+(def default-keystore
+  {:use "io.exo.pithos.keystore/map->MapKeystore"})
+
+(def default-metastore
+  {:use "io.exo.pithos.store/cassandra-store"})
+
+(def default-blobstore
+  {:use "io.exo.pithos.store/cassandra-store"})
+
 (def default-service
   {:host "127.0.0.1"
    :port 8080})
@@ -57,17 +66,45 @@
       slurp 
       parse-string))
 
+(defn get-storage-classes
+  [storage-classes]
+  (->> (for [[storage-class blobstore] storage-classes
+             :let [blobstore (merge default-blobstore blobstore)]]
+         [storage-class (get-instance blobstore)])
+       (reduce merge {})))
+
+(defn get-region-stores
+  [regions]
+  (->> (for [[region {:keys [metastore storage-classes]}] regions
+             :let [metastore (merge default-metastore metastore)]]
+         [(name region)
+          {:metastore       (get-instance metastore)
+           :storage-classes (get-storage-classes storage-classes)}])
+       (reduce merge {})))
+
 (defn init
   [path]
-  (-> (load-path path)
-      (update-in [:logging] (partial merge default-logging))
-      (update-in [:logging] get-instance)
-      (update-in [:service] (partial merge default-service))
-      (update-in [:options] (partial merge default-options))
-      (assoc-in [:logging] (partial merge  {}))
-      (update-in [:keystore] get-instance)
-      (update-in [:userstore] get-instance)
-      (update-in [:datastore] get-instance)
-      (update-in [:options :chunksize] to-bytes)
-      (update-in [:options :maxsize] to-bytes)
-      (update-in [:service :max-body] to-bytes)))
+  (try
+    (-> (load-path path)
+        (update-in [:logging] (partial merge default-logging))
+        (update-in [:logging] get-instance)
+        (update-in [:service] (partial merge default-service))
+        (update-in [:options] (partial merge default-options))
+        (update-in [:keystore] (partial merge default-keystore))
+        (update-in [:keystore] get-instance)
+        (update-in [:metastore] (partial merge default-metastore))
+        (update-in [:metastore] get-instance)
+        (update-in [:regions] get-region-stores)
+        (as-> config (let [{:keys [default-region regions]} config]
+                       (or default-region 
+                           (throw (Exception. "no default region.")))
+                       (when-not (get regions default-region)
+                         (throw (Exception. "no defauilt region config.")))
+                       (assoc config :default-region
+                              (get regions default-region))))
+        (update-in [:options :chunksize] to-bytes)
+        (update-in [:options :maxsize] to-bytes)
+        (update-in [:service :max-body] to-bytes))
+    (catch Exception e
+      (println "invalid or incomplete configuration: " (str e))
+      (System/exit 1))))
