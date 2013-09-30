@@ -137,7 +137,7 @@
            (if (and master tenant) (assoc auth :tenant tenant) auth))))
 
 (defn prepare
-  [req keystore metastore {:keys [service-uri]}]
+  [req keystore metastore regions {:keys [service-uri]}]
   (let [rewrite-bucket  (yield-rewrite-bucket service-uri)
         assoc-target    (yield-assoc-target)
         assoc-operation (yield-assoc-operation actions)]
