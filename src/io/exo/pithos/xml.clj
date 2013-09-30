@@ -80,6 +80,13 @@
           (e :BucketName {} (:bucket payload))
           (e :RequestId {} reqid)
           (e :HostId {} reqid))
+       :bucket-already-exists
+       (e :Error {}
+          (e :Code {} "BucketAlreadyExists")
+          (e :Message {} "The requested bucket name is not available. The bucket namespace is shared by all users of the system. Please select a different name and try again.")
+          (e :BucketName {} (:bucket payload))
+          (e :RequestId {} reqid)
+          (e :HostId {} reqid))
        (e :Error {}
           (e :Code {} "Unknown")
           (e :Message {} (str exception)))))))

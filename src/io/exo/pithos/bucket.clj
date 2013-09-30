@@ -11,6 +11,10 @@
   [tenant  bucket]
   (select :bucket (where {:tenant tenant :bucket bucket}) (limit 1)))
 
+(defn get-absolute-bucket-q
+  [bucket]
+  (select :bucket (where {:bucket bucket}) (limit 1)))
+
 (defn update-bucket-q
   [tenant  bucket attrs tags]
   (update :bucket
@@ -27,6 +31,17 @@
   ([tenant  bucket]
      (first
       (execute (get-bucket-q tenant bucket)))))
+
+(defn create!
+  [tenant bucket]
+  (if-let [[details] (seq (execute (get-absolute-bucket-q bucket)))]
+    (when (not= (:tenant details tenant) tenant)
+      (throw (ex-info 
+              "bucket already exists"
+              {:type :bucket-already-exists
+               :bucket bucket
+               :status-code 409})))
+    (execute (update-bucket-q tenant bucket {} #{}))))
 
 (defn update!
   [tenant  bucket 

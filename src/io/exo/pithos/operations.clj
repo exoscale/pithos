@@ -18,7 +18,7 @@
 
 (defn put-bucket
   [{{:keys [tenant]} :authorization :keys [bucket] :as request} filestore]
-  (store/execute filestore (bucket/update! tenant bucket))
+  (store/execute filestore (bucket/create! tenant bucket))
   (-> (response)
       (request-id request)
       (header "Location" (str "/" bucket))
