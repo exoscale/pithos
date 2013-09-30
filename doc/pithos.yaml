@@ -89,6 +89,7 @@ userstore:
 #   - host: 'host3'
 #     port: 9162
 #
+  use: io.exo.pithos.store/cassandra-store
   cluster: 'localhost'
   keyspace: 'storage'
 
