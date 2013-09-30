@@ -34,5 +34,12 @@
   (execute (update-bucket-q tenant bucket attrs tags)))
 
 (defn delete!
-  [tenant  bucket]
-  (execute (delete-bucket-q tenant bucket)))
+  [tenant bucket]
+  (if (seq (execute (get-bucket-q tenant bucket)))
+    (execute (delete-bucket-q tenant bucket))
+    (throw (ex-info "bucket not found" 
+                    {:type        :no-such-bucket
+                     :status-code 404
+                     :tenant      tenant
+                     :bucket      bucket}))))
+
