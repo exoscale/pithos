@@ -1,9 +1,8 @@
 (ns io.exo.pithos.request
   (:require [clojure.string               :refer [lower-case join]]
             [clojure.tools.logging        :refer [debug info warn]]
+            [clout.core                   :refer [route-matches route-compile]]
             [io.exo.pithos.sig            :refer [validate]]
-            [io.exo.pithos.request.action :refer [yield-assoc-target
-                                                  yield-assoc-operation]]
             [ring.util.codec              :as codec]
             [qbits.alia.uuid              :as uuid]))
 
@@ -50,6 +49,42 @@
     :versioning
     :versions
     :website})
+
+(defn action-routes
+  []
+  (let [sroute (route-compile "/")
+        broute1 (route-compile "/:bucket")
+        broute2 (route-compile "/:bucket/")
+        oroute (route-compile "/:bucket/*")]
+    [[:service (partial route-matches sroute)]
+     [:bucket  (partial route-matches broute1)]
+     [:bucket  (partial route-matches broute2)]
+     [:object  (partial route-matches oroute)]]))
+
+(defn match-action-route
+  [request [target matcher]]
+  (when-let [{bucket :bucket object :*} (matcher request)]
+    {:target target :bucket bucket :object object}))
+
+(defn yield-assoc-target
+  []
+  (let [routes (action-routes)]
+    (fn [request]
+      (merge request
+        (or (some (partial match-action-route request) routes)
+            {:target :unknown})))))
+
+(defn yield-assoc-operation
+  [suffixes]
+  (fn [{:keys [request-method action-params target] :as request}]
+    (assoc request
+      :operation
+      (->> (if-let [suffix (some suffixes action-params)]
+             [request-method target suffix]
+             [request-method target])
+           (map name)
+           (join "-")
+           keyword))))
 
 (defn keywordized
   [params]
@@ -102,7 +137,7 @@
            (if (and master tenant) (assoc auth :tenant tenant) auth))))
 
 (defn prepare
-  [req keystore filestore {:keys [service-uri]}]
+  [req keystore metastore {:keys [service-uri]}]
   (let [rewrite-bucket  (yield-rewrite-bucket service-uri)
         assoc-target    (yield-assoc-target)
         assoc-operation (yield-assoc-operation actions)]
@@ -115,5 +150,5 @@
         (authenticate keystore)
         (assoc-target)
         (assoc-operation)
-        ;; (authorize filestore)
+        ;; (authorize metastore)
         )))
