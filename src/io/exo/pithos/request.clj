@@ -1,5 +1,6 @@
 (ns io.exo.pithos.request
   (:require [clojure.string               :refer [lower-case join]]
+            [clojure.tools.logging        :refer [debug info warn]]
             [io.exo.pithos.sig            :refer [validate]]
             [io.exo.pithos.request.action :refer [yield-assoc-target
                                                   yield-assoc-operation]]
@@ -93,8 +94,12 @@
 
 (defn authenticate
   [req keystore]
-  (let [authorization (validate keystore req)]
-    (assoc req :authorization authorization)))
+  (let [auth   (validate keystore req)
+        master (:master auth)
+        tenant (get-in req [:headers "x-amz-masquerade-tenant"])]
+    (debug "got auth details: " auth master tenant (:headers req))
+    (assoc req :authorization 
+           (if (and master tenant) (assoc auth :tenant tenant) auth))))
 
 (defn prepare
   [req keystore filestore {:keys [service-uri]}]

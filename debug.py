@@ -50,7 +50,7 @@ conn = boto.connect_s3(
     debug = 2)
 
 if sys.argv[1] == 'buckets':
-    for b in conn.get_all_buckets():
+    for b in conn.get_all_buckets(headers={'x-amz-masquerade-tenant': 'exoscale'}):
         print(b)
 elif sys.argv[1] == 'paths':
     b = conn.get_bucket('aurelais.web', validate=False)

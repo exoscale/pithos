@@ -40,13 +40,6 @@ options:
   multipart-upload: true
   masterkey-provisioning: true
   masterkey-access: true
-# The master key allows provisinning operations
-# when the masterkey-provisioning feature is
-# set to true and will allow access to all
-# buckets when masterkey-access is set to true
-  masterkey:
-    access: 'BKIAIOSFODNN7EXAMPLE'
-    secret: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
 
 
 ## keystore configuration
@@ -60,6 +53,11 @@ keystore:
   use: io.exo.pithos.keystore/map->MapKeystore
   keys:
     AKIAIOSFODNN7EXAMPLE:
+# The master key allows provisinning operations
+# when the masterkey-provisioning feature is
+# set to true and will allow access to all
+# buckets when masterkey-access is set to true
+      master: true
       tenant: 'pyr@spootnik.org'
       secret: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
 
