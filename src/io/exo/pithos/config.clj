@@ -66,6 +66,7 @@
       (update-in [:options] (partial merge default-options))
       (assoc-in [:logging] (partial merge  {}))
       (update-in [:keystore] get-instance)
+      (update-in [:userstore] get-instance)
       (update-in [:datastore] get-instance)
       (update-in [:options :chunksize] to-bytes)
       (update-in [:options :maxsize] to-bytes)
