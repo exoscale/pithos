@@ -58,18 +58,28 @@
            (e :Prefix {} prefix))))))
 
 (defn exception
-  [{:keys [type request to-sign expected] :or {type :generic} :as payload}]
-  (indent-str
-   (case type
-     :invalid-signature
-     (e :Error {}
-        (e :Code {} "SignatureDoesNotMatch")
-        (e :Message {} "The request signature we calculated does not match the signature you provided. Check your key and signing method.")
-        (e :ExpectedSignature {} expected)
-        (e :StringToSignBytes {} 
-           (->> to-sign
-                .getBytes seq (map (partial format "%02x")) (s/join " ")))
-        (e :StringToSign {} to-sign))
-     (e :Error {}
-        (e :Code {} "Unknown")
-        (e :Message {} (str (:exception payload)))))))
+  [request exception]
+  (let [{:keys [type] :or {type :generic} :as payload} (ex-data exception)
+        reqid (str (:reqid request))]
+    (indent-str
+     (case type
+       :signature-does-not-match
+       (e :Error {}
+          (e :Code {} "SignatureDoesNotMatch")
+          (e :Message {} "The request signature we calculated does not match the signature you provided. Check your key and signing method.")
+          (e :ExpectedSignature {} (:expected payload))
+          (e :StringToSignBytes {} 
+             (->> payload
+                  :to-sign
+                  .getBytes seq (map (partial format "%02x")) (s/join " ")))
+          (e :StringToSign {} (:to-sign payload)))
+       :no-such-bucket
+       (e :Error {}
+          (e :Code {} "NoSuchBucket")
+          (e :Message {} "The specified bucket does not exist")
+          (e :BucketName {} (:bucket payload))
+          (e :RequestId {} reqid)
+          (e :HostId {} reqid))
+       (e :Error {}
+          (e :Code {} "Unknown")
+          (e :Message {} (str exception)))))))
