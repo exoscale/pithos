@@ -37,7 +37,7 @@
       (header "x-amz-request-id" (str reqid))))
 
 (defn exception-status
-  [resp exception]
-  (let [{:keys [status-code] :or {status-code 500}} (ex-data exception)]
+  [resp details]
+  (let [{:keys [status-code] :or {status-code 500}} details]
     (-> resp
         (status status-code))))
