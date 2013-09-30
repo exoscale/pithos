@@ -1,6 +1,5 @@
 (ns io.exo.pithos.request
   (:require [clojure.string               :refer [lower-case join]]
-            [clojure.pprint]
             [io.exo.pithos.sig            :refer [validate]]
             [io.exo.pithos.request.action :refer [yield-assoc-target
                                                   yield-assoc-operation]]
@@ -97,11 +96,6 @@
   (let [authorization (validate keystore req)]
     (assoc req :authorization authorization)))
 
-(defn debug
-  [req]
-  (clojure.pprint/pprint req)
-  req)
-
 (defn prepare
   [req keystore filestore {:keys [service-uri]}]
   (let [rewrite-bucket  (yield-rewrite-bucket service-uri)
@@ -117,5 +111,4 @@
         (assoc-target)
         (assoc-operation)
         ;; (authorize filestore)
-        (debug)
         )))
