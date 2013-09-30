@@ -4,7 +4,8 @@
                                             exception-status]]
             [io.exo.pithos.store    :as store]
             [io.exo.pithos.bucket   :as bucket]
-            [io.exo.pithos.xml      :as xml]))
+            [io.exo.pithos.xml      :as xml]
+            [clojure.tools.logging  :refer [debug info warn]]))
 
 (defn get-service
   "lists all bucket"
@@ -25,6 +26,7 @@
 
 (defn delete-bucket
   [{{:keys [tenant]} :authorization :keys [bucket] :as request} filestore]
+  (debug "delete! called on bucket " tenant bucket)
   (store/execute filestore (bucket/delete! tenant bucket))
   (-> (response)
       (request-id request)
@@ -43,8 +45,8 @@
 
 (defn ex-handler
   [request exception]
-  (-> (xml-response (xml/exception exception))
-      (exception-status exception)
+  (-> (xml-response (xml/exception request exception))
+      (exception-status (ex-data exception))
       (request-id request)))
 
 (defn dispatch
@@ -52,7 +54,7 @@
   (let [handler (get opmap operation unknown)]
     (try (handler request filestore)
          (catch Exception e
-           (ex-handler request e)))
-    (handler request filestore)))
+           (warn "caught exception during operation: " (str e))
+           (ex-handler request e)))))
 
 
