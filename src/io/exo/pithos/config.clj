@@ -1,6 +1,7 @@
 (ns io.exo.pithos.config
-  (:require [clj-yaml.core      :refer [parse-string]]
-            [io.exo.pithos.util :refer [to-bytes]]))
+  (:require [clj-yaml.core         :refer [parse-string]]
+            [clojure.tools.logging :refer [error]]
+            [io.exo.pithos.util    :refer [to-bytes]]))
 
 (def default-logging
   {:use "io.exo.pithos.logging/start-logging"
@@ -83,8 +84,10 @@
        (reduce merge {})))
 
 (defn init
-  [path]
+  [path quiet?
   (try
+    (when-not quiet?
+      (println "starting with configuration: " path))
     (-> (load-path path)
         (update-in [:logging] (partial merge default-logging))
         (update-in [:logging] get-instance)
@@ -95,16 +98,17 @@
         (update-in [:metastore] (partial merge default-metastore))
         (update-in [:metastore] get-instance)
         (update-in [:regions] get-region-stores)
-        (as-> config (let [{:keys [default-region regions]} config]
-                       (or default-region 
+        (as-> config (let [{:keys [regions options]} config]
+                       (or (:default-region options) 
                            (throw (Exception. "no default region.")))
-                       (when-not (get regions default-region)
-                         (throw (Exception. "no defauilt region config.")))
-                       (assoc config :default-region
-                              (get regions default-region))))
-        (update-in [:options :chunksize] to-bytes)
-        (update-in [:options :maxsize] to-bytes)
-        (update-in [:service :max-body] to-bytes))
+                       (when-not (get regions (:default-region options))
+                         (throw (Exception. "no default region config.")))
+                       config))
+        (update-in [:options :chunksize] to-bytes :chunksize)
+        (update-in [:options :maxsize] to-bytes :maxsize)
+        (update-in [:service :max-body] to-bytes :max-body))
     (catch Exception e
-      (println "invalid or incomplete configuration: " (str e))
+      (when-not quiet?
+        (println "invalid or incomplete configuration: " (str e)))
+      (error e "invalid or incomplete configuration")
       (System/exit 1))))
