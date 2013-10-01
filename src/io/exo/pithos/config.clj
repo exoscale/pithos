@@ -84,7 +84,7 @@
        (reduce merge {})))
 
 (defn init
-  [path quiet?
+  [path quiet?]
   (try
     (when-not quiet?
       (println "starting with configuration: " path))
