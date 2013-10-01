@@ -7,6 +7,7 @@
   :dependencies [[org.clojure/clojure       "1.5.1"]
                  [org.clojure/data.codec    "0.1.0"]
                  [org.clojure/data.xml      "0.0.7"]
+                 [org.clojure/tools.cli     "0.2.4"]
                  [http-kit                  "2.1.10"]
                  [clj-yaml                  "0.4.0"]
                  [clout                     "1.1.0"]
