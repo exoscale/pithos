@@ -1,15 +1,37 @@
 (ns io.pithos.bucket
   (:require [qbits.alia      :refer [execute with-session]]
             [qbits.hayt      :refer [select where set-columns
+                                     create-table create-index
+                                     column-definitions index-name
                                      delete update limit]]
             [io.pithos.store :as store]))
 
 (defprotocol BucketStore
+  (converge! [this])
   (by-tenant [this tenant])
   (by-name [this bucket])
   (create! [this tenant bucket columns])
   (update! [this bucket columns])
   (delete! [this bucket]))
+
+;; ring-global metastore
+(def bucket-table
+    (create-table 
+     :bucket
+     (column-definitions {:bucket       :text
+                          :tenant       :text
+                          :region       :text
+                          :acl          :text
+                          :cors         :text
+                          :website      :text
+                          :policy       :text
+                          :primary-key  :bucket})))
+
+(def bucket_tenant-index
+    (create-index
+     :bucket
+     :tenant
+     (index-name :bucket_tenant)))
 
 (defn bucket-by-tenant-q
   [tenant]
@@ -33,6 +55,9 @@
   [config]
   (let [session (store/cassandra-store config)]
     (reify BucketStore
+      (converge! [this]
+        (execute session bucket-table)
+        (execute session bucket_tenant-index))
       (by-tenant [this tenant]
         (execute session (bucket-by-tenant-q tenant)))
       (by-name [this bucket]

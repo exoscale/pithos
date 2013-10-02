@@ -1,26 +1,9 @@
 (ns io.pithos.schema
   (:require [qbits.hayt            :refer :all]
             [qbits.alia            :refer [execute]]
-            [clojure.tools.logging :refer [info error]]))
+            [clojure.tools.logging :refer [info error]]
+            [io.pithos.bucket      :as bucket]))
 
-;; ring-global metastore
-(def bucket-table
-    (create-table 
-     :bucket
-     (column-definitions {:bucket       :text
-                          :tenant       :text
-                          :region       :text
-                          :acl          :text
-                          :cors         :text
-                          :website      :text
-                          :policy       :text
-                          :primary-key  :bucket})))
-
-(def bucket_tenant-index
-    (create-index
-     :bucket
-     :tenant
-     (index-name :bucket_tenant)))
 
 ;; region metastore
 
@@ -87,9 +70,6 @@
                        :payload     :blob
                        :primary-key [[:inode :version :block] :offset]})))
 
-(def metastore-schema
-  [bucket-table bucket_tenant-index])
-
 (def region-metastore-schema
   [object-table inode-table upload-table object_uploads-table])
 
@@ -97,20 +77,22 @@
   [inode_blocks-table block-table])
 
 (defn converge-schema
-  [{:keys [metastore regions] :as config}]
+  [{:keys [bucketstore regions] :as config}]
   (info "converging all schemas...")
   (info "converging metastore schema")
   (try
-    (doseq [schema metastore-schema]
-      (execute metastore schema))
+    (bucket/converge! bucketstore)
 
     (doseq [[region {:keys [metastore storage-classes]}] regions]
       (info "converging metastore for region " region)
+
       (doseq [schema region-metastore-schema]
         (execute metastore schema))
+
       (doseq [[storage-class blobstore] storage-classes]
         (info "converging blobstore for region and storage-class "
               region storage-class)
+
         (doseq [schema region-blobstore-schema]
           (execute blobstore schema))))
     
