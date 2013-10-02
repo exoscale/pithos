@@ -92,6 +92,7 @@ bucketstore:
 #   - host: 'host3'
 #     port: 9162
 #
+  default-region: 'CH-GV1'
   cluster: 'localhost'
   keyspace: 'storage'
 
