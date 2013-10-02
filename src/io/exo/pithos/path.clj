@@ -12,28 +12,28 @@
     (apply str (reverse reversed))))
 
 (defn fetch-path-q
-  [tenant bucket prefix]
-  (let [path-def    [[:tenant tenant] [:bucket bucket]]
+  [bucket prefix]
+  (let [path-def    [[:bucket bucket]]
         next-prefix (inc-path prefix)
         prefix-def  [[:path [:>= prefix]] [:path [:< next-prefix]]]]
     (select :path (where (cond-> path-def
                                  (seq prefix) (concat prefix-def))))))
 
 (defn get-path-q
-  [tenant bucket path]
+  [bucket path]
   (select :path 
-          (where {:tenant tenant :bucket bucket :path path})
+          (where {:bucket bucket :path path})
           (limit 1)))
 
 (defn update-path-q
-  [tenant bucket path inode]
+  [bucket path columns]
   (update :path
-          (set-columns {:inode inode})
-          (where {:tenant tenant :bucket bucket :path path})))
+          (set-columns columns)
+          (where {:bucket bucket :path path})))
 
 (defn delete-path-q
-  [tenant bucket path]
-  (delete :path (where {:tenant tenant :bucket bucket :path path})))
+  [bucket path]
+  (delete :path (where {:bucket bucket :path path})))
 
 (defn published-versions-q
   [inode]
@@ -62,12 +62,12 @@
   (not (nil? (first (execute (published-versions-q inode))))))
 
 (defn fetch
-  ([tenant bucket]
-     (fetch tenant bucket {}))
-  ([tenant bucket {:keys [path prefix delimiter max-keys hidden]}]
+  ([bucket]
+     (fetch bucket {}))
+  ([bucket {:keys [path prefix delimiter max-keys hidden]}]
      (if path
-       (first (execute (get-path-q tenant bucket path)))
-       (let [raw-paths (execute (fetch-path-q tenant bucket prefix))
+       (first (execute (get-path-q bucket path)))
+       (let [raw-paths (execute (fetch-path-q bucket prefix))
              paths     (if hidden raw-paths (filter published-path? raw-paths))
              prefixes  (if delimiter 
                          (filter-prefixes paths prefix delimiter)
@@ -78,9 +78,9 @@
          [(remove prefixes contents) prefixes]))))
 
 (defn update!
-  [tenant bucket path inode]
-  (execute (update-path-q tenant bucket path inode)))
+  [bucket path columns]
+  (execute (update-path-q bucket path columns)))
 
 (defn delete!
-  [tenant bucket path]
-  (execute (delete-path-q tenant bucket path)))
+  [bucket path]
+  (execute (delete-path-q bucket path)))
