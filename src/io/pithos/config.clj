@@ -103,12 +103,6 @@
         (update-in [:bucketstore] (partial merge default-bucketstore))
         (update-in [:bucketstore] get-instance :bucketstore)
         (update-in [:regions] get-region-stores)
-        (as-> config (let [{:keys [regions options]} config]
-                       (or (:default-region options) 
-                           (throw (Exception. "no default region.")))
-                       (when-not (get regions (:default-region options))
-                         (throw (Exception. "no default region config.")))
-                       config))
         (update-in [:service :max-body] to-bytes :max-body))
     (catch Exception e
       (when-not quiet?
