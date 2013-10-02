@@ -110,7 +110,7 @@
         (execute session object_uploads-table))
       (fetch [this bucket object]
         (first (execute session (get-object-q bucket object))))
-      (prefixes [this bucket {:keys [prefix delimiter max-keys hidden]}]
+      (prefixes [this bucket {:keys [prefix delimiter max-keys]}]
         (let [objects  (execute session (fetch-object-q bucket prefix))
               prefixes (if delimiter
                          (filter-prefixes objects prefix delimiter)
