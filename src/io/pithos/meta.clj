@@ -135,4 +135,4 @@
       (delete! [this bucket object]
         (execute session (delete-object-q bucket object)))
       (published? [this inode]
-        (not (nil? (first (execute session (published-versions-q inode)))))))))
+        (seq (execute session (published-versions-q inode)))))))
