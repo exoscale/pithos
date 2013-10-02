@@ -19,7 +19,7 @@
   {:use "io.pithos.bucket/cassandra-bucket-store"})
 
 (def default-metastore
-  {:use "io.pithos.store/cassandra-store"})
+  {:use "io.pithos.meta/cassandra-meta-store"})
 
 (def default-blobstore
   {:use "io.pithos.store/cassandra-store"})
