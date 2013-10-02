@@ -1,6 +1,7 @@
 (ns io.exo.pithos.store
-  (:require [qbits.alia :as alia]
-            [qbits.hayt :refer [use-keyspace create-keyspace with]]))
+  (:require [qbits.alia            :as alia]
+            [qbits.hayt            :refer [use-keyspace create-keyspace with]]
+            [clojure.tools.logging :refer [debug]]))
 
 (defmacro execute
   [store & body]
@@ -13,11 +14,14 @@
   [{:keys [cluster keyspace hints]
     :or {hints {:replication {:class             "SimpleStrategy"
                               :replication_factor 1}}}}]
+  (debug "building cassandra store for: " cluster keyspace hints)
   (let [session (-> (alia/cluster cluster) (alia/connect))]
     (try (alia/execute session (use-keyspace keyspace))
          session
          (catch com.datastax.driver.core.exceptions.InvalidQueryException e
            ;;
            (if (re-find #"^[kK]eyspace.*does not exist$" (.getMessage e))
-             (alia/execute session (create-keyspace keyspace (with hints)))
+             (do (alia/execute session (create-keyspace keyspace (with hints)))
+                 (alia/execute session (use-keyspace keyspace))
+                 session)             
              (throw e))))))
