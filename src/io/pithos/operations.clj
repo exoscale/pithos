@@ -16,17 +16,16 @@
 
 (defn get-service
   "lists all bucket"
-  [{{:keys [tenant]} :authorization :as request} metastore regions]
-  (store/execute metastore
-    (-> (bucket/by-tenant tenant)
-        (xml/list-all-my-buckets)
-        (xml-response)
-        (request-id request))))
+  [{{:keys [tenant]} :authorization :as request} bucketstore regions]
+  (-> (bucket/by-tenant bucketstore tenant)
+      (xml/list-all-my-buckets)
+      (xml-response)
+      (request-id request)))
 
 (defn put-bucket
   [{{:keys [tenant]} :authorization :keys [bucket] :as request}
-   metastore regions]
-  (store/execute metastore (bucket/create! tenant bucket {}))
+   bucketstore regions]
+  (bucket/create! bucketstore tenant bucket {})
   (-> (response)
       (request-id request)
       (header "Location" (str "/" bucket))
@@ -34,51 +33,50 @@
 
 (defn delete-bucket
   [{{:keys [tenant]} :authorization :keys [bucket] :as request}
-   metastore regions]
+   bucketstore regions]
   (debug "delete! called on bucket " tenant bucket)
-  (store/execute metastore (bucket/delete! bucket))
+  (bucket/delete! bucketstore bucket)
   (-> (response)
       (request-id request)
       (status 204)))
 
 (defn put-bucket-acl
-  [{:keys [bucket body] :as request} metastore regions]
+  [{:keys [bucket body] :as request} bucketstore regions]
   (let [acl (slurp body)]
-    (store/execute metastore (bucket/update! bucket {:acl acl}))
+    (bucket/update! bucketstore bucket {:acl acl})
     (-> (response)
         (request-id request))))
 
 (defn get-bucket-acl
-  [{:keys [bucket] :as request} metastore regions]
-  (store/execute metastore
-                 (-> (bucket/fetch bucket)
-                     :acl
-                     (xml/default)
-                     (xml-response)
-                     (request-id request))))
+  [{:keys [bucket] :as request} bucketstore regions]
+  (-> (bucket/by-name bucketstore bucket)
+      :acl
+      (xml/default)
+      (xml-response)
+      (request-id request)))
 
 (defn get-object
-  [{:keys [bucket object] :as request} metastore regions]
+  [{:keys [bucket object] :as request} bucketstore regions]
   ;; get object !
   (-> (response "toto\n")
       (request-id request)
       (content-type "text/plain")))
 
 (defn put-object
-  [{:keys [bucket object] :as request} metastore regions]
+  [{:keys [bucket object] :as request} bucketstore regions]
   ;; put object !
   (-> (response)
       (request-id request)))
 
 
 (defn head-object
-  [{:keys [bucket object] :as request} metastore regions]
+  [{:keys [bucket object] :as request} bucketstore regions]
   (-> (response)
       (request-id request)))
 
 (defn get-object-acl
-  [{:keys [bucket object] :as request} metastore regions]
-  (let [{:keys [region]} (store/execute metastore (bucket/fetch bucket))
+  [{:keys [bucket object] :as request} bucketstore regions]
+  (let [{:keys [region]} (bucket/by-name bucketstore bucket)
         metastore       (get-region regions region)]
     (-> (store/execute metastore (object/fetch bucket object))
         :acl
@@ -87,8 +85,8 @@
         (request-id request))))
 
 (defn put-object-acl
-  [{:keys [bucket object body] :as request} metastore regions]
-  (let [{:keys [region]} (store/execute metastore (bucket/fetch bucket))
+  [{:keys [bucket object body] :as request} bucketstore regions]
+  (let [{:keys [region]} (bucket/by-name bucketstore bucket)
         metastore        (get-region regions region)
         acl              (slurp body)]
     (store/execute metastore (object/update! bucket object {:acl acl}))
@@ -96,8 +94,8 @@
         (request-id request))))
 
 (defn delete-object
-  [{:keys [bucket object] :as request} metastore regions]
-  (let [{:keys [region]} (store/execute metastore (bucket/fetch bucket))
+  [{:keys [bucket object] :as request} bucketstore regions]
+  (let [{:keys [region]} (bucket/by-name bucketstore bucket)
         metastore        (get-region regions region)]
     ;; delete object
     (-> (response)
@@ -105,7 +103,7 @@
 
 (defn unknown
   "unknown operation"
-  [req metastore regions]
+  [req bucketstore regions]
   (-> (xml/unknown req)
       (xml-response)))
 
@@ -146,7 +144,7 @@
   (= (get acl for) needs))
 
 (defn bucket-satisfies?
-  [{:keys [tenant acl]} & {:keys [for groups needs]}]
+  [{:keys [tenant acl]} {:keys [for groups needs]}]
   (or (= tenant for)
       (granted? acl needs for)
       (some identity (map (partial granted? acl needs) groups))))
@@ -158,7 +156,7 @@
       (some identity (map (partial granted? acl needs) groups))))
 
 (defn authorize
-  [{:keys [authorization bucket object] :as request} perms metastore regions]
+  [{:keys [authorization bucket object] :as request} perms bucketstore regions]
   (let [{:keys [tenant memberof]} authorization
         memberof?                 (set memberof)]
     (doseq [[perm arg] (map (comp flatten vector) perms)]
@@ -166,17 +164,17 @@
       (case perm
         :authenticated (ensure! (not= tenant :anonymous))
         :memberof      (ensure! (memberof? arg))
-        :bucket        (ensure! (bucket-satisfies? (store/execute metastore
-                                                     (bucket/fetch bucket))
-                                                   :for    tenant
-                                                   :groups memberof?
-                                                   :needs  arg))
-        :object        (ensure! (object-satisfies? (store/execute metastore
-                                                     (bucket/fetch bucket))
-                                                   (object/fetch bucket object)
-                                                   :for    tenant
-                                                   :groups memberof?
-                                                   :needs  arg))))))
+        :bucket        (ensure! (bucket-satisfies?
+                                 (bucket/by-name bucketstore bucket)
+                                 {:for    tenant
+                                  :groups memberof?
+                                  :needs  arg}))
+        :object        (ensure! (object-satisfies? 
+                                 (bucket/by-name bucketstore bucket)
+                                 (object/fetch bucket object)
+                                 :for    tenant
+                                 :groups memberof?
+                                 :needs  arg))))))
 
 (defn ex-handler
   [request exception]
@@ -185,10 +183,10 @@
       (request-id request)))
 
 (defn dispatch
-  [{:keys [operation] :as request} metastore regions]
+  [{:keys [operation] :as request} bucketstore regions]
   (let [{:keys [handler perms] :or {handler unknown}} (get opmap operation)]
-    (try (authorize request perms metastore regions)
-         (handler request metastore regions)
+    (try (authorize request perms bucketstore regions)
+         (handler request bucketstore regions)
          (catch Exception e
            (when-not (:type (ex-data e))
              (error e "caught exception during operation"))

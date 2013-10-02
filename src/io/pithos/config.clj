@@ -15,6 +15,9 @@
 (def default-keystore
   {:use "io.pithos.keystore/map->MapKeystore"})
 
+(def default-bucketstore
+  {:use "io.pithos.bucket/cassandra-bucket-store"})
+
 (def default-metastore
   {:use "io.pithos.store/cassandra-store"})
 
@@ -96,8 +99,8 @@
         (update-in [:options] (partial merge default-options))
         (update-in [:keystore] (partial merge default-keystore))
         (update-in [:keystore] get-instance :keystore)
-        (update-in [:metastore] (partial merge default-metastore))
-        (update-in [:metastore] get-instance :metastore)
+        (update-in [:bucketstore] (partial merge default-bucketstore))
+        (update-in [:bucketstore] get-instance :bucketstore)
         (update-in [:regions] get-region-stores)
         (as-> config (let [{:keys [regions options]} config]
                        (or (:default-region options) 

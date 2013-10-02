@@ -67,10 +67,12 @@ keystore:
       secret: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
 
 
-## userstore
+## buckestore
 #
-# The userstore contains metadata.
-metastore:
+# The bucketstore is ring global and contains information
+# on bucket location and global parameters.
+#
+bucketstore:
 # A cluster may be defined as a single host definition or as
 # a list of host definitions.
 #

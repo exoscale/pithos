@@ -5,9 +5,9 @@
             [io.pithos.request     :refer [prepare]]))
 
 (defn run
-  [{:keys [keystore metastore regions service options]}]
+  [{:keys [keystore bucketstore regions service options]}]
   (run-server #(-> %
-                   (prepare keystore metastore regions options)
-                   (dispatch metastore regions))
+                   (prepare keystore bucketstore regions options)
+                   (dispatch bucketstore regions))
               service)
   (info "server up and running"))
