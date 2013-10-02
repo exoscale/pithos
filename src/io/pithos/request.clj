@@ -132,7 +132,7 @@
   (let [auth   (validate keystore req)
         master (:master auth)
         tenant (get-in req [:headers "x-amz-masquerade-tenant"])]
-    (debug "got auth details: " auth master tenant (:headers req))
+    (debug "got auth details: " auth master tenant)
     (assoc req :authorization 
            (if (and master tenant) (assoc auth :tenant tenant) auth))))
 
