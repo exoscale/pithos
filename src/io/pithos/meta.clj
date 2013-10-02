@@ -2,7 +2,8 @@
   (:require [qbits.alia      :refer [execute]]
             [qbits.hayt      :refer [select where set-columns columns
                                      delete update limit order-by coll-type
-                                     create-table column-definitions]]
+                                     create-table column-definitions
+                                     create-index index-name]]
             [io.pithos.util  :refer [inc-prefix]]
             [io.pithos.store :as store]))
 
@@ -10,7 +11,7 @@
   (converge! [this])
   (fetch [this bucket object])
   (prefixes [this bucket params])
-  (finalize! [this inode version size checksum])
+  (finalize! [this bucket key version size checksum])
   (update! [this bucket object columns])
   (delete! [this bucket object]))
 
@@ -19,24 +20,24 @@
 (def object-table
  (create-table
   :object
-  (column-definitions {:bucket      :text
-                       :object      :text
-                       :inode       :uuid
-                       :acl          :text
-                       :primary-key [:bucket :object]})))
-
-(def inode-table
- (create-table
-  :inode
-  (column-definitions {:inode        :uuid
+  (column-definitions {:bucket       :text
+                       :object       :text
+                       :inode        :uuid
                        :version      :timeuuid
                        :atime        :timestamp
-                       :checksum     :text
                        :size         :bigint
+                       :checksum     :text
                        :multi        :boolean
                        :storageclass :text
+                       :acl          :text
                        :metadata     (coll-type :map :text :text)
-                       :primary-key  [:inode :version]})))
+                       :primary-key  [:bucket :object]})))
+
+(def object_inode-index
+  (create-index
+   :object
+   :inode
+   (index-name "object_inode")))
 
 (def upload-table
  (create-table
@@ -105,7 +106,6 @@
     (reify Metastore
       (converge! [this]
         (execute session object-table)
-        (execute session inode-table)
         (execute session upload-table)
         (execute session object_uploads-table))
       (fetch [this bucket object]
