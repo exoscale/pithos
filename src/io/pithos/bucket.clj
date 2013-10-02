@@ -6,7 +6,7 @@
                                      delete update limit]]
             [io.pithos.store :as store]))
 
-(defprotocol BucketStore
+(defprotocol Bucketstore
   (converge! [this])
   (by-tenant [this tenant])
   (by-name [this bucket])
@@ -54,7 +54,7 @@
 (defn cassandra-bucket-store
   [config]
   (let [session (store/cassandra-store config)]
-    (reify BucketStore
+    (reify Bucketstore
       (converge! [this]
         (execute session bucket-table)
         (execute session bucket_tenant-index))

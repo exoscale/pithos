@@ -12,7 +12,7 @@
             [clojure.tools.logging :refer [debug info]]))
 
 
-(defprotocol BlobStore
+(defprotocol Blobstore
   (converge! [this])
   (append-stream! [this inode version stream finalize!])
   (stream! [this inode version handler])
@@ -138,7 +138,7 @@
   [{:keys [max-chunk max-block-chunks] :as config}]
   (let [session   (store/cassandra-store config)
         max-block (* max-chunk max-block-chunks)]
-    (reify BlobStore
+    (reify Blobstore
       (converge! [this]
         (with-session session
           (execute inode_blocks-table)

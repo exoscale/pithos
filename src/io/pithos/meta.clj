@@ -6,7 +6,7 @@
             [io.pithos.util  :refer [inc-prefix]]
             [io.pithos.store :as store]))
 
-(defprotocol MetaStore
+(defprotocol Metastore
   (converge! [this])
   (fetch [this bucket object])
   (prefixes [this bucket params])
@@ -102,7 +102,7 @@
 (defn cassandra-meta-store
   [config]
   (let [session (store/cassandra-store config)]
-    (reify MetaStore
+    (reify Metastore
       (converge! [this]
         (execute session object-table)
         (execute session inode-table)
