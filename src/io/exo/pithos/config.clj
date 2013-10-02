@@ -1,6 +1,6 @@
 (ns io.exo.pithos.config
   (:require [clj-yaml.core         :refer [parse-string]]
-            [clojure.tools.logging :refer [error]]
+            [clojure.tools.logging :refer [error info]]
             [io.exo.pithos.util    :refer [to-bytes]]))
 
 (def default-logging
@@ -53,7 +53,8 @@
     (throw (ex-info (str "no such namespace: " class)))))
 
 (defn get-instance
-  [{:keys [use] :as config}]
+  [{:keys [use] :as config} target]
+  (info "building " target " with " use)
   (instantiate (-> use name symbol) config))
 
 (defn load-path
@@ -71,7 +72,7 @@
   [storage-classes]
   (->> (for [[storage-class blobstore] storage-classes
              :let [blobstore (merge default-blobstore blobstore)]]
-         [storage-class (get-instance blobstore)])
+         [storage-class (get-instance blobstore :blobstore)])
        (reduce merge {})))
 
 (defn get-region-stores
@@ -79,7 +80,7 @@
   (->> (for [[region {:keys [metastore storage-classes]}] regions
              :let [metastore (merge default-metastore metastore)]]
          [(name region)
-          {:metastore       (get-instance metastore)
+          {:metastore       (get-instance metastore :metastore)
            :storage-classes (get-storage-classes storage-classes)}])
        (reduce merge {})))
 
@@ -90,13 +91,13 @@
       (println "starting with configuration: " path))
     (-> (load-path path)
         (update-in [:logging] (partial merge default-logging))
-        (update-in [:logging] get-instance)
+        (update-in [:logging] get-instance :logging)
         (update-in [:service] (partial merge default-service))
         (update-in [:options] (partial merge default-options))
         (update-in [:keystore] (partial merge default-keystore))
-        (update-in [:keystore] get-instance)
+        (update-in [:keystore] get-instance :keystore)
         (update-in [:metastore] (partial merge default-metastore))
-        (update-in [:metastore] get-instance)
+        (update-in [:metastore] get-instance :metastore)
         (update-in [:regions] get-region-stores)
         (as-> config (let [{:keys [regions options]} config]
                        (or (:default-region options) 
