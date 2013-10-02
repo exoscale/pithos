@@ -99,17 +99,21 @@
 (defn converge-schema
   [{:keys [metastore regions] :as config}]
   (info "converging all schemas...")
-  (info "converging metastore schema")
-  (try)
-  (doseq [schema metastore-schema]
-    (execute metastore schema))
-
-  (doseq [[region {:keys [metastore storage-classes]}] regions]
-    (info "converging metastore for region " region)
-    (doseq [schema region-metastore-schema]
+  (info "converging metastore schema with " metastore)
+  (try
+    (doseq [schema metastore-schema]
       (execute metastore schema))
-    (doseq [[storage-class blobstore] storage-classes]
-      (info "converging blobstore for region and storage-class "
-            region storage-class)
-      (doseq [schema region-blobstore-schema]
-        (execute blobstore schema)))))
+
+    (doseq [[region {:keys [metastore storage-classes]}] regions]
+      (info "converging metastore for region " region)
+      (doseq [schema region-metastore-schema]
+        (execute metastore schema))
+      (doseq [[storage-class blobstore] storage-classes]
+        (info "converging blobstore for region and storage-class "
+              region storage-class)
+        (doseq [schema region-blobstore-schema]
+          (execute blobstore schema))))
+    
+    (catch Exception e
+      (error e "cannot create schema")))
+  (System/exit 0))
