@@ -24,14 +24,14 @@
 
 ;; region metastore
 
-(def path-table
+(def object-table
  (create-table
-  :path
+  :object
   (column-definitions {:bucket      :text
-                       :path        :text
+                       :object      :text
                        :inode       :uuid
                        :acl          :text
-                       :primary-key [:bucket :path]})))
+                       :primary-key [:bucket :object]})))
 
 (def inode-table
  (create-table
@@ -51,20 +51,20 @@
   :upload
   (column-definitions {:upload      :uuid
                        :bucket      :text
-                       :path        :text
+                       :object      :text
                        :inode       :uuid
                        :size        :bigint
                        :sendsum     :text
                        :recvsum     :text
-                       :primary-key [[:bucket :path :upload] :inode]})))
+                       :primary-key [[:bucket :object :upload] :inode]})))
 
-(def path_uploads-table
+(def object_uploads-table
  (create-table
-  :path_uploads
+  :object_uploads
   (column-definitions {:bucket      :text
-                       :path        :text
+                       :object      :text
                        :upload      :uuid
-                       :primary-key [[:bucket :path] :upload]})))
+                       :primary-key [[:bucket :object] :upload]})))
 
 ;; region blobstore
 
@@ -91,7 +91,7 @@
   [bucket-table bucket_tenant-index])
 
 (def region-metastore-schema
-  [path-table inode-table upload-table path_uploads-table])
+  [object-table inode-table upload-table object_uploads-table])
 
 (def region-blobstore-schema
   [inode_blocks-table block-table])
@@ -99,7 +99,7 @@
 (defn converge-schema
   [{:keys [metastore regions] :as config}]
   (info "converging all schemas...")
-  (info "converging metastore schema with " metastore)
+  (info "converging metastore schema")
   (try
     (doseq [schema metastore-schema]
       (execute metastore schema))

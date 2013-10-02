@@ -4,7 +4,7 @@
                                             content-type exception-status]]
             [io.exo.pithos.store    :as store]
             [io.exo.pithos.bucket   :as bucket]
-            [io.exo.pithos.path     :as path]
+            [io.exo.pithos.object   :as object]
             [io.exo.pithos.xml      :as xml]
             [clojure.tools.logging  :refer [debug info warn]]))
 
@@ -80,7 +80,7 @@
   [{:keys [bucket object] :as request} metastore regions]
   (let [{:keys [region]} (store/execute metastore (bucket/fetch bucket))
         metatstore       (get-region regions region)]
-    (-> (store/execute metastore (path/fetch bucket object))
+    (-> (store/execute metastore (object/fetch bucket object))
         :acl
         (xml/default)
         (xml-response)
@@ -91,7 +91,7 @@
   (let [{:keys [region]} (store/execute metastore (bucket/fetch bucket))
         metastore        (get-region regions region)
         acl              (slurp body)]
-    (store/execute metastore (path/update! bucket object {:acl acl}))
+    (store/execute metastore (object/update! bucket object {:acl acl}))
     (-> (response)
         (request-id request))))
 
@@ -168,7 +168,7 @@
                                                    :groups memberof?
                                                    :needs  arg))
         :object        (ensure! (object-satisfies? (bucket/fetch bucket)
-                                                   (path/fetch bucket object)
+                                                   (object/fetch bucket object)
                                                    :for    tenant
                                                    :groups memberof?
                                                    :needs  arg))))))
