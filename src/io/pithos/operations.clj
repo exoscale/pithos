@@ -40,6 +40,18 @@
       (request-id request)
       (status 204)))
 
+(defn get-bucket
+  [{:keys [params bucket] :as request} bucketstore regions]
+  (let [{:keys [region tenant] :as binfo} (bucket/by-name bucketstore bucket)
+        {:keys [metastore]}               (get-region regions region)
+        params (select-keys params [:delimiter :prefix])
+        prefixes (meta/prefixes metastore bucket params)]
+    (debug "got prefixes: " prefixes)
+    (-> prefixes
+        (xml/list-bucket binfo params)
+        (xml-response)
+        (request-id request))))
+
 (defn put-bucket-acl
   [{:keys [bucket body] :as request} bucketstore regions]
   (let [acl (slurp body)]
@@ -77,7 +89,7 @@
 (defn get-object-acl
   [{:keys [bucket object] :as request} bucketstore regions]
   (let [{:keys [region]} (bucket/by-name bucketstore bucket)
-        metastore        (get-region regions region)]
+        {:keys [metastore]}        (get-region regions region)]
     (-> (meta/fetch metastore bucket object)
         :acl
         (xml/default)
@@ -87,7 +99,7 @@
 (defn put-object-acl
   [{:keys [bucket object body] :as request} bucketstore regions]
   (let [{:keys [region]} (bucket/by-name bucketstore bucket)
-        metastore        (get-region regions region)
+        {:keys [metastore]} (get-region regions region)
         acl              (slurp body)]
     (meta/update! metastore bucket object {:acl acl})
     (-> (response)
@@ -95,8 +107,8 @@
 
 (defn delete-object
   [{:keys [bucket object] :as request} bucketstore regions]
-  (let [{:keys [region]} (bucket/by-name bucketstore bucket)
-        metastore        (get-region regions region)]
+  (let [{:keys [region]}    (bucket/by-name bucketstore bucket)
+        {:keys [metastore]} (get-region regions region)]
     ;; delete object
     (meta/delete! metastore bucket object)
     (-> (response)
@@ -116,6 +128,8 @@
    :delete-bucket  {:handler delete-bucket 
                     :perms   [[:memberof "authenticated-users"]
                               [:bucket   :owner]]}
+   :get-bucket     {:handler get-bucket
+                    :perms   [[:bucket "READ"]]}
    :get-bucket-acl {:handler get-bucket-acl
                     :perms   [[:bucket "READ_ACP"]]}
    :put-bucket-acl {:handler put-bucket-acl
@@ -187,6 +201,7 @@
   [{:keys [operation] :as request} bucketstore regions]
   (let [{:keys [handler perms] :or {handler unknown}} (get opmap operation)]
     (try (authorize request perms bucketstore regions)
+         (info "request-now: " (with-out-str (clojure.pprint/pprint request)))
          (handler request bucketstore regions)
          (catch Exception e
            (when-not (:type (ex-data e))
