@@ -10,9 +10,9 @@
   (converge! [this])
   (fetch [this bucket object])
   (prefixes [this bucket params])
+  (finalize! [this inode version size checksum])
   (update! [this bucket object columns])
-  (delete! [this bucket object])
-  (published? [this inode]))
+  (delete! [this bucket object]))
 
 ;; schema definition
 
@@ -29,14 +29,14 @@
  (create-table
   :inode
   (column-definitions {:inode        :uuid
-                       :draft        :boolean
                        :version      :timeuuid
                        :atime        :timestamp
                        :checksum     :text
+                       :size         :bigint
                        :multi        :boolean
                        :storageclass :text
                        :metadata     (coll-type :map :text :text)
-                       :primary-key  [[:inode :draft] :version]})))
+                       :primary-key  [:inode :version]})))
 
 (def upload-table
  (create-table
@@ -46,8 +46,7 @@
                        :object      :text
                        :inode       :uuid
                        :size        :bigint
-                       :sendsum     :text
-                       :recvsum     :text
+                       :checksum    :text
                        :primary-key [[:bucket :object :upload] :inode]})))
 
 (def object_uploads-table
@@ -59,7 +58,7 @@
                        :primary-key [[:bucket :object] :upload]})))
 
 
-;; queries
+;; CQL Queries
 
 (defn fetch-object-q
   [bucket prefix]
@@ -84,15 +83,6 @@
 (defn delete-object-q
   [bucket object]
   (delete :object (where {:bucket bucket :object object})))
-
-(defn published-versions-q
-  [inode]
-  (select :inode
-          (columns :version)
-          (where {:inode inode
-                  :published true})
-          (order-by [:version :desc])
-          (limit 1)))
 
 ;; utility functions
 
@@ -121,8 +111,7 @@
       (fetch [this bucket object]
         (first (execute session (get-object-q bucket object))))
       (prefixes [this bucket {:keys [prefix delimiter max-keys hidden]}]
-        (let [raw      (execute session (fetch-object-q bucket prefix))
-              objects  (if hidden raw (filter (partial published? this) raw))
+        (let [objects  (execute session (fetch-object-q bucket prefix))
               prefixes (if delimiter
                          (filter-prefixes objects prefix delimiter)
                          #{})
@@ -133,6 +122,4 @@
       (update! [this bucket object columns]
         (execute session (update-object-q bucket object columns)))
       (delete! [this bucket object]
-        (execute session (delete-object-q bucket object)))
-      (published? [this inode]
-        (seq (execute session (published-versions-q inode)))))))
+        (execute session (delete-object-q bucket object))))))
