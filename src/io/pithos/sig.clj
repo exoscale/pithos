@@ -1,10 +1,10 @@
-(ns io.exo.pithos.sig
+(ns io.pithos.sig
   "Compute request signatures as described in
    http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html"
   (:require [clojure.string            :as s]
             [clojure.tools.logging     :refer [info]]
             [clojure.data.codec.base64 :as base64]
-            [io.exo.pithos.keystore    :as ks])
+            [io.pithos.keystore        :as ks])
   (:import  javax.crypto.Mac javax.crypto.spec.SecretKeySpec))
 
 (defn canonicalized

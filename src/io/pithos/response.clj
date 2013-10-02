@@ -1,4 +1,4 @@
-(ns io.exo.pithos.response)
+(ns io.pithos.response)
 
 (defn response
   ([]

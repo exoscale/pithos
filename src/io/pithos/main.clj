@@ -1,9 +1,9 @@
-(ns io.exo.pithos.main
+(ns io.pithos.main
   (:gen-class)
-  (:require [io.exo.pithos.api    :as api]
-            [io.exo.pithos.schema :as schema]
-            [io.exo.pithos.config :as config]
-            [clojure.tools.cli    :refer [cli]]))
+  (:require [io.pithos.api     :as api]
+            [io.pithos.schema  :as schema]
+            [io.pithos.config  :as config]
+            [clojure.tools.cli :refer [cli]]))
 
 (defn get-action
   [action]

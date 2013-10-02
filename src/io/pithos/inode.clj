@@ -1,4 +1,4 @@
-(ns io.exo.pithos.inode
+(ns io.pithos.inode
   (:import java.util.UUID
            java.nio.ByteBuffer)
   (:require [clojure.java.io :as io]

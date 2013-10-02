@@ -1,11 +1,11 @@
-(ns io.exo.pithos.operations
-  (:require [io.exo.pithos.response :refer [header response status
+(ns io.pithos.operations
+  (:require [io.pithos.response     :refer [header response status
                                             xml-response request-id
                                             content-type exception-status]]
-            [io.exo.pithos.store    :as store]
-            [io.exo.pithos.bucket   :as bucket]
-            [io.exo.pithos.object   :as object]
-            [io.exo.pithos.xml      :as xml]
+            [io.pithos.store        :as store]
+            [io.pithos.bucket       :as bucket]
+            [io.pithos.object       :as object]
+            [io.pithos.xml          :as xml]
             [clojure.tools.logging  :refer [debug info warn]]))
 
 (defn get-region

@@ -1,4 +1,4 @@
-(ns io.exo.pithos.store
+(ns io.pithos.store
   (:require [qbits.alia            :as alia]
             [qbits.hayt            :refer [use-keyspace create-keyspace with]]
             [clojure.tools.logging :refer [debug]]))

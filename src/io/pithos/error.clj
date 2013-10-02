@@ -1,4 +1,4 @@
-(ns io.exo.pithos.error
+(ns io.pithos.error
   (:require [clojure.string :refer [split join capitalize upper-case]]))
 
 (defn format-code

@@ -1,8 +1,8 @@
-(ns io.exo.pithos.object
-  (:require [qbits.alia          :refer [execute]]
-            [qbits.hayt          :refer [select where set-columns columns
-                                         delete update limit order-by]]
-            [io.exo.pithos.inode :as inode]))
+(ns io.pithos.object
+  (:require [qbits.alia      :refer [execute]]
+            [qbits.hayt      :refer [select where set-columns columns
+                                     delete update limit order-by]]
+            [io.pithos.inode :as inode]))
 
 (defn inc-prefix
   "Given an object path, yield the next semantic one."

@@ -1,4 +1,4 @@
-(ns io.exo.pithos.logging
+(ns io.pithos.logging
   (:import (org.apache.log4j           Logger
                                        BasicConfigurator
                                        EnhancedPatternLayout

@@ -1,8 +1,8 @@
-(ns io.exo.pithos.xml
-  (:require [clojure.data.xml  :refer [->Element emit-str indent-str]]
-            [clojure.pprint    :refer [pprint]]
-            [clojure.string    :as s]
-            [io.exo.pithos.sig :as sig]))
+(ns io.pithos.xml
+  (:require [clojure.data.xml :refer [->Element emit-str indent-str]]
+            [clojure.pprint   :refer [pprint]]
+            [clojure.string   :as s]
+            [io.pithos.sig    :as sig]))
 
 (defn e
   ([x]

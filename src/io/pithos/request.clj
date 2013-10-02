@@ -1,10 +1,10 @@
-(ns io.exo.pithos.request
-  (:require [clojure.string               :refer [lower-case join]]
-            [clojure.tools.logging        :refer [debug info warn]]
-            [clout.core                   :refer [route-matches route-compile]]
-            [io.exo.pithos.sig            :refer [validate]]
-            [ring.util.codec              :as codec]
-            [qbits.alia.uuid              :as uuid]))
+(ns io.pithos.request
+  (:require [clojure.string        :refer [lower-case join]]
+            [clojure.tools.logging :refer [debug info warn]]
+            [clout.core            :refer [route-matches route-compile]]
+            [io.pithos.sig         :refer [validate]]
+            [ring.util.codec       :as codec]
+            [qbits.alia.uuid       :as uuid]))
 
 (def known
   #{"acl"

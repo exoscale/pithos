@@ -1,4 +1,4 @@
-(ns io.exo.pithos.keystore)
+(ns io.pithos.keystore)
 
 (defprotocol Keystore
   (fetch [this id]))

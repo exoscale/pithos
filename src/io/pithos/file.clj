@@ -1,4 +1,4 @@
-(ns io.exo.pithos.file
+(ns io.pithos.file
   (:require [qbits.alia      :refer [execute]]
             [qbits.hayt      :refer [select insert where values
                                      columns order-by limit]]

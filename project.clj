@@ -1,9 +1,9 @@
-(defproject io.exo/pithos "0.1.0"
+(defproject io.pithos/pithos "0.1.0"
   :description "cassandra-backed object storage"
   :url "https://github.com/exoscale/ostore"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :main io.exo.pithos.main
+  :main io.pithos.main
   :dependencies [[org.clojure/clojure       "1.5.1"]
                  [org.clojure/data.codec    "0.1.0"]
                  [org.clojure/data.xml      "0.0.7"]

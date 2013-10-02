@@ -1,4 +1,4 @@
-(ns io.exo.pithos.util
+(ns io.pithos.util
   (:require [clojure.string :refer [lower-case]]))
 
 (def byte-factors

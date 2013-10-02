@@ -1,25 +1,25 @@
-(ns io.exo.pithos.config
+(ns io.pithos.config
   (:require [clj-yaml.core         :refer [parse-string]]
             [clojure.tools.logging :refer [error info debug]]
-            [io.exo.pithos.util    :refer [to-bytes]]))
+            [io.pithos.util        :refer [to-bytes]]))
 
 (def default-logging
-  {:use "io.exo.pithos.logging/start-logging"
+  {:use "io.pithos.logging/start-logging"
    :pattern "%p [%d] %t - %c - %m%n"
    :external false
    :console true
    :files  []
    :level  "info"
-   :overrides {:io.exo.pithos "debug"}})
+   :overrides {:io.pithos "debug"}})
 
 (def default-keystore
-  {:use "io.exo.pithos.keystore/map->MapKeystore"})
+  {:use "io.pithos.keystore/map->MapKeystore"})
 
 (def default-metastore
-  {:use "io.exo.pithos.store/cassandra-store"})
+  {:use "io.pithos.store/cassandra-store"})
 
 (def default-blobstore
-  {:use "io.exo.pithos.store/cassandra-store"})
+  {:use "io.pithos.store/cassandra-store"})
 
 (def default-service
   {:host "127.0.0.1"

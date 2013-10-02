@@ -1,4 +1,4 @@
-(ns io.exo.pithos.schema
+(ns io.pithos.schema
   (:require [qbits.hayt            :refer :all]
             [qbits.alia            :refer [execute]]
             [clojure.tools.logging :refer [info error]]))

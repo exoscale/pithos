@@ -1,4 +1,4 @@
-(ns io.exo.pithos.bucket
+(ns io.pithos.bucket
   (:require [qbits.alia :refer [execute]]
             [qbits.hayt :refer [select where set-columns
                                 delete update limit]]))
