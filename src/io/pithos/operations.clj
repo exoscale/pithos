@@ -6,7 +6,7 @@
             [io.pithos.bucket       :as bucket]
             [io.pithos.object       :as object]
             [io.pithos.xml          :as xml]
-            [clojure.tools.logging  :refer [debug info warn]]))
+            [clojure.tools.logging  :refer [debug info warn error]]))
 
 (defn get-region
   [regions region]
@@ -16,9 +16,9 @@
 
 (defn get-service
   "lists all bucket"
-  [{{:keys [tenant]} :authorization :as request} metastore]
+  [{{:keys [tenant]} :authorization :as request} metastore regions]
   (store/execute metastore
-    (-> (bucket/fetch tenant)
+    (-> (bucket/by-tenant tenant)
         (xml/list-all-my-buckets)
         (xml-response)
         (request-id request))))
@@ -26,7 +26,7 @@
 (defn put-bucket
   [{{:keys [tenant]} :authorization :keys [bucket] :as request}
    metastore regions]
-  (store/execute metastore (bucket/create! tenant bucket))
+  (store/execute metastore (bucket/create! tenant bucket {}))
   (-> (response)
       (request-id request)
       (header "Location" (str "/" bucket))
@@ -36,7 +36,7 @@
   [{{:keys [tenant]} :authorization :keys [bucket] :as request}
    metastore regions]
   (debug "delete! called on bucket " tenant bucket)
-  (store/execute metastore (bucket/delete! tenant bucket))
+  (store/execute metastore (bucket/delete! bucket))
   (-> (response)
       (request-id request)
       (status 204)))
@@ -79,7 +79,7 @@
 (defn get-object-acl
   [{:keys [bucket object] :as request} metastore regions]
   (let [{:keys [region]} (store/execute metastore (bucket/fetch bucket))
-        metatstore       (get-region regions region)]
+        metastore       (get-region regions region)]
     (-> (store/execute metastore (object/fetch bucket object))
         :acl
         (xml/default)
@@ -113,9 +113,9 @@
   {:get-service {:handler get-service 
                  :perms   [:authenticated]}
    :put-bucket  {:handler put-bucket 
-                 :perms   [[:memberof "authenticated"]]}
+                 :perms   [[:memberof "authenticated-users"]]}
    :delete-bucket {:handler delete-bucket 
-                   :perms [[:memberof "authenticated"]
+                   :perms [[:memberof "authenticated-users"]
                            [:bucket   :owner]]}
    :get-bucket-acl {:handler get-bucket-acl
                     :perms   [[:bucket "READ_ACP"]]}
@@ -137,7 +137,9 @@
 (defmacro ensure!
   [pred]
   `(when-not ~pred
-     (throw (ex-info "access denied" {}))))
+     (debug "could not ensure: " (str (quote ~pred)))
+     (throw (ex-info "access denied" {:status-code 403
+                                      :type        :access-denied}))))
 
 (defn granted?
   [acl needs for]
@@ -159,15 +161,18 @@
   [{:keys [authorization bucket object] :as request} perms metastore regions]
   (let [{:keys [tenant memberof]} authorization
         memberof?                 (set memberof)]
-    (doseq [[perm arg] (if (seq? perms) perms [perms])]
+    (doseq [[perm arg] (map (comp flatten vector) perms)]
+      (debug "about to validate " perm arg tenant memberof?)
       (case perm
         :authenticated (ensure! (not= tenant :anonymous))
         :memberof      (ensure! (memberof? arg))
-        :bucket        (ensure! (bucket-satisfies? (bucket/fetch bucket)
+        :bucket        (ensure! (bucket-satisfies? (store/execute metastore
+                                                     (bucket/fetch bucket))
                                                    :for    tenant
                                                    :groups memberof?
                                                    :needs  arg))
-        :object        (ensure! (object-satisfies? (bucket/fetch bucket)
+        :object        (ensure! (object-satisfies? (store/execute metastore
+                                                     (bucket/fetch bucket))
                                                    (object/fetch bucket object)
                                                    :for    tenant
                                                    :groups memberof?
@@ -185,7 +190,8 @@
     (try (authorize request perms metastore regions)
          (handler request metastore regions)
          (catch Exception e
-           (warn "caught exception during operation: " (str e))
+           (when-not (:type (ex-data e))
+             (error e "caught exception during operation"))
            (ex-handler request e)))))
 
 
