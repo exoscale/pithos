@@ -22,7 +22,9 @@
   {:use "io.pithos.meta/cassandra-meta-store"})
 
 (def default-blobstore
-  {:use "io.pithos.store/cassandra-store"})
+  {:use "io.pithos.blob/cassandra-blob-store"
+   :max-chunk        "512k"
+   :max-block-chunks 2048})
 
 (def default-service
   {:host "127.0.0.1"
@@ -30,8 +32,6 @@
 
 (def default-options
   {:service-uri "s3.amazonaws.com"
-   :chunksize "256K"
-   :maxsize   "10G"
    :reporting true
    :server-side-encryption true
    :multipart-upload true
@@ -53,7 +53,7 @@
   [class config]
   (if-let [f (find-ns-var class)]
     (f config)
-    (throw (ex-info (str "no such namespace: " class)))))
+    (throw (ex-info (str "no such namespace: " class) {}))))
 
 (defn get-instance
   [{:keys [use] :as config} target]
@@ -74,7 +74,8 @@
 (defn get-storage-classes
   [storage-classes]
   (->> (for [[storage-class blobstore] storage-classes
-             :let [blobstore (merge default-blobstore blobstore)]]
+             :let [blobstore (-> (merge default-blobstore blobstore)
+                                 (update-in [:max-chunk] to-bytes :max-chunk))]]
          [storage-class (get-instance blobstore :blobstore)])
        (reduce merge {})))
 
@@ -108,8 +109,6 @@
                        (when-not (get regions (:default-region options))
                          (throw (Exception. "no default region config.")))
                        config))
-        (update-in [:options :chunksize] to-bytes :chunksize)
-        (update-in [:options :maxsize] to-bytes :maxsize)
         (update-in [:service :max-body] to-bytes :max-body))
     (catch Exception e
       (when-not quiet?
