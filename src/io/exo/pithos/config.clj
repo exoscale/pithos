@@ -1,6 +1,6 @@
 (ns io.exo.pithos.config
   (:require [clj-yaml.core         :refer [parse-string]]
-            [clojure.tools.logging :refer [error info]]
+            [clojure.tools.logging :refer [error info debug]]
             [io.exo.pithos.util    :refer [to-bytes]]))
 
 (def default-logging
@@ -54,7 +54,7 @@
 
 (defn get-instance
   [{:keys [use] :as config} target]
-  (info "building " target " with " use)
+  (debug "building " target " with " use)
   (instantiate (-> use name symbol) config))
 
 (defn load-path
