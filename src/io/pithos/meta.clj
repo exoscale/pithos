@@ -1,15 +1,65 @@
-(ns io.pithos.object
+(ns io.pithos.meta
   (:require [qbits.alia      :refer [execute]]
             [qbits.hayt      :refer [select where set-columns columns
-                                     delete update limit order-by]]
-            [io.pithos.inode :as inode]))
+                                     delete update limit order-by coll-type
+                                     create-table column-definitions]]
+            [io.pithos.util  :refer [inc-prefix]]
+            [io.pithos.store :as store]))
 
-(defn inc-prefix
-  "Given an object path, yield the next semantic one."
-  [p]
-  (let [[c & s] (reverse p)
-        reversed (conj s (-> c int inc char))]
-    (apply str (reverse reversed))))
+(defprotocol MetaStore
+  (converge! [this])
+  (fetch [this bucket object])
+  (prefixes [this bucket params])
+  (update! [this bucket object columns])
+  (delete! [this bucket object])
+  (published? [this inode]))
+
+;; schema definition
+
+(def object-table
+ (create-table
+  :object
+  (column-definitions {:bucket      :text
+                       :object      :text
+                       :inode       :uuid
+                       :acl          :text
+                       :primary-key [:bucket :object]})))
+
+(def inode-table
+ (create-table
+  :inode
+  (column-definitions {:inode        :uuid
+                       :draft        :boolean
+                       :version      :timeuuid
+                       :atime        :timestamp
+                       :checksum     :text
+                       :multi        :boolean
+                       :storageclass :text
+                       :metadata     (coll-type :map :text :text)
+                       :primary-key  [[:inode :draft] :version]})))
+
+(def upload-table
+ (create-table
+  :upload
+  (column-definitions {:upload      :uuid
+                       :bucket      :text
+                       :object      :text
+                       :inode       :uuid
+                       :size        :bigint
+                       :sendsum     :text
+                       :recvsum     :text
+                       :primary-key [[:bucket :object :upload] :inode]})))
+
+(def object_uploads-table
+ (create-table
+  :object_uploads
+  (column-definitions {:bucket      :text
+                       :object      :text
+                       :upload      :uuid
+                       :primary-key [[:bucket :object] :upload]})))
+
+
+;; queries
 
 (defn fetch-object-q
   [bucket prefix]
@@ -44,6 +94,8 @@
           (order-by [:version :desc])
           (limit 1)))
 
+;; utility functions
+
 (defn filter-content
   [objects prefix delimiter]
   (let [pat (re-pattern (str "^" prefix "[^\\" delimiter "]+$"))]
@@ -57,32 +109,30 @@
          (remove nil?)
          (set))))
 
-(defn published-object?
-  [inode]
-  (not (nil? (first (execute (published-versions-q inode))))))
-
-(defn fetch
-  ([bucket]
-     (fetch bucket {}))
-  ([bucket {:keys [object prefix delimiter max-keys hidden]}]
-     (if object
-       (first (execute (get-object-q bucket object)))
-       (let [raw-prefixes (execute (fetch-object-q bucket prefix))
-             objects      (if hidden
-                            raw-prefixes
-                            (filter published-object? raw-prefixes))
-             prefixes     (if delimiter
-                            (filter-prefixes objects prefix delimiter)
-                            #{})
-             contents     (if delimiter
-                            (filter-content objects prefix delimiter)
-                            objects)]
-         [(remove prefixes contents) prefixes]))))
-
-(defn update!
-  [bucket object columns]
-  (execute (update-object-q bucket object columns)))
-
-(defn delete!
-  [bucket object]
-  (execute (delete-object-q bucket object)))
+(defn cassandra-meta-store
+  [config]
+  (let [session (store/cassandra-store config)]
+    (reify MetaStore
+      (converge! [this]
+        (execute session object-table)
+        (execute session inode-table)
+        (execute session upload-table)
+        (execute session object_uploads-table))
+      (fetch [this bucket object]
+        (first (execute session (get-object-q bucket object))))
+      (prefixes [this bucket {:keys [prefix delimiter max-keys hidden]}]
+        (let [raw      (execute session (fetch-object-q bucket prefix))
+              objects  (if hidden raw (filter (partial published? this) raw))
+              prefixes (if delimiter
+                         (filter-prefixes objects prefix delimiter)
+                         #{})
+              contents (if delimiter
+                         (filter-content objects prefix delimiter)
+                         objects)]
+         [(remove prefixes contents) prefixes]))
+      (update! [this bucket object columns]
+        (execute session (update-object-q bucket object columns)))
+      (delete! [this bucket object]
+        (execute session (delete-object-q bucket object)))
+      (published? [this inode]
+        (not (nil? (first (execute session (published-versions-q inode)))))))))

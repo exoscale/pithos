@@ -4,7 +4,7 @@
                                             content-type exception-status]]
             [io.pithos.store        :as store]
             [io.pithos.bucket       :as bucket]
-            [io.pithos.object       :as object]
+            [io.pithos.meta         :as meta]
             [io.pithos.xml          :as xml]
             [clojure.tools.logging  :refer [debug info warn error]]))
 
@@ -77,8 +77,8 @@
 (defn get-object-acl
   [{:keys [bucket object] :as request} bucketstore regions]
   (let [{:keys [region]} (bucket/by-name bucketstore bucket)
-        metastore       (get-region regions region)]
-    (-> (store/execute metastore (object/fetch bucket object))
+        metastore        (get-region regions region)]
+    (-> (meta/fetch metastore bucket object)
         :acl
         (xml/default)
         (xml-response)
@@ -89,7 +89,7 @@
   (let [{:keys [region]} (bucket/by-name bucketstore bucket)
         metastore        (get-region regions region)
         acl              (slurp body)]
-    (store/execute metastore (object/update! bucket object {:acl acl}))
+    (meta/update! metastore bucket object {:acl acl})
     (-> (response)
         (request-id request))))
 
@@ -98,6 +98,7 @@
   (let [{:keys [region]} (bucket/by-name bucketstore bucket)
         metastore        (get-region regions region)]
     ;; delete object
+    (meta/delete! metastore bucket object)
     (-> (response)
         (request-id request))))
 
@@ -108,29 +109,29 @@
       (xml-response)))
 
 (def opmap
-  {:get-service {:handler get-service 
-                 :perms   [:authenticated]}
-   :put-bucket  {:handler put-bucket 
-                 :perms   [[:memberof "authenticated-users"]]}
-   :delete-bucket {:handler delete-bucket 
-                   :perms [[:memberof "authenticated-users"]
-                           [:bucket   :owner]]}
+  {:get-service    {:handler get-service 
+                    :perms   [:authenticated]}
+   :put-bucket     {:handler put-bucket 
+                    :perms   [[:memberof "authenticated-users"]]}
+   :delete-bucket  {:handler delete-bucket 
+                    :perms   [[:memberof "authenticated-users"]
+                              [:bucket   :owner]]}
    :get-bucket-acl {:handler get-bucket-acl
                     :perms   [[:bucket "READ_ACP"]]}
    :put-bucket-acl {:handler put-bucket-acl
-                    :perms [[:bucket "WRITE_ACP"]]}
-   :get-object {:handler head-object
-                :perms [[:object "READ"]]}
-   :head-object {:handler head-object
-                 :perms [[:object "READ"]]}
-   :put-object {:handler put-object
-                :perms   [[:bucket "WRITE"]]}
-   :delete-object {:handler delete-object
-                   :perms [[:bucket "WRITE"]]}
+                    :perms   [[:bucket "WRITE_ACP"]]}
+   :get-object     {:handler head-object
+                    :perms   [[:object "READ"]]}
+   :head-object    {:handler head-object
+                    :perms   [[:object "READ"]]}
+   :put-object     {:handler put-object
+                    :perms   [[:bucket "WRITE"]]}
+   :delete-object  {:handler delete-object
+                    :perms   [[:bucket "WRITE"]]}
    :get-object-acl {:handler get-object-acl 
-                    :perms [[:object "READ_ACP"]]}
+                    :perms   [[:object "READ_ACP"]]}
    :put-object-acl {:handler put-object-acl 
-                    :perms [[:object "WRITE_ACP"]]}})
+                    :perms   [[:object "WRITE_ACP"]]}})
 
 (defmacro ensure!
   [pred]
@@ -171,7 +172,7 @@
                                   :needs  arg}))
         :object        (ensure! (object-satisfies? 
                                  (bucket/by-name bucketstore bucket)
-                                 (object/fetch bucket object)
+                                 nil
                                  :for    tenant
                                  :groups memberof?
                                  :needs  arg))))))
