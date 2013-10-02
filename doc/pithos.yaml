@@ -33,8 +33,6 @@ logging:
 options:
 #  server-name: 'sos.exoscale.ch'
   service-uri: 's3.amazonaws.com' 
-  chunksize: '256K'
-  maxsize: '10G'
   reporting: true
   server-side-encryption: true
   multipart-upload: true
@@ -110,3 +108,5 @@ regions:
       standard:
         cluster: 'localhost'
         keyspace: 'storage'
+        max-chunk: '256k'
+        max-block-chunks: 4096
