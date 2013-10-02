@@ -1,6 +1,18 @@
 (ns io.pithos.util
   (:require [clojure.string :refer [lower-case]]))
 
+(defn md5-init
+  []
+  (doto (java.security.MessageDigest/getInstance "MD5") (.reset)))
+
+(defn md5-update
+  [hash ba from to]
+  (.update hash ba from to))
+
+(defn md5-text-sum
+  [hash]
+  (.toString (java.math.BigInteger. 1 (.digest hash)) 16))
+
 (defn inc-prefix
   "Given an object path, yield the next semantic one."
   [p]
