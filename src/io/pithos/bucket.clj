@@ -22,7 +22,7 @@
           (where {:bucket bucket})))
 
 (defn delete-bucket-q
-  [tenant  bucket]
+  [bucket]
   (delete :bucket (where {:bucket bucket})))
 
 (defn by-tenant
@@ -35,7 +35,7 @@
    (execute (fetch-bucket-q bucket))))
 
 (defn create!
-  [tenant bucket attrs]
+  [tenant bucket columns]
   (if-let [[details] (seq (execute (get-absolute-bucket-q bucket)))]
     (when (not= (:tenant details tenant) tenant)
       (throw (ex-info 
@@ -43,21 +43,18 @@
               {:type :bucket-already-exists
                :bucket bucket
                :status-code 409})))
-    (execute (update-bucket-q bucket (merge attrs {:tenant tenant})))))
+    (execute (update-bucket-q bucket (merge columns {:tenant tenant})))))
 
 (defn update!
-  [bucket attrs]
-  (execute (update-bucket-q bucket attrs)))
+  [bucket columns]
+  (execute (update-bucket-q bucket columns)))
 
 (defn delete!
-  [tenant bucket]
+  [bucket]
   (if-let [info (seq (execute (fetch-bucket-q bucket)))]
-    (if (= tenant (:tenant info))
-      (execute (delete-bucket-q tenant bucket))
-      (throw (ex-info "not your bucket" {})))
+    (execute (delete-bucket-q bucket))
     (throw (ex-info "bucket not found" 
                     {:type        :no-such-bucket
                      :status-code 404
-                     :tenant      tenant
                      :bucket      bucket}))))
 
