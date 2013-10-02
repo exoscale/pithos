@@ -11,9 +11,10 @@
                           :tenant       :text
                           :region       :text
                           :acl          :text
+                          :cors         :text
                           :website      :text
                           :policy       :text
-                          :primary-key  [:bucket :tenant]})))
+                          :primary-key  :bucket})))
 
 (def bucket_tenant-index
     (create-index
@@ -29,6 +30,7 @@
   (column-definitions {:bucket      :text
                        :path        :text
                        :inode       :uuid
+                       :acl          :text
                        :primary-key [:bucket :path]})))
 
 (def inode-table
@@ -40,9 +42,8 @@
                        :atime        :timestamp
                        :checksum     :text
                        :multi        :boolean
-                       :acl          :text
                        :storageclass :text
-                       :attrs        (coll-type :map :text :text)
+                       :metadata     (coll-type :map :text :text)
                        :primary-key  [[:inode :draft] :version]})))
 
 (def upload-table
