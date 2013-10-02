@@ -3,37 +3,39 @@
             [qbits.hayt :refer [select where set-columns
                                 delete update limit]]))
 
-(defn fetch-bucket-q
+(defn bucket-by-tenant-q
   [tenant]
   (select :bucket (where {:tenant tenant})))
 
-(defn get-bucket-q
-  [tenant  bucket]
-  (select :bucket (where {:tenant tenant :bucket bucket}) (limit 1)))
+(defn fetch-bucket-q
+  [bucket]
+  (select :bucket (where {:bucket bucket}) (limit 1)))
 
 (defn get-absolute-bucket-q
   [bucket]
   (select :bucket (where {:bucket bucket}) (limit 1)))
 
 (defn update-bucket-q
-  [tenant  bucket attrs tags]
+  [bucket columns]
   (update :bucket
-          (set-columns {:attrs attrs :tags tags})
-          (where {:tenant tenant :bucket bucket})))
+          (set-columns columns)
+          (where {:bucket bucket})))
 
 (defn delete-bucket-q
   [tenant  bucket]
-  (delete :bucket (where {:tenant tenant :bucket bucket})))
+  (delete :bucket (where {:bucket bucket})))
+
+(defn by-tenant
+  [tenant]
+  (execute (bucket-by-tenant-q tenant)))
 
 (defn fetch
-  ([tenant]
-     (execute (fetch-bucket-q tenant)))
-  ([tenant  bucket]
-     (first
-      (execute (get-bucket-q tenant bucket)))))
+  [bucket]
+  (first
+   (execute (fetch-bucket-q bucket))))
 
 (defn create!
-  [tenant bucket]
+  [tenant bucket attrs]
   (if-let [[details] (seq (execute (get-absolute-bucket-q bucket)))]
     (when (not= (:tenant details tenant) tenant)
       (throw (ex-info 
@@ -41,17 +43,18 @@
               {:type :bucket-already-exists
                :bucket bucket
                :status-code 409})))
-    (execute (update-bucket-q tenant bucket {} #{}))))
+    (execute (update-bucket-q bucket (merge attrs {:tenant tenant})))))
 
 (defn update!
-  [tenant  bucket 
-   & {:keys [attrs tags] :or {attrs {} tags #{}}}]
-  (execute (update-bucket-q tenant bucket attrs tags)))
+  [bucket attrs]
+  (execute (update-bucket-q bucket attrs)))
 
 (defn delete!
   [tenant bucket]
-  (if (seq (execute (get-bucket-q tenant bucket)))
-    (execute (delete-bucket-q tenant bucket))
+  (if-let [info (seq (execute (fetch-bucket-q bucket)))]
+    (if (= tenant (:tenant info))
+      (execute (delete-bucket-q tenant bucket))
+      (throw (ex-info "not your bucket" {})))
     (throw (ex-info "bucket not found" 
                     {:type        :no-such-bucket
                      :status-code 404
