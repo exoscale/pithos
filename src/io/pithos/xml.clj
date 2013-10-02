@@ -69,6 +69,12 @@
         reqid (str (:reqid request))]
     (indent-str
      (case type
+       :access-denied
+       (e :Error {}
+          (e :Code {} "AccessDenied")
+          (e :Message {} "Access Denied")
+          (e :RequestId {} reqid)
+          (e :HostId {} reqid))
        :signature-does-not-match
        (e :Error {}
           (e :Code {} "SignatureDoesNotMatch")
