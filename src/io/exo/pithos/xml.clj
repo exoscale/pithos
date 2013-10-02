@@ -1,5 +1,6 @@
 (ns io.exo.pithos.xml
   (:require [clojure.data.xml  :refer [->Element emit-str indent-str]]
+            [clojure.pprint    :refer [pprint]]
             [clojure.string    :as s]
             [io.exo.pithos.sig :as sig]))
 
@@ -33,6 +34,11 @@
       xml-ns
       (e :Action {}
          (e :Code {} (name action))))))
+
+(defn default
+  [something]
+  (indent-str
+   (e :Output xml-ns (e :Payload {} (with-out-str (pprint something))))))
 
 (defn list-bucket
   [tenant prefix delimiter max-keys bucket files prefixes]
