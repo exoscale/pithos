@@ -44,8 +44,6 @@
     (let [[_ access-key sig] (re-matches #"^AWS (.*):(.*)$" auth-str)
           {:keys [secret] :as authorization} (ks/fetch keystore access-key)]
 
-      (info "got authorization: " authorization)
-
       (when-not (= sig (sign-request request access-key secret))
         (throw (ex-info "invalid request signature"
                         {:type :signature-does-not-match
