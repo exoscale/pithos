@@ -2,52 +2,9 @@
   (:require [qbits.hayt            :refer :all]
             [qbits.alia            :refer [execute]]
             [clojure.tools.logging :refer [info error]]
-            [io.pithos.bucket      :as bucket]))
+            [io.pithos.bucket      :as bucket]
+            [io.pithos.meta        :as meta]))
 
-
-;; region metastore
-
-(def object-table
- (create-table
-  :object
-  (column-definitions {:bucket      :text
-                       :object      :text
-                       :inode       :uuid
-                       :acl          :text
-                       :primary-key [:bucket :object]})))
-
-(def inode-table
- (create-table
-  :inode
-  (column-definitions {:inode        :uuid
-                       :draft        :boolean
-                       :version      :timeuuid
-                       :atime        :timestamp
-                       :checksum     :text
-                       :multi        :boolean
-                       :storageclass :text
-                       :metadata     (coll-type :map :text :text)
-                       :primary-key  [[:inode :draft] :version]})))
-
-(def upload-table
- (create-table
-  :upload
-  (column-definitions {:upload      :uuid
-                       :bucket      :text
-                       :object      :text
-                       :inode       :uuid
-                       :size        :bigint
-                       :sendsum     :text
-                       :recvsum     :text
-                       :primary-key [[:bucket :object :upload] :inode]})))
-
-(def object_uploads-table
- (create-table
-  :object_uploads
-  (column-definitions {:bucket      :text
-                       :object      :text
-                       :upload      :uuid
-                       :primary-key [[:bucket :object] :upload]})))
 
 ;; region blobstore
 
@@ -70,9 +27,6 @@
                        :payload     :blob
                        :primary-key [[:inode :version :block] :offset]})))
 
-(def region-metastore-schema
-  [object-table inode-table upload-table object_uploads-table])
-
 (def region-blobstore-schema
   [inode_blocks-table block-table])
 
@@ -86,8 +40,7 @@
     (doseq [[region {:keys [metastore storage-classes]}] regions]
       (info "converging metastore for region " region)
 
-      (doseq [schema region-metastore-schema]
-        (execute metastore schema))
+      (meta/converge! metastore)
 
       (doseq [[storage-class blobstore] storage-classes]
         (info "converging blobstore for region and storage-class "
