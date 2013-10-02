@@ -16,9 +16,10 @@
 (defn inc-prefix
   "Given an object path, yield the next semantic one."
   [p]
-  (let [[c & s] (reverse p)
-        reversed (conj s (-> c int inc char))]
-    (apply str (reverse reversed))))
+  (when p
+    (let [[c & s] (reverse p)
+          reversed (conj s (-> c int inc char))]
+      (apply str (reverse reversed)))))
 
 (def byte-factors
   {"k" 1 "m" 2 "g" 3 "t" 4 "p" 5})
