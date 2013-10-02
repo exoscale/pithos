@@ -149,6 +149,4 @@
         (rewrite-bucket)
         (authenticate keystore)
         (assoc-target)
-        (assoc-operation)
-        ;; (authorize metastore)
-        )))
+        (assoc-operation))))
