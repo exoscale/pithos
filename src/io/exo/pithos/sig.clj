@@ -53,7 +53,5 @@
                          :request request
                          :expected (sign-request request access-key secret)
                          :to-sign (string-to-sign request)})))
-      authorization)
-    (throw (ex-info "invalid authorization string"
-                    {:type :invalid-auth-string
-                     :request request}))))
+      (update-in authorization [:memberof] concat ["authenticated-users"]))
+    {:tenant :anonymous :memberof ["anonymous"]}))
