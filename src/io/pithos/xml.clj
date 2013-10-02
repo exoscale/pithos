@@ -41,17 +41,17 @@
    (e :Output xml-ns (e :Payload {} (with-out-str (pprint something))))))
 
 (defn list-bucket
-  [tenant prefix delimiter max-keys bucket files prefixes]
+  [[files prefixes] {:keys [tenant bucket]} {:keys [prefix delimiter]}]
   (indent-str
    (e :ListBucketResult {}
       (e :Name {} bucket)
       (e :Prefix {} prefix)
-      (e :MaxKeys {} (str max-keys))
+      (e :MaxKeys {} (str 100))
       (e :Delimiter {} delimiter)
       (e :IsTruncated {} "false")
-      (for [{:keys [path size] :or {size 0}} files]
+      (for [{:keys [object size] :or {size 0}} files]
         (e :Contents {}
-           (e :Key {} path)
+           (e :Key {} object)
            (e :LastModified {} "2013-09-15T20:52:35.000Z")
            (e :ETag {} "41d8cd98f00b204e9800998ecf8427")
            (e :Size {} (str size))
