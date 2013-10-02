@@ -1,4 +1,4 @@
-#+TITTLE: pithos object storage
+#+TITLE: pithos object storage
 
 pithos: cassandra backed object storage
 
