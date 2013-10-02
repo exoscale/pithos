@@ -52,7 +52,7 @@
   (delete :bucket (where {:bucket bucket})))
 
 (defn cassandra-bucket-store
-  [config]
+  [{:keys [default-region] :as config}]
   (let [session (store/cassandra-store config)]
     (reify Bucketstore
       (converge! [this]
@@ -73,7 +73,9 @@
                      :status-code 409})))
           (execute session
                    (update-bucket-q bucket 
-                                    (merge columns {:tenant tenant})))))
+                                    (merge {:region default-region}
+                                           columns 
+                                           {:tenant tenant})))))
       (update! [this bucket columns]
         (execute session (update-bucket-q bucket columns)))
       (delete! [this bucket]
