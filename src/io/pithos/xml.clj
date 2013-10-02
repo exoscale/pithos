@@ -28,12 +28,12 @@
                (e :CreationDate {} "2013-09-12T16:16:38.000Z"))))))))
 
 (defn unknown
-  [{:keys [action]}]
+  [{:keys [operation]}]
   (indent-str
    (e :UnknownAction
       xml-ns
       (e :Action {}
-         (e :Code {} (name action))))))
+         (e :Code {} ((fnil name "no operation provided") operation))))))
 
 (defn default
   [something]
