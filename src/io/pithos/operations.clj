@@ -2,10 +2,13 @@
   (:require [io.pithos.response     :refer [header response status
                                             xml-response request-id
                                             content-type exception-status]]
+            [org.httpkit.server     :refer [with-channel send!]]
             [io.pithos.store        :as store]
             [io.pithos.bucket       :as bucket]
             [io.pithos.meta         :as meta]
+            [io.pithos.blob         :as blob]
             [io.pithos.xml          :as xml]
+            [qbits.alia.uuid        :as uuid]
             [clojure.tools.logging  :refer [debug info warn error]]))
 
 (defn get-region
@@ -75,11 +78,32 @@
       (content-type "text/plain")))
 
 (defn put-object
-  [{:keys [bucket object] :as request} bucketstore regions]
+  [{:keys [body bucket object] :as request} bucketstore regions]
   ;; put object !
-  (-> (response)
-      (request-id request)))
+  (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
+        {:keys [metastore storage-classes]} (get-region regions region)
+        {:keys [inode]}                     (meta/fetch metastore bucket object)
+        blobstore                           (get storage-classes :standard)
+        inode                               (or inode (uuid/random))
+        version                             (uuid/time-based)]
 
+    (debug "starting object upload for: " bucket object inode)
+    (with-channel request chan
+      (let [finalize! (fn [inode version size checksum]
+                        (debug "finalizing object with details "
+                               bucket object inode version size checksum)
+                        (meta/update! metastore bucket object
+                                      {:inode inode
+                                       :version version
+                                       :size size
+                                       :checksum checksum
+                                       :multi false
+                                       :storageclass "standard"
+                                       :acl "private"})
+                        (send! chan (-> (response)
+                                        (header "ETag" checksum)
+                                        (request-id request))))]
+        (blob/append-stream! blobstore inode version body finalize!)))))
 
 (defn head-object
   [{:keys [bucket object] :as request} bucketstore regions]
@@ -160,12 +184,14 @@
 
 (defn bucket-satisfies?
   [{:keys [tenant acl]} {:keys [for groups needs]}]
+  (debug "got tenant: " tenant ", and for: " for)
   (or (= tenant for)
       (granted? acl needs for)
       (some identity (map (partial granted? acl needs) groups))))
 
 (defn object-satisfies?
-  [{tenant :tenant} {acl :acl} & {:keys [for groups needs]}]
+  [{tenant :tenant} {acl :acl} {:keys [for groups needs]}]
+  (debug "got tenant: " tenant ", and for: " for)
   (or (= tenant for)
       (granted? acl needs for)
       (some identity (map (partial granted? acl needs) groups))))
@@ -175,7 +201,7 @@
   (let [{:keys [tenant memberof]} authorization
         memberof?                 (set memberof)]
     (doseq [[perm arg] (map (comp flatten vector) perms)]
-      (debug "about to validate " perm arg tenant memberof?)
+      (debug "about to validate " bucket perm arg tenant memberof?)
       (case perm
         :authenticated (ensure! (not= tenant :anonymous))
         :memberof      (ensure! (memberof? arg))
@@ -184,12 +210,12 @@
                                  {:for    tenant
                                   :groups memberof?
                                   :needs  arg}))
-        :object        (ensure! (object-satisfies? 
+        :object        (ensure! (object-satisfies?
                                  (bucket/by-name bucketstore bucket)
                                  nil
-                                 :for    tenant
-                                 :groups memberof?
-                                 :needs  arg))))))
+                                 {:for    tenant
+                                  :groups memberof?
+                                  :needs  arg}))))))
 
 (defn ex-handler
   [request exception]
