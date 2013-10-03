@@ -89,13 +89,13 @@
 
 (defn filter-content
   [objects prefix delimiter]
-  (let [pat (re-pattern (str "^" prefix "[^\\" delimiter "]+$"))]
+  (let [pat (re-pattern (str "^" prefix "[^\\" delimiter "]*$"))]
     (filter (comp (partial re-find pat) :object) objects)))
 
 (defn filter-prefixes
   [objects prefix delimiter]
   (let [pat (re-pattern
-             (str "^(" prefix "[^\\" delimiter "]+\\" delimiter ").*$"))]
+             (str "^(" prefix "[^\\" delimiter "]*\\" delimiter ").*$"))]
     (->> (map (comp second (partial re-find pat) :object) objects)
          (remove nil?)
          (set))))
