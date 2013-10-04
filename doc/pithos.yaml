@@ -109,5 +109,5 @@ regions:
       standard:
         cluster: 'localhost'
         keyspace: 'storage'
-        max-chunk: '256k'
-        max-block-chunks: 4096
+        max-chunk: '128k'
+        max-block-chunks: 1024
