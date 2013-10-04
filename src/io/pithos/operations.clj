@@ -1,14 +1,15 @@
 (ns io.pithos.operations
   (:require [io.pithos.response     :refer [header response status
-                                            xml-response request-id
+                                            xml-response request-id send!
                                             content-type exception-status]]
-            [org.httpkit.server     :refer [with-channel send!]]
             [io.pithos.store        :as store]
             [io.pithos.bucket       :as bucket]
             [io.pithos.meta         :as meta]
             [io.pithos.blob         :as blob]
             [io.pithos.xml          :as xml]
+            [io.pithos.util         :refer [piped-input-stream]]
             [qbits.alia.uuid        :as uuid]
+            [lamina.core            :refer [channel siphon lazy-seq->channel enqueue close]]
             [clojure.tools.logging  :refer [debug info warn error]]))
 
 (defn get-region
@@ -23,7 +24,8 @@
   (-> (bucket/by-tenant bucketstore tenant)
       (xml/list-all-my-buckets)
       (xml-response)
-      (request-id request)))
+      (request-id request)
+      (send! (:chan request))))
 
 (defn put-bucket
   [{{:keys [tenant]} :authorization :keys [bucket] :as request}
@@ -32,7 +34,8 @@
   (-> (response)
       (request-id request)
       (header "Location" (str "/" bucket))
-      (header "Connection" "close")))
+      (header "Connection" "close")
+      (send! (:chan request))))
 
 (defn delete-bucket
   [{{:keys [tenant]} :authorization :keys [bucket] :as request}
@@ -41,7 +44,8 @@
   (bucket/delete! bucketstore bucket)
   (-> (response)
       (request-id request)
-      (status 204)))
+      (status 204)
+      (send! (:chan request))))
 
 (defn get-bucket
   [{:keys [params bucket] :as request} bucketstore regions]
@@ -53,14 +57,16 @@
     (-> prefixes
         (xml/list-bucket binfo params)
         (xml-response)
-        (request-id request))))
+        (request-id request)
+      (send! (:chan request)))))
 
 (defn put-bucket-acl
   [{:keys [bucket body] :as request} bucketstore regions]
   (let [acl (slurp body)]
     (bucket/update! bucketstore bucket {:acl acl})
     (-> (response)
-        (request-id request))))
+        (request-id request)
+      (send! (:chan request)))))
 
 (defn get-bucket-acl
   [{:keys [bucket] :as request} bucketstore regions]
@@ -68,14 +74,47 @@
       :acl
       (xml/default)
       (xml-response)
-      (request-id request)))
+      (request-id request)      
+      (send! (:chan request))))
+
+(defn as-string
+  [bb]
+  (String. (.array bb)))
 
 (defn get-object
   [{:keys [bucket object] :as request} bucketstore regions]
   ;; get object !
-  (-> (response "toto\n")
-      (request-id request)
-      (content-type "text/plain")))
+
+  (let [{:keys [region]}          (bucket/by-name bucketstore bucket)
+        {:keys [metastore
+                storage-classes]} (get-region regions region)
+        {:keys [size checksum
+                inode version
+                storage-class]}   (meta/fetch metastore bucket object)
+        blobstore                 (get storage-classes :standard)
+        [is os]                   (piped-input-stream)]
+    
+    (future ;; XXX: run this in a dedicated threadpool
+      (try
+        (blob/stream! 
+         blobstore inode version
+         (fn [chunks]
+           (if chunks
+             (doseq [{:keys [payload]} chunks
+                     :let [btow (- (.limit payload) (.position payload))
+                           ba   (byte-array btow)]]
+               (.get payload ba)
+               (.write os ba))
+             (.close os))))
+
+        (catch Exception e
+          (error e "could not completely write out: "))))
+
+    (-> (response is)
+        (content-type "text/plain")
+        (header "Content-Length" size)
+        (header "ETag" checksum)
+        (send! (:chan request)))))
 
 (defn put-object
   [{:keys [body bucket object] :as request} bucketstore regions]
@@ -88,27 +127,29 @@
         version                             (uuid/time-based)]
 
     (debug "starting object upload for: " bucket object inode)
-    (with-channel request chan
-      (let [finalize! (fn [inode version size checksum]
-                        (debug "finalizing object with details "
-                               bucket object inode version size checksum)
-                        (meta/update! metastore bucket object
-                                      {:inode inode
-                                       :version version
-                                       :size size
-                                       :checksum checksum
-                                       :multi false
-                                       :storageclass "standard"
-                                       :acl "private"})
-                        (send! chan (-> (response)
-                                        (header "ETag" checksum)
-                                        (request-id request))))]
-        (blob/append-stream! blobstore inode version body finalize!)))))
+    (debug "will upload in: " body (class body))
+    (let [finalize! (fn [inode version size checksum]
+                      (debug "finalizing object with details "
+                             bucket object inode version size checksum)
+                      (meta/update! metastore bucket object
+                                    {:inode inode
+                                     :version version
+                                     :size size
+                                     :checksum checksum
+                                     :multi false
+                                     :storageclass "standard"
+                                     :acl "private"})
+                      (send! (-> (response)
+                                 (header "ETag" checksum)
+                                 (request-id request))
+                             (:chan request)))]
+      (blob/append-stream! blobstore inode version body finalize!))))
 
 (defn head-object
   [{:keys [bucket object] :as request} bucketstore regions]
   (-> (response)
-      (request-id request)))
+      (request-id request)
+      (send!)))
 
 (defn get-object-acl
   [{:keys [bucket object] :as request} bucketstore regions]
@@ -118,7 +159,8 @@
         :acl
         (xml/default)
         (xml-response)
-        (request-id request))))
+        (request-id request)
+        (send! (:chan request)))))
 
 (defn put-object-acl
   [{:keys [bucket object body] :as request} bucketstore regions]
@@ -127,7 +169,8 @@
         acl              (slurp body)]
     (meta/update! metastore bucket object {:acl acl})
     (-> (response)
-        (request-id request))))
+        (request-id request)
+        (send! (:chan request)))))
 
 (defn delete-object
   [{:keys [bucket object] :as request} bucketstore regions]
@@ -136,13 +179,15 @@
     ;; delete object
     (meta/delete! metastore bucket object)
     (-> (response)
-        (request-id request))))
+        (request-id request)
+        (send! (:chan request)))))
 
 (defn unknown
   "unknown operation"
-  [req bucketstore regions]
-  (-> (xml/unknown req)
-      (xml-response)))
+  [request bucketstore regions]
+  (-> (xml/unknown request)
+      (xml-response)
+      (send! (:chan request))))
 
 (def opmap
   {:get-service    {:handler get-service 
@@ -158,7 +203,7 @@
                     :perms   [[:bucket "READ_ACP"]]}
    :put-bucket-acl {:handler put-bucket-acl
                     :perms   [[:bucket "WRITE_ACP"]]}
-   :get-object     {:handler head-object
+   :get-object     {:handler get-object
                     :perms   [[:object "READ"]]}
    :head-object    {:handler head-object
                     :perms   [[:object "READ"]]}
@@ -212,7 +257,7 @@
                                   :needs  arg}))
         :object        (ensure! (object-satisfies?
                                  (bucket/by-name bucketstore bucket)
-                                 nil
+                                 nil ;; XXX please fix me
                                  {:for    tenant
                                   :groups memberof?
                                   :needs  arg}))))))
@@ -221,13 +266,15 @@
   [request exception]
   (-> (xml-response (xml/exception request exception))
       (exception-status (ex-data exception))
-      (request-id request)))
+      (request-id request)
+      (send! (:chan request))))
 
 (defn dispatch
   [{:keys [operation] :as request} bucketstore regions]
+  (debug "dispatching !")
   (let [{:keys [handler perms] :or {handler unknown}} (get opmap operation)]
     (try (authorize request perms bucketstore regions)
-         (info "request-now: " (with-out-str (clojure.pprint/pprint request)))
+         (debug "request authorized !")
          (handler request bucketstore regions)
          (catch Exception e
            (when-not (:type (ex-data e))
