@@ -108,7 +108,6 @@
 
 (defn get-chunk
   [max cb hash]
-  (debug "in getchunk!")
   (when (.readable cb)
     (let [btor (min (.readableBytes cb) max)
           bb   (doto (ByteBuffer/allocate btor) (.position 0))]
@@ -122,7 +121,6 @@
 
 (defn put-chunk!
   [chunk session inode version block offset]
-  (debug "putting chunk at offset " offset)
   (let [size (.limit chunk)]
     (execute session (set-chunk-q inode version block offset size chunk))
     size))
@@ -154,7 +152,6 @@
   [s ino ver lim block offset]
   (lazy-seq
    (when-let [chunks (seq (execute s (get-chunk-q ino ver block offset lim)))]
-     (debug "lazy-seq iter, block " block ", got " (count chunks) " chunks")
      (let [{:keys [chunksize offset]} (last chunks)]
        (concat chunks (lazy-block s ino ver lim block (+ offset chunksize)))))))
 
@@ -184,24 +181,20 @@
                 (when-let [chunks (seq 
                                    (execute 
                                     (get-chunk-q ino version block offset limit)))]
-                  (debug "first pass: " (count chunks) " chunks")
                   (handler chunks)
                   (last chunks)))]
-          (debug "streaming block: " ino version block)
           (try
             (loop [offset block]
               (when-let [{:keys [offset chunksize]} (stream-chunks! offset)]
-                (debug "will try getting more chunks, starting at: " (+ offset chunksize))
                 (recur (+ offset chunksize))))
             (catch Exception e
-              (error e "soemthing went wront during recur loop"))
+              (error e "something went wront during recur loop"))
             )))
 
 
       (stream! [this ino version handler]
         (with-session session
           (doseq [{:keys [block]} (execute (get-block-q ino version :asc))]
-            (debug "sending out chunks for block " block)
             (stream-block! this ino version block handler))
           (handler nil)))
 
@@ -243,7 +236,6 @@
                stream
                (fn [buf] 
                  (let [res (apply write-chunk! this ino version hash buf @pos)]
-                   (debug "wrote chunk and got back: " res)
                    (reset! pos res)
                    res))))
             

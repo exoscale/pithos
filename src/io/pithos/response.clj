@@ -47,8 +47,6 @@
 
 (defn send!
   [response chan]
-  (debug "ready to send out response!")
-  (debug "replying with:\n" (with-out-str (clojure.pprint/pprint response)))
   (try
     (enqueue chan response)
     (catch Exception e

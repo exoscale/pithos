@@ -53,7 +53,6 @@
         {:keys [metastore]}               (get-region regions region)
         params (select-keys params [:delimiter :prefix])
         prefixes (meta/prefixes metastore bucket params)]
-    (debug "got prefixes: " prefixes)
     (-> prefixes
         (xml/list-bucket binfo params)
         (xml-response)
@@ -126,8 +125,6 @@
         inode                               (or inode (uuid/random))
         version                             (uuid/time-based)]
 
-    (debug "starting object upload for: " bucket object inode)
-    (debug "will upload in: " body (class body))
     (let [finalize! (fn [inode version size checksum]
                       (debug "finalizing object with details "
                              bucket object inode version size checksum)
@@ -229,14 +226,12 @@
 
 (defn bucket-satisfies?
   [{:keys [tenant acl]} {:keys [for groups needs]}]
-  (debug "got tenant: " tenant ", and for: " for)
   (or (= tenant for)
       (granted? acl needs for)
       (some identity (map (partial granted? acl needs) groups))))
 
 (defn object-satisfies?
   [{tenant :tenant} {acl :acl} {:keys [for groups needs]}]
-  (debug "got tenant: " tenant ", and for: " for)
   (or (= tenant for)
       (granted? acl needs for)
       (some identity (map (partial granted? acl needs) groups))))
@@ -246,7 +241,6 @@
   (let [{:keys [tenant memberof]} authorization
         memberof?                 (set memberof)]
     (doseq [[perm arg] (map (comp flatten vector) perms)]
-      (debug "about to validate " bucket perm arg tenant memberof?)
       (case perm
         :authenticated (ensure! (not= tenant :anonymous))
         :memberof      (ensure! (memberof? arg))
@@ -271,10 +265,8 @@
 
 (defn dispatch
   [{:keys [operation] :as request} bucketstore regions]
-  (debug "dispatching !")
   (let [{:keys [handler perms] :or {handler unknown}} (get opmap operation)]
     (try (authorize request perms bucketstore regions)
-         (debug "request authorized !")
          (handler request bucketstore regions)
          (catch Exception e
            (when-not (:type (ex-data e))
