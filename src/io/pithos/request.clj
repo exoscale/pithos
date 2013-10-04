@@ -122,8 +122,8 @@
   (let [pattern-str (str "^(.*)." service-uri "$")
         pattern     (re-pattern pattern-str)
         transformer (fn [bucket uri] (str "/" bucket (if (seq uri) uri "/")))]
-    (fn [{:keys [uri server-name] :as request}]
-      (if-let [[_ bucket] (re-find pattern server-name)]
+    (fn [{:keys [uri] {:strs [host]} :headers :as request}]
+      (if-let [[_ bucket] (re-find pattern host)]
         (assoc request :uri (transformer bucket uri))
         request))))
 
@@ -132,7 +132,6 @@
   (let [auth   (validate keystore req)
         master (:master auth)
         tenant (get-in req [:headers "x-amz-masquerade-tenant"])]
-    (debug "got auth details: " auth master tenant)
     (assoc req :authorization 
            (if (and master tenant) (assoc auth :tenant tenant) auth))))
 
