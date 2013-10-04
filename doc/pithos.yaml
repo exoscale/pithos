@@ -1,25 +1,27 @@
 #
-# pithos main configuration
-# -------------------------
+## pithos main configuration
+## =========================
 #
 # This file contains the following sections
 #   - service
 #   - logging
 #   - options
 #   - keystore
-#   - userstore
-#   - datastore
+#   - bucketstore
+#   - regions
  
 
 ## service configuration
+## ---------------------
 #
+# indicates
 service:
   ip: '127.0.0.1'
   port: 8080
-  max-body: '1G'
 
 
 ## logging configuration
+## ---------------------
 logging:
   level: info
   console: true
@@ -30,6 +32,7 @@ logging:
 
 
 ## global options
+## --------------
 options:
 #  server-name: 'sos.exoscale.ch'
   service-uri: 's3.amazonaws.com' 
@@ -42,15 +45,15 @@ options:
 
 
 ## keystore configuration
+## ----------------------
 #
 # Keystores associate an access key with
 # an organization and secret key.
 # 
 # They may offer provisioning capacities with the
-# masterkey
+# masterkey. The default provider relies on keys
+# being defined inline.
 keystore:
-#  default provider
-#  use: io.exo.pithos.keystore/map->MapKeystore
   keys:
     AKIAIOSFODNN7EXAMPLE:
 # The master key allows provisinning operations
@@ -65,40 +68,33 @@ keystore:
       secret: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
 
 
-## buckestore
+## bucketstore configuration
+## -------------------------
 #
 # The bucketstore is ring global and contains information
 # on bucket location and global parameters.
 #
+# Its primary aim is to hold bucket location and ownership
+# information.
+#
+# The default provider relies on cassandra.
 bucketstore:
-# A cluster may be defined as a single host definition or as
-# a list of host definitions.
-#
-# A host may be defined as a string, or as a map
-# containing at least a 'host' key and an optional
-# 'port' key which defaults to 9160.
-# 
-# Examples:
-#
-# cluster: 'localhost'
-#
-# cluster:
-#   host: 'localhost'
-#   port: 9160
-#
-# cluster:
-#   - 'host1'
-#   - 'host2'
-#   - host: 'host3'
-#     port: 9162
-#
   default-region: 'CH-GV1'
   cluster: 'localhost'
   keyspace: 'storage'
 
 
-# regions
-# =======
+## regions
+## -------
+#
+# Regions are composed of a metastore and an arbitrary number
+# of named storage classes which depend on a blobstore.
+#
+# The metastore holds metadata for the full region, as well as
+# object storage-class placement information.
+#
+# The default implementation of both metastore and blobstore
+# rely on cassandra.
 #
 regions:
   CH-GV1:
