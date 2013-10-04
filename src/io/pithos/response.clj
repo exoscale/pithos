@@ -1,4 +1,6 @@
-(ns io.pithos.response)
+(ns io.pithos.response
+  (:require [lamina.core :refer [enqueue close]]
+            [clojure.tools.logging :refer [debug error]]))
 
 (defn response
   ([]
@@ -42,3 +44,12 @@
   (let [{:keys [status-code] :or {status-code 500}} details]
     (-> resp
         (status status-code))))
+
+(defn send!
+  [response chan]
+  (debug "ready to send out response!")
+  (debug "replying with:\n" (with-out-str (clojure.pprint/pprint response)))
+  (try
+    (enqueue chan response)
+    (catch Exception e
+      (error e "exception in enqueue"))))
