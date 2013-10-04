@@ -102,8 +102,7 @@
         (update-in [:keystore] get-instance :keystore)
         (update-in [:bucketstore] (partial merge default-bucketstore))
         (update-in [:bucketstore] get-instance :bucketstore)
-        (update-in [:regions] get-region-stores)
-        (update-in [:service :max-body] to-bytes :max-body))
+        (update-in [:regions] get-region-stores))
     (catch Exception e
       (when-not quiet?
         (println "invalid or incomplete configuration: " (str e)))
