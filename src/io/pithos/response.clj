@@ -8,7 +8,8 @@
 
 (defn header
   [resp header val]
-  (assoc-in resp [:headers header] val))
+  (let [strval (if (keyword? val) (name val) (str val))]
+    (assoc-in resp [:headers header] strval)))
 
 (defn content-type
   [resp type]
