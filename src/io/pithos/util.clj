@@ -1,15 +1,21 @@
 (ns io.pithos.util
+  (:import [java.io PipedInputStream PipedOutputStream])
   (:require [clojure.string :refer [lower-case]]))
 
 (defn md5-init
   []
   (doto (java.security.MessageDigest/getInstance "MD5") (.reset)))
 
+(defn md5-safe
+  []
+  (agent (md5-init)))
+
 (defn md5-update
   [hash ba from to]
-  (.update hash ba from to))
+  (doto hash
+    (.update ba from to)))
 
-(defn md5-text-sum
+(defn md5-sum
   [hash]
   (.toString (java.math.BigInteger. 1 (.digest hash)) 16))
 
@@ -39,3 +45,10 @@
             1))))
     (throw (ex-info (format "invalid byte amount [%s]: %s" 
                             (or param "") input) {}))))
+
+
+(defn piped-input-stream
+  []
+  (let [os  (PipedOutputStream.)
+        is  (PipedInputStream. os)]
+    [is os]))
