@@ -1,4 +1,5 @@
 (ns io.pithos.blob
+  "Blobstore interaction. Expose"
   (:import java.util.UUID
            java.nio.ByteBuffer)
   (:require [clojure.java.io       :as io]
