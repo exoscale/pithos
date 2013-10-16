@@ -3,7 +3,7 @@
   :url "https://github.com/exoscale/ostore"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :main io.pithos.main
+  :main io.pithos
   :jvm-opts ["-Xmx2g"]
   :dependencies [[org.clojure/clojure       "1.5.1"]
                  [org.clojure/data.codec    "0.1.0"]
