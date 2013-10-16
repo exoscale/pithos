@@ -1,5 +1,6 @@
 (ns io.pithos.util
-  (:import [java.io PipedInputStream PipedOutputStream])
+  (:import [java.io   PipedInputStream PipedOutputStream]
+           [java.lang Math])
   (:require [clojure.string :refer [lower-case]]))
 
 (defn md5-init
@@ -36,15 +37,16 @@
   "Parse an input string into a byte amount, the input
    string can be suffixed by a unit specifier"
   [input & [param]]
-  (if-let [[_ amount _ factor] (re-find byte-pattern (str input))]
-    (do
-      (long
-       (* (Long/parseLong amount)
-          (if factor 
-            (java.lang.Math/pow 1024 (get byte-factors (lower-case factor)))
-            1))))
-    (throw (ex-info (format "invalid byte amount [%s]: %s" 
-                            (or param "") input) {}))))
+  (when input
+    (if-let [[_ amount _ factor] (re-find byte-pattern (str input))]
+      (do
+        (long
+         (* (Long/parseLong amount)
+            (if factor 
+              (Math/pow 1024 (get byte-factors (lower-case factor)))
+              1))))
+      (throw (ex-info (format "invalid byte amount [%s]: %s" 
+                              (or param "") input) {})))))
 
 
 (defn piped-input-stream
