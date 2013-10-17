@@ -1,104 +1,171 @@
 (ns io.pithos.xml
+  "This namespace provides plumbing to output XML as well as templates.
+  Our intent here is to avoid having to deal with presentation elsewhere,
+  instead, data structures should be emitted by other subsystems, this
+  namespace will then take care of making them suitable for sending out
+  on the wire."
   (:require [clojure.data.xml :refer [->Element emit-str indent-str]]
             [clojure.pprint   :refer [pprint]]
             [clojure.string   :as s]
             [io.pithos.sig    :as sig]))
 
-(defn e
-  ([x]
-     (e x {} nil))
-  ([x attrs & elements]
-     (->Element (name x) attrs (flatten elements))))
+(defn seq->xml
+  "A small [hiccup](https://github.com/weavejester/hiccup) like sequence to
+XML emitter.
 
-(def xml-ns {:xmlns "http://s3.amazonaws.com/doc/2006-03-01/"})
+The following sequence:
 
-(defn list-all-my-buckets
-  [[bucket :as buckets]]
-  (indent-str
-   (e :ListAllMyBucketsResult
-      xml-ns
-      (e :Owner {}
-         (e :ID {} (:tenant bucket))
-         (e :DisplayName {} (:tenant bucket)))
-      (e :Buckets {}
-         (doall
-          (for [{:keys [bucket]} buckets]
-            (e :Bucket {}
-               (e :Name {} bucket)
-               (e :CreationDate {} "2013-09-12T16:16:38.000Z"))))))))
+    [:ListAllMyBucketsResult {:xmlns \"http://foo\"}
+      [:Owner [:ID \"foo\"]
+              [:DisplayName \"bar\"]]
+      [:Foo]
+      [:AccessControlList
+        [:Grant
+          [:Grantee {:xmlns:xsi \"http//bar\"
+                     :xsi:type  \"CanonicalUser\"}
+            [:Owner 
+              [:ID \"owner1\"] 
+              [:DisplayName \"display1\"]]]
+          [:Permission \"Full-Control\"]]]]
+
+Will produce an XML AST equivalent to:
+
+     <?xml version=\"1.0\" encoding=\"UTF-8\"?>
+     <ListAllMyBucketsResult xmlns=\"http://foo\">
+      <Owner>
+         <ID>foo</ID>
+         <DisplayName>bar</DisplayName>
+       </Owner>
+       <Foo/>
+       <AccessControlList>
+        <Grant>
+          <Grantee xmlns:xsi=\"http//bar\" xsi:type=\"CanonicalUser\">
+            <Owner>
+              <ID>owner1</ID>
+              <DisplayName>display1</DisplayName>
+            </Owner>
+          </Grantee>
+          <Permission>Full-Control</Permission>
+        </Grant>
+      </AccessControlList>
+    </ListAllMyBucketsResult>
+
+"
+  [input]
+  (letfn [(tag-nodes->xml [[tag & nodes]]
+            (let [attrs (if (map? (first nodes)) (first nodes) {})
+                  nodes (if (map? (first nodes)) (rest nodes) nodes)]
+              (->Element (name tag)
+                         attrs
+                         (if (every? sequential? nodes)
+                           (mapv tag-nodes->xml (remove empty? nodes))
+                           (first nodes)))))]
+    (tag-nodes->xml input)))
+
+(defn seq->xmlstr
+  "Given a valid input for `seq->xml` output an xml string"
+  [s]
+  (indent-str (seq->xml s)))
+
+;; Some common elements for our templates
+
+(def ^{:doc "Shortcut for main XML namespace"} xml-ns 
+  {:xmlns "http://s3.amazonaws.com/doc/2006-03-01/"})
+
+
+;; XML Templates, based on the above functions
 
 (defn unknown
+  "Template used when the operation could not be inferred"
   [{:keys [operation]}]
-  (indent-str
-   (e :UnknownAction
-      xml-ns
-      (e :Action {}
-         (e :Code {} ((fnil name "no operation provided") operation))))))
+  (seq->xmlstr
+   [:UnknownAction xml-ns 
+    [:Action [:Code ((fnil name "no operation provided") operation)]]]))
 
 (defn default
+  "Debug template to at least show some output"
   [something]
-  (indent-str
-   (e :Output xml-ns (e :Payload {} (with-out-str (pprint something))))))
+  (seq->xmlstr
+   [:Output xml-ns [:Payload (with-out-str (pprint something))]]))
+
+(defn list-all-my-buckets
+  "Template for list-all-my-bucket-results"
+  [[bucket :as buckets]]
+  (seq->xmlstr
+   [:ListAllMyBucketsResult xml-ns
+    [:Owner [:ID (:tenant bucket)] [:DisplayName (:tenant bucket)]]
+    [:Buckets
+     (vec
+      (for [{:keys [bucket]} buckets]
+        [:Bucket 
+         [:Name bucket] 
+         [:CreationDate "2013-09-12T16:16:38.000Z"]]))]]))
 
 (defn list-bucket
+  "Template for the list-bucket operation response"
   [[files prefixes] {:keys [tenant bucket]} {:keys [prefix delimiter]}]
-  (indent-str
-   (e :ListBucketResult {}
-      (e :Name {} bucket)
-      (e :Prefix {} prefix)
-      (e :MaxKeys {} (str 100))
-      (e :Delimiter {} delimiter)
-      (e :IsTruncated {} "false")
-      (for [{:keys [object size] :or {size 0}} files]
-        (e :Contents {}
-           (e :Key {} object)
-           (e :LastModified {} "2013-09-15T20:52:35.000Z")
-           (e :ETag {} "41d8cd98f00b204e9800998ecf8427")
-           (e :Size {} (str size))
-           (e :Owner {}
-              (e :ID {} tenant)
-              (e :DisplayName {} tenant))
-           (e :StorageClass {} "Standard")))
-      (for [prefix prefixes]
-        (e :CommonPrefixes {}
-           (e :Prefix {} prefix))))))
+  (seq->xmlstr
+   [:ListBucketResult
+    [:Name bucket]
+    [:Prefix prefix]
+    [:MaxKeys (str 100)]
+    [:Delimiter delimiter]
+    [:IsTruncated "false"]
+    (for [{:keys [object size] :or {size 0}} files]
+      [:Contents
+       [:Key object]
+       [:LastModified "2013-09-15T20:52:35.000Z"]
+       [:ETag "41d8cd98f00b204e9800998ecf8427"]
+       [:Size (str size)]
+       [:Owner
+        [:ID tenant]
+        [:DisplayName tenant]]
+       [:StorageClass "Standard"]])]))
 
 (defn exception
+  "Dispatch on the type of exception we got and apply appropriate template.
+   Thankfully, we have a nice error message list in the S3 documentation:
+
+   http://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html"
   [request exception]
   (let [{:keys [type] :or {type :generic} :as payload} (ex-data exception)
         reqid (str (:reqid request))]
-    (indent-str
+    (seq->xmlstr
      (case type
        :access-denied
-       (e :Error {}
-          (e :Code {} "AccessDenied")
-          (e :Message {} "Access Denied")
-          (e :RequestId {} reqid)
-          (e :HostId {} reqid))
+       [:Error
+        [:Code "AccessDenied"]
+        [:Message "Access Denied"]
+        [:RequestId reqid]
+        [:HostId reqid]]
        :signature-does-not-match
-       (e :Error {}
-          (e :Code {} "SignatureDoesNotMatch")
-          (e :Message {} "The request signature we calculated does not match the signature you provided. Check your key and signing method.")
-          (e :ExpectedSignature {} (:expected payload))
-          (e :StringToSignBytes {} 
-             (->> payload
-                  :to-sign
-                  .getBytes seq (map (partial format "%02x")) (s/join " ")))
-          (e :StringToSign {} (:to-sign payload)))
+       [:Error
+        [:Code "SignatureDoesNotMatch"]
+        [:Message "The request signature we calculated does not match the signature you provided. Check your key and signing method."]
+        [:RequestId reqid]
+        [:HostId reqid]
+        [:ExpectedSignature (:expected payload)]
+        [:StringToSignBytes
+         (->> payload
+              :to-sign
+              .getBytes seq (map (partial format "%02x")) (s/join " "))]
+        [:StringToSign (:to-sign payload)]]
        :no-such-bucket
-       (e :Error {}
-          (e :Code {} "NoSuchBucket")
-          (e :Message {} "The specified bucket does not exist")
-          (e :BucketName {} (:bucket payload))
-          (e :RequestId {} reqid)
-          (e :HostId {} reqid))
+       [:Error
+        [:Code "NoSuchBucket"]
+        [:Message "The specified bucket does not exist"]
+        [:BucketName (:bucket payload)]
+        [:RequestId reqid]
+        [:HostId reqid]]
        :bucket-already-exists
-       (e :Error {}
-          (e :Code {} "BucketAlreadyExists")
-          (e :Message {} "The requested bucket name is not available. The bucket namespace is shared by all users of the system. Please select a different name and try again.")
-          (e :BucketName {} (:bucket payload))
-          (e :RequestId {} reqid)
-          (e :HostId {} reqid))
-       (e :Error {}
-          (e :Code {} "Unknown")
-          (e :Message {} (str exception)))))))
+       [:Error
+        [:Code "BucketAlreadyExists"]
+        [:Message "The requested bucket name is not available. The bucket namespace is shared by all users of the system. Please select a different name and try again."]
+        [:BucketName (:bucket payload)]
+        [:RequestId reqid]
+        [:HostId reqid]]
+       [:Error 
+        [:Code "Unknown"]
+        [:Message (str exception)]
+        [:RequestId reqid]
+        [:HostId reqid]]))))
