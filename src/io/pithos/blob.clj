@@ -6,12 +6,12 @@
             [io.pithos.store       :as store]
             [qbits.alia.uuid       :as uuid]
             [aleph.formats         :as formats]
-            [lamina.core           :refer [channel? map* on-drained receive-all]]
+            [lamina.core           :refer [channel? map* on-drained receive-in-order]]
             [qbits.alia            :refer [execute with-session]]
             [qbits.hayt            :refer [select where columns order-by
                                            insert values limit delete
                                            create-table column-definitions]]
-            [io.pithos.util        :refer [md5-safe md5-update md5-sum md5-init]]
+            [io.pithos.util        :refer [md5-update md5-sum md5-init]]
             [clojure.tools.logging :refer [debug info error]]))
 
 
@@ -55,8 +55,7 @@
   (select :inode_blocks
           (columns :block)
           (where {:inode inode :version version})
-          (order-by [:block order])
-          (limit 1)))
+          (order-by [:block order])))
 
 (defn set-block-q
   [inode version block size]
@@ -105,7 +104,7 @@
   [inode version block]
   (delete :block (where {:inode inode :version version :block block})))
 
-;; end query 
+;; end query
 
 (defn get-chunk
   [max cb hash]
@@ -113,6 +112,7 @@
     (let [btor (min (.readableBytes cb) max)
           bb   (doto (ByteBuffer/allocate btor) (.position 0))]
       (.readBytes cb bb)
+      (debug "updating hash with " btor " bytes")
       (md5-update hash (.array bb) 0 btor)
       (.position bb 0))))
 
@@ -145,7 +145,7 @@
     ;; we very well might be able to get
     ;; by just yielding a version.
     ;;
-    ;; some tricks might need to be applied in 
+    ;; some tricks might need to be applied in
     ;; the GC thread
     version))
 
@@ -177,10 +177,10 @@
 
 
       (stream-block! [this ino version block handler]
-        (let [stream-chunks! 
+        (let [stream-chunks!
               (fn [offset]
-                (when-let [chunks (seq 
-                                   (execute 
+                (when-let [chunks (seq
+                                   (execute
                                     (get-chunk-q ino version block offset limit)))]
                   (handler chunks)
                   (last chunks)))]
@@ -195,8 +195,12 @@
 
       (stream! [this ino version handler]
         (with-session session
-          (doseq [{:keys [block]} (execute (get-block-q ino version :asc))]
-            (stream-block! this ino version block handler))
+          (let [blocks (execute (get-block-q ino version :asc))]
+            (debug "got blocks: " blocks)
+            (doseq [{:keys [block]} blocks]
+              (debug "streaming inode, version and block " ino version block)
+              (stream-block! this ino version block handler)
+              (debug "block streamed!")))
           (handler nil)))
 
 
@@ -210,7 +214,7 @@
       (write-chunk! [this ino version hash buf block offset]
         (loop [block  block
                offset offset]
-    
+
           (if-let [sz (some-> (get-chunk max-chunk buf hash)
                               (put-chunk! session ino version block offset))]
 
@@ -221,23 +225,23 @@
                   (set-block! session ino version block offset)
                   (recur offset offset))
                 (recur block offset)))
-      
+
             (do (set-block! session ino version block offset)
                 [block offset]))))
 
       (append-stream! [this ino version stream tell!]
         (let [hash (md5-init)
               f!   #(when tell! (tell! ino version % (md5-sum hash)))]
-          
+
           (if (channel? stream)
             (let [pos (atom [0 0])
                   block  (atom 0)]
               (on-drained stream (comp f! second (partial deref pos)))
-              (receive-all
+              (receive-in-order
                stream
-               (fn [buf] 
+               (fn [buf]
                  (let [res (apply write-chunk! this ino version hash buf @pos)]
                    (reset! pos res)
                    res))))
-            
+
             (-> (write-chunk! this ino version hash stream 0 0) second f!)))))))

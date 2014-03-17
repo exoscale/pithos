@@ -1,12 +1,16 @@
 (ns io.pithos.request
+  "This namespace provides all necessary wrapper functions to validate and
+   augment the incoming request map."
   (:require [clojure.string        :refer [lower-case join]]
-            [clojure.tools.logging :refer [debug info warn]]
+            [clojure.tools.logging :refer [debug info warn error]]
             [clout.core            :refer [route-matches route-compile]]
             [io.pithos.sig         :refer [validate]]
+            [io.pithos.operations  :refer [ex-handler]]
             [ring.util.codec       :as codec]
             [qbits.alia.uuid       :as uuid]))
 
 (def known
+  "known query args"
   #{"acl"
     "cors"
     "delete"
@@ -17,6 +21,7 @@
     "marker"
     "max-keys"
     "notification"
+    "partnumber"
     "policy"
     "prefix"
     "requestpayment"
@@ -27,6 +32,7 @@
     "response-expires"
     "restore"
     "tagging"
+    "uploadid"
     "uploads"
     "versionid"
     "versioning"
@@ -34,6 +40,7 @@
     "website"})
 
 (def actions
+  "known actions"
   #{:acl
     :cors
     :delete
@@ -46,11 +53,31 @@
     :restore
     :tagging
     :uploads
+    :uploadid
     :versioning
     :versions
     :website})
 
+(def subresources
+  "known subresources, used when signing"
+  {:acl "acl"
+   :lifecycle "lifecycle"
+   :location "location"
+   :logging "logging"
+   :notification "notification"
+   :partnumber "partNumber"
+   :policy "policy"
+   :requestpayment "requestPayment"
+   :torrent "torrent"
+   :uploadid "uploadId"
+   :uploads "uploads"
+   :versionid "versionId"
+   :versioning "versioning"
+   :versions "versions"
+   :website "website"})
+
 (defn action-routes
+  ""
   []
   (let [sroute (route-compile "/")
         broute1 (route-compile "/:bucket")
@@ -76,17 +103,27 @@
 
 (defn yield-assoc-operation
   [suffixes]
-  (fn [{:keys [request-method action-params target] :as request}]
-    (assoc request
-      :operation
-      (->> (if-let [suffix (some suffixes action-params)]
-             [request-method target suffix]
-             [request-method target])
-           (map name)
-           (join "-")
-           keyword))))
+  (fn [{:keys [uri request-method action-params target params] :as request}]
+    (let [suffix (some suffixes action-params)
+          getpair (fn [[k v]] (if v (str k "=" v) k))
+          append (some->> (filter (comp subresources key) params)
+                          (map (juxt (comp subresources first) second))
+                          (sort-by first)
+                          (map getpair)
+                          (seq)
+                          (join "&")
+                          ((partial str "?")))]
+      (assoc request
+        :sign-uri  (str uri append)
+        :action    (when suffix (name suffix))
+        :operation (->> (map name (if suffix
+                                    [request-method target suffix]
+                                    [request-method target]))
+                        (join "-")
+                        (keyword))))))
 
 (defn keywordized
+  "Yield a map where string keys are keywordized"
   [params]
   (dissoc
    (->> (map (juxt (comp keyword known lower-case key) val) params)
@@ -94,10 +131,12 @@
    nil))
 
 (defn insert-id
+  "Assoc a random UUID to a request"
   [req]
   (assoc req :reqid (uuid/random)))
 
 (defn assoc-params
+  ""
   [{:keys [query-string] :as req}]
   (or
    (when-let [params (and (seq query-string)
@@ -132,7 +171,7 @@
   (let [auth   (validate keystore req)
         master (:master auth)
         tenant (get-in req [:headers "x-amz-masquerade-tenant"])]
-    (assoc req :authorization 
+    (assoc req :authorization
            (if (and master tenant) (assoc auth :tenant tenant) auth))))
 
 (defn prepare
@@ -140,12 +179,21 @@
   (let [rewrite-bucket  (yield-rewrite-bucket service-uri)
         assoc-target    (yield-assoc-target)
         assoc-operation (yield-assoc-operation actions)]
-    
+
     (-> req
         (insert-id)
         (assoc-params)
         (rewrite-host)
         (rewrite-bucket)
-        (authenticate keystore)
+
         (assoc-target)
-        (assoc-operation))))
+        (assoc-operation)
+        (authenticate keystore))))
+
+(defn safe-prepare
+  [req keystore metastore regions options]
+  (try (prepare req keystore metastore regions options)
+       (catch Exception e
+         (when-not (:type (ex-data e))
+           (error e "caught exception during operation"))
+         (ex-handler req e))))

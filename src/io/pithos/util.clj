@@ -1,24 +1,24 @@
 (ns io.pithos.util
-  (:import [java.io   PipedInputStream PipedOutputStream]
-           [java.lang Math])
+  (:import [java.io                PipedInputStream PipedOutputStream]
+           [java.lang              Math]
+           [org.jboss.netty.buffer ChannelBuffers])
   (:require [clojure.string :refer [lower-case]]))
 
 (defn md5-init
   []
   (doto (java.security.MessageDigest/getInstance "MD5") (.reset)))
 
-(defn md5-safe
-  []
-  (agent (md5-init)))
-
 (defn md5-update
   [hash ba from to]
-  (doto hash
-    (.update ba from to)))
+  (locking hash
+    (doto hash
+      (.update ba from to))))
 
 (defn md5-sum
   [hash]
-  (.toString (java.math.BigInteger. 1 (.digest hash)) 16))
+  (let [digest (.toString (java.math.BigInteger. 1 (.digest hash)) 16)
+        pad    (apply str (repeat (- 32 (count digest)) "0"))]
+    (str pad digest)))
 
 (defn inc-prefix
   "Given an object path, yield the next semantic one."
@@ -42,10 +42,10 @@
       (do
         (long
          (* (Long/parseLong amount)
-            (if factor 
+            (if factor
               (Math/pow 1024 (get byte-factors (lower-case factor)))
               1))))
-      (throw (ex-info (format "invalid byte amount [%s]: %s" 
+      (throw (ex-info (format "invalid byte amount [%s]: %s"
                               (or param "") input) {})))))
 
 
@@ -54,3 +54,11 @@
   (let [os  (PipedOutputStream.)
         is  (PipedInputStream. os)]
     [is os]))
+
+(defn parse-uuid
+  [s]
+  (java.util.UUID/fromString s))
+
+(defn ->channel-buffer
+  [hb]
+  (ChannelBuffers/copiedBuffer hb))

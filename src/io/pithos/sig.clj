@@ -18,7 +18,7 @@
                   [uri])))
 
 (defn string-to-sign
-  [{:keys [headers request-method uri] :as request}]
+  [{:keys [headers request-method sign-uri] :as request}]
   (let [content-md5  (get headers "content-md5")
         content-type (get headers "content-type")
         date         (get headers "date")]
@@ -28,10 +28,11 @@
       (or content-md5 "")
       (or content-type "")
       (or date "")
-      (canonicalized headers uri)])))
+      (canonicalized headers sign-uri)])))
 
 (defn sign-request
   [request access-key secret-key]
+  (info "welcome to sign-request")
   (let [to-sign (string-to-sign request)
         key     (SecretKeySpec. (.getBytes secret-key) "HmacSHA1")]
     (String. (-> (doto (Mac/getInstance "HmacSHA1") (.init key))
@@ -42,14 +43,18 @@
   [keystore request]
   (if-let [auth-str (get-in request [:headers "authorization"])]
     (let [[_ access-key sig] (re-matches #"^AWS (.*):(.*)$" auth-str)
-          {:keys [secret] :as authorization} (ks/fetch keystore access-key)]
-
-      (when-not (= sig (sign-request request access-key secret))
+          {:keys [secret] :as authorization} (ks/fetch keystore access-key)
+          signed (try (sign-request request access-key secret)
+                      (catch Exception e
+                        {:failed true :exception e}))]
+      (when-not (= sig signed)
+        (info "will throw because of failed signature!")
         (throw (ex-info "invalid request signature"
                         {:type :signature-does-not-match
                          :auth-string auth-str
                          :request request
-                         :expected (sign-request request access-key secret)
+                         :expected signed
                          :to-sign (string-to-sign request)})))
+      (info "back from sign request! with good signature" )
       (update-in authorization [:memberof] concat ["authenticated-users"]))
     {:tenant :anonymous :memberof ["anonymous"]}))

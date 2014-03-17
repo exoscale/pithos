@@ -1,4 +1,5 @@
 (ns io.pithos.store
+  (:import com.datastax.driver.core.exceptions.InvalidQueryException)
   (:require [qbits.alia            :as alia]
             [qbits.hayt            :refer [use-keyspace create-keyspace with]]
             [clojure.tools.logging :refer [debug]]))
@@ -18,10 +19,12 @@
   (let [session (-> (alia/cluster cluster) (alia/connect))]
     (try (alia/execute session (use-keyspace keyspace))
          session
-         (catch com.datastax.driver.core.exceptions.InvalidQueryException e
-           ;;
-           (if (re-find #"^[kK]eyspace.*does not exist$" (.getMessage e))
-             (do (alia/execute session (create-keyspace keyspace (with hints)))
+         (catch clojure.lang.ExceptionInfo e
+           (let [{:keys [exception]} (ex-data e)]
+             (if (and (= (class exception) InvalidQueryException)
+                      (re-find #"^[kK]eyspace.*does not exist$"
+                               (.getMessage exception)))
+               (do (alia/execute session (create-keyspace keyspace (with hints)))
                  (alia/execute session (use-keyspace keyspace))
-                 session)             
-             (throw e))))))
+                 session)
+               (throw e)))))))
