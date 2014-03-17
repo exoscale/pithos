@@ -151,11 +151,11 @@ Will produce an XML AST equivalent to:
   (seq->xmlstr
    (apply vector :ListPartsResult xml-ns
           [:Bucket bucket]
-          (for [{:keys [partnumber modified hash size]} parts]
+          (for [{:keys [partno modified checksum size]} parts]
             [:Part
-             [:PartNumber partnumber]
-             [:LastModified modified]
-             [:ETag hash]
+             [:PartNumber (str partno)]
+             [:LastModified (or modified "2013-09-15T20:52:35.000Z")]
+             [:ETag checksum]
              [:Size (str size)]]))))
 
 (defn complete-multipart-upload

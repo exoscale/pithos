@@ -170,10 +170,11 @@
         (send! (:chan request)))))
 
 (defn get-upload-parts
-  [{:keys [body bucket object uploadid] :as request} bucketstore regions]
+  [{:keys [body bucket object params] :as request} bucketstore regions]
   (let [{:keys [region]}    (bucket/by-name bucketstore bucket)
-        {:keys [metastore]} (get-region regions region)]
-    (-> (meta/list-upload-parts metastore bucket object uploadid)
+        {:keys [metastore]} (get-region regions region)
+        {:keys [uploadid]}  params]
+    (-> (meta/list-upload-parts metastore bucket object (parse-uuid uploadid))
         (xml/list-upload-parts uploadid bucket object)
         (xml-response)
         (request-id request)
