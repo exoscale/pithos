@@ -1,3 +1,78 @@
-name: Your New Jekyll Site
+name: Pithos
 markdown: redcarpet
 pygments: true
+nav:
+  - name: Quickstart
+    target: /quickstart.html
+  - name: Concepts
+    target: /concepts.html
+  - name: Reference
+    target: /reference.html
+  - name: Support
+    target: /support.html
+  - name: GitHub
+    target: https://github.com/exoscale/pithos
+
+feature_config:
+  "Ok":
+    class: success
+    icon: ok
+  "No":
+    class: danger
+    icon: remove
+  "In Progress":
+    class: warning
+    icon: wrench
+  "Incomplete":
+    class: warning
+    icon: warning-sign
+
+features:
+  - name: Authorization
+    status: Ok
+    notes: Ability to masquerade as tenant for master key holders. Identity management is pluggable.
+  - name: Storage Classes
+    status: Ok
+    notes: Ability to masquerade as tenant for master key holders.
+  - name: Bucket Listing
+    status: Ok
+  - name: Bucket Creation
+    status: Ok
+  - name: Bucket Deletion
+    status: Ok
+  - name: Bucket Info
+    status: In Progress
+  - name: Bucket Location
+    status: In Progress
+  - name: Bucket ACLs
+    status: In Progress
+  - name: Bucket CORS
+    status: In Progress
+  - name: Bucket Versioning
+    status: Incomplete
+    notes: Object stored versioned but no way to retrieve previous versions yet.
+  - name: Bucket Policy
+    status: "No"
+    notes: ACLs cover our needs.
+  - name: Bucket Logging
+    status: "No"
+    notes: Makes no sense yet in our case.
+  - name: Bucket Lifecycle
+    status: "No"
+    notes: Makes no sense yet in our case.
+  - name: Bucket Requester Pays
+    status: "No"
+    notes: Makes no sense yet in our case.
+  - name: Bucket Website
+    status: "No"
+    notes: Need a DNS infrastructure. Hosting assets is possible.
+  - name: Object Creation
+    status: Ok
+  - name: Object Deletion
+    status: Ok
+  - name: Object Multipart Uploads
+    status: In Progress
+  - name: Object ACLs
+    status: In Progress
+  - name: Object Torrent
+    status: "No"

@@ -1,0 +1,72 @@
+@import "compass/layout";
+
+@mixin respond-to($media) {
+	@if $media == sm {
+		@media only screen and (min-width: $screen-sm-min) { @content; }
+	}
+	@else if $media == md {
+		@media only screen and (min-width: $screen-md-min) { @content; }
+	}
+	@else if $media == lg {
+		@media only screen and (min-width: $screen-lg-min) { @content; }
+	}
+}
+
+@include sticky-footer($footer-height);
+
+.navbar-noborder {
+	border: none;
+}
+
+.navbar-default {
+	.container {
+		position: relative;
+	}
+
+	.logo {
+		position: absolute;
+		top: 0;
+		left: 10px;
+		width: 90px;
+		height: 90px;
+		background: url('../img/droplet.svg') no-repeat;
+	}
+
+	.navbar-brand {
+		padding-left: 120px;
+	}
+}
+
+.container.container-main {
+	margin-top: 30px;
+}
+
+.footer {
+	height: $footer-height;
+	background-color: $navbar-inverse-bg;
+	color: $navbar-inverse-color;
+	padding: 15px 0;
+
+	a {
+		color: $navbar-inverse-color;
+	}
+}
+
+.jumbotron-image {
+	margin-top: 2em;
+
+	img {
+		width: 100px;
+	}
+
+	@include respond-to(md) {
+		margin-top: 1.5em;
+		img {
+			width: 150px;
+		}
+	}
+
+	@include respond-to(lg) {
+		margin-top: 0;
+	}
+}
