@@ -35,7 +35,7 @@ title: Pithos
 		{% for feature in site.features %}
 			<tr class="{{ site.feature_config[feature.status].class }}">
 				<td>{{ feature.name }}</td>
-				<td><span class="label label-{{ site.feature_config[feature.status].class{{ feature.status }}"><span class="glyphicon glyphicon-{{ site.feature_config[feature.status].icon }}"></span> {{ feature.status }}</span></td>
+				<td><span class="label label-{{ site.feature_config[feature.status].class{{ feature.status }}"><span class="fa fa-{{ site.feature_config[feature.status].icon }}"></span> {{ feature.status }}</span></td>
 				<td>{{ feature.notes }}</td>
 			</tr>
 		{% endfor %}

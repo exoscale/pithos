@@ -10,22 +10,22 @@ nav:
     target: /reference.html
   - name: Support
     target: /support.html
-  - name: GitHub
+  - name: <i class="fa fa-github"></i> GitHub
     target: https://github.com/exoscale/pithos
 
 feature_config:
   "Ok":
     class: success
-    icon: ok
+    icon: check
   "No":
     class: danger
-    icon: remove
+    icon: times
   "In Progress":
     class: warning
     icon: wrench
   "Incomplete":
     class: warning
-    icon: warning-sign
+    icon: exclamation-triangle
 
 features:
   - name: Authorization
