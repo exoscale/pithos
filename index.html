@@ -28,7 +28,7 @@ title: Pithos
 		<tr>
 			<th>Feature</th>
 			<th>Status</th>
-			<th>Notes</th>
+			<th class="hidden-xs">Notes</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -36,7 +36,7 @@ title: Pithos
 			<tr class="{{ site.feature_config[feature.status].class }}">
 				<td>{{ feature.name }}</td>
 				<td><span class="label label-{{ site.feature_config[feature.status].class{{ feature.status }}"><span class="fa fa-{{ site.feature_config[feature.status].icon }}"></span> {{ feature.status }}</span></td>
-				<td>{{ feature.notes }}</td>
+				<td class="hidden-xs">{{ feature.notes }}</td>
 			</tr>
 		{% endfor %}
 	</tbody>
