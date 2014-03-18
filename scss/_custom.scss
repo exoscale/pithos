@@ -12,7 +12,11 @@
 	}
 }
 
-@include sticky-footer($footer-height);
+@include sticky-footer($footer-height * 2);
+
+@include respond-to(sm) {
+	@include sticky-footer($footer-height);
+}
 
 .navbar-noborder {
 	border: none;
@@ -42,13 +46,27 @@
 }
 
 .footer {
-	height: $footer-height;
+	height: $footer-height * 2;
 	background-color: $navbar-inverse-bg;
 	color: $navbar-inverse-color;
 	padding: 15px 0;
 
+	@include respond-to(sm) {
+		height: $footer-height;
+	}
+
 	a {
 		color: $navbar-inverse-color;
+	}
+
+	.text-right {
+		text-align: left;
+		margin-top: 1em;
+
+		@include respond-to(sm) {
+			text-align: right;
+			margin-top: inherit;
+		}
 	}
 }
 
