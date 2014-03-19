@@ -8,6 +8,8 @@ To run a local copy:
 ```
 npm install
 npm install -g grunt-cli
+gem install bundle
+bundle install
 ```
 
 Automatically rebuild the website as you make changes:
