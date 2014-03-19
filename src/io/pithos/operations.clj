@@ -263,9 +263,16 @@
 
 (defn head-object
   [{:keys [bucket object] :as request} bucketstore regions]
-  (-> (response)
-      (request-id request)
-      (send!)))
+  (let [{:keys [region]} (bucket/by-name bucketstore bucket)
+        {:keys [metastore]}        (get-region regions region)
+        {:keys [atime size checksum] :as payload} (meta/fetch metastore bucket object)]
+    (-> (response)
+        (request-id request)
+        (content-type "application/binary")
+        (header "ETag" (str checksum))
+        (header "Last-Modified" (str atime))
+        (header "Content-Length" (str size))
+        (send! (:chan request)))))
 
 (defn get-object-acl
   [{:keys [bucket object] :as request} bucketstore regions]
