@@ -23,8 +23,8 @@ The following sequence:
         [:Grant
           [:Grantee {:xmlns:xsi \"http//bar\"
                      :xsi:type  \"CanonicalUser\"}
-            [:Owner 
-              [:ID \"owner1\"] 
+            [:Owner
+              [:ID \"owner1\"]
               [:DisplayName \"display1\"]]]
           [:Permission \"Full-Control\"]]]]
 
@@ -65,11 +65,11 @@ Will produce an XML AST equivalent to:
 (defn seq->xmlstr
   "Given a valid input for `seq->xml` output an xml string"
   [s]
-  (indent-str (seq->xml s)))
+  (indent-str (seq->xml (vec (remove nil? s)))))
 
 ;; Some common elements for our templates
 
-(def ^{:doc "Shortcut for main XML namespace"} xml-ns 
+(def ^{:doc "Shortcut for main XML namespace"} xml-ns
   {:xmlns "http://s3.amazonaws.com/doc/2006-03-01/"})
 
 
@@ -79,7 +79,7 @@ Will produce an XML AST equivalent to:
   "Template used when the operation could not be inferred"
   [{:keys [operation]}]
   (seq->xmlstr
-   [:UnknownAction xml-ns 
+   [:UnknownAction xml-ns
     [:Action [:Code ((fnil name "no operation provided") operation)]]]))
 
 (defn default
@@ -94,33 +94,81 @@ Will produce an XML AST equivalent to:
   (seq->xmlstr
    [:ListAllMyBucketsResult xml-ns
     [:Owner [:ID (:tenant bucket)] [:DisplayName (:tenant bucket)]]
-    [:Buckets
-     (vec
-      (for [{:keys [bucket]} buckets]
-        [:Bucket 
-         [:Name bucket] 
-         [:CreationDate "2013-09-12T16:16:38.000Z"]]))]]))
+    (apply vector :Buckets
+           (for [{:keys [bucket]} buckets]
+             [:Bucket
+              [:Name bucket]
+              [:CreationDate "2013-09-12T16:16:38.000Z"]]))]))
 
 (defn list-bucket
   "Template for the list-bucket operation response"
   [[files prefixes] {:keys [tenant bucket]} {:keys [prefix delimiter]}]
   (seq->xmlstr
-   [:ListBucketResult
-    [:Name bucket]
-    [:Prefix prefix]
-    [:MaxKeys (str 100)]
-    [:Delimiter delimiter]
-    [:IsTruncated "false"]
-    (for [{:keys [object size] :or {size 0}} files]
-      [:Contents
-       [:Key object]
-       [:LastModified "2013-09-15T20:52:35.000Z"]
-       [:ETag "41d8cd98f00b204e9800998ecf8427"]
-       [:Size (str size)]
-       [:Owner
-        [:ID tenant]
-        [:DisplayName tenant]]
-       [:StorageClass "Standard"]])]))
+   (apply vector
+          :ListBucketResult xml-ns
+          [:Name bucket]
+          [:Prefix prefix]
+          [:MaxKeys (str 100)]
+          [:Delimiter delimiter]
+          [:IsTruncated "false"]
+          (when (seq prefixes)
+            (apply vector :CommonPrefixes
+                 (for [prefix prefixes] [:Prefix prefix])))
+          (for [{:keys [object size] :or {size 0}} files]
+            [:Contents
+             [:Key object]
+             [:LastModified "2013-09-15T20:52:35.000Z"]
+             [:ETag "41d8cd98f00b204e9800998ecf8427"]
+             [:Size (str size)]
+             [:Owner
+              [:ID tenant]
+              [:DisplayName tenant]]
+             [:StorageClass "Standard"]]))))
+
+(defn initiate-multipart-upload
+  "Tempalte for the initiate-multipart-upload response"
+  [bucket object inode]
+  (seq->xmlstr
+   [:InitiateMultipartUploadResult xml-ns
+    [:Bucket bucket]
+    [:Key object]
+    [:UploadId (str inode)]]))
+
+(defn list-multipart-uploads
+  "Template for the list-multipart-uploads response"
+  [uploads bucket]
+  (seq->xmlstr
+   [:ListMultipartUploadsResult xml-ns
+    [:Bucket bucket]
+    [:KeyMarker]
+    [:UploadIdMarker]
+    (apply vector :Uploads
+           (for [{:keys [object upload]} uploads]
+             [:Upload
+              [:Key object]
+              [:UploadId (str upload)]]))]))
+
+(defn list-upload-parts
+  "Template for the list multipart upload parts response"
+  [parts upload bucket object]
+  (seq->xmlstr
+   (apply vector :ListPartsResult xml-ns
+          [:Bucket bucket]
+          (for [{:keys [partno modified checksum size]} parts]
+            [:Part
+             [:PartNumber (str partno)]
+             [:LastModified (or modified "2013-09-15T20:52:35.000Z")]
+             [:ETag checksum]
+             [:Size (str size)]]))))
+
+(defn complete-multipart-upload
+  [bucket object etag]
+  (seq->xmlstr
+   [:CompleteMultipartUploadResult xml-ns
+    [:Bucket bucket]
+    [:Key object]
+    [:Location (format "http://%s.s3.amazonaws.com/%s" bucket object)]
+    [:ETag etag]]))
 
 (defn exception
   "Dispatch on the type of exception we got and apply appropriate template.
@@ -157,6 +205,13 @@ Will produce an XML AST equivalent to:
         [:BucketName (:bucket payload)]
         [:RequestId reqid]
         [:HostId reqid]]
+       :no-such-bucket-policy
+       [:Error
+        [:Code "NoSuchBucketPolicy"]
+        [:Message "The bucket policy does not exist"]
+        [:RequestId reqid]
+        [:HostId reqid]
+        [:Bucket (:bucket payload)]]
        :bucket-already-exists
        [:Error
         [:Code "BucketAlreadyExists"]
@@ -164,7 +219,7 @@ Will produce an XML AST equivalent to:
         [:BucketName (:bucket payload)]
         [:RequestId reqid]
         [:HostId reqid]]
-       [:Error 
+       [:Error
         [:Code "Unknown"]
         [:Message (str exception)]
         [:RequestId reqid]

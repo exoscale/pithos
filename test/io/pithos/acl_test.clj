@@ -3,7 +3,6 @@
             [io.pithos.acl   :refer [as-xml xml->acl]]
             [clojure.java.io :as io]))
 
-
 (deftest xml-to-acl-test
   (let [repr {:acl1 {:FULL_CONTROL [{:ID "foo" :DisplayName "bar"}]}
               :acl4 {:FULL_CONTROL [{:ID "foo" :DisplayName "bar"}
@@ -34,4 +33,3 @@
            clojure.lang.ExceptionInfo
            #"XML Root Node should be AccessControlPolicy"
            (xml->acl (slurp (io/resource "acl3.xml"))))))))
-

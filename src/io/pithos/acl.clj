@@ -30,7 +30,7 @@
   #{:ID :DisplayName :URI})
 
 (defn node->grantee-spec
-  ""
+  "Produce a grantee specifier (ID, DisplayName or URI)"
   [n]
   (let [{:keys [tag content]} (node n)
         text                  (first content)]
@@ -38,7 +38,7 @@
       (hash-map tag text))))
 
 (defn node->grantee
-  ""
+  "Produce a valid grantee."
   [n]
   (reduce merge {} (xml-> n children node->grantee-spec)))
 
@@ -84,10 +84,6 @@
       (throw (ex-info "Invalid XML Acl Body" {:type :invalid-acl-xml})))
     policy))
 
-(xml->acl (slurp (clojure.java.io/resource "acl1.xml")))
-
-
-
 (defn as-xml
   "Given an internal representation of an ACL, output a valid
    XML representation."
@@ -112,9 +108,17 @@
                      :Grant))
              :AccessControlList)]))))
 
+
+
 ;; ACL handling functions
+
+(def
+  ^{:doc "Map of expected permission per operation."}
+  by-operation
+  {})
 
 (defn matches?
   "Authorize operation `what` for origin `who` against rules `acl`"
   [{:keys [grants] :as acl} who what]
+  
   true)

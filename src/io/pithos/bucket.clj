@@ -16,7 +16,7 @@
 
 ;; ring-global metastore
 (def bucket-table
-    (create-table 
+    (create-table
      :bucket
      (column-definitions {:bucket       :text
                           :tenant       :text
@@ -66,15 +66,15 @@
       (create! [this tenant bucket columns]
         (if-let [[details] (seq (execute session (fetch-bucket-q bucket)))]
           (when (not= tenant (:tenant details))
-            (throw (ex-info 
+            (throw (ex-info
                     "bucket already exists"
                     {:type :bucket-already-exists
                      :bucket bucket
                      :status-code 409})))
           (execute session
-                   (update-bucket-q bucket 
+                   (update-bucket-q bucket
                                     (merge {:region default-region}
-                                           columns 
+                                           columns
                                            {:tenant tenant})))))
       (update! [this bucket columns]
         (execute session (update-bucket-q bucket columns)))
