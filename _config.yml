@@ -3,13 +3,13 @@ markdown: redcarpet
 pygments: true
 nav:
   - name: Quickstart
-    target: /quickstart.html
+    target: /quickstart/
   - name: Concepts
-    target: /concepts.html
+    target: /concepts/
   - name: Reference
-    target: /reference.html
+    target: /reference/
   - name: Support
-    target: /support.html
+    target: /support/
   - name: <i class="fa fa-github"></i> GitHub
     target: https://github.com/exoscale/pithos
 
