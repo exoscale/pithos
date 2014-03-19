@@ -32,7 +32,6 @@
 
 (defn sign-request
   [request access-key secret-key]
-  (info "welcome to sign-request")
   (let [to-sign (string-to-sign request)
         key     (SecretKeySpec. (.getBytes secret-key) "HmacSHA1")]
     (String. (-> (doto (Mac/getInstance "HmacSHA1") (.init key))
@@ -55,6 +54,5 @@
                          :request request
                          :expected signed
                          :to-sign (string-to-sign request)})))
-      (info "back from sign request! with good signature" )
       (update-in authorization [:memberof] concat ["authenticated-users"]))
     {:tenant :anonymous :memberof ["anonymous"]}))

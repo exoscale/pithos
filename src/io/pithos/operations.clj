@@ -40,7 +40,6 @@
 (defn delete-bucket
   [{{:keys [tenant]} :authorization :keys [bucket] :as request}
    bucketstore regions]
-  (debug "delete! called on bucket " tenant bucket)
   (bucket/delete! bucketstore bucket)
   (-> (response)
       (request-id request)
@@ -53,8 +52,8 @@
         {:keys [metastore]}               (get-region regions region)
         params (select-keys params [:delimiter :prefix])
         prefixes (meta/prefixes metastore bucket params)]
-    (-> prefixes
-        (xml/list-bucket binfo params)
+    (debug "get-bucket got prefixes and delimiter: " (:delimiter params) (:prefix params))
+    (-> (xml/list-bucket prefixes binfo params)
         (xml-response)
         (request-id request)
       (send! (:chan request)))))
@@ -233,7 +232,6 @@
              (doseq [{:keys [payload]} chunks]
                (.write os (.getBytes " "))
                (.flush os)
-               (debug "enqueuing chunk for sink: " (class payload))
                (enqueue body-stream (->channel-buffer payload)))))))
 
 
@@ -290,6 +288,12 @@
         (request-id request)
         (send! (:chan request)))))
 
+(defn get-bucket-policy
+  [request bucketstore regions]
+  (throw (ex-info "no such bucket policy" {:type :no-such-bucket-policy
+                                           :bucket (:bucket request)
+                                           :status-code 404})))
+
 (defn delete-object
   [{:keys [bucket object] :as request} bucketstore regions]
   (let [{:keys [region]}    (bucket/by-name bucketstore bucket)
@@ -335,6 +339,8 @@
                             :perms   [[:object :READ_ACP]]}
    :put-object-acl         {:handler put-object-acl
                             :perms   [[:object :WRITE_ACP]]}
+   :get-bucket-policy      {:handler get-bucket-policy
+                            :perms   [[:bucket :READ_ACP]]}
    :post-object-uploads    {:handler initiate-upload
                             :perms   [[:bucket :WRITE]]}
    :put-object-uploadid    {:handler put-object-part
@@ -402,6 +408,7 @@
 (defn dispatch
   [{:keys [operation] :as request} bucketstore regions]
   (when request
+    (debug "handling operation: " operation)
     (let [{:keys [handler perms] :or {handler unknown}} (get opmap operation)]
       (try (authorize request perms bucketstore regions)
            (handler request bucketstore regions)

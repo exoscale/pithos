@@ -65,7 +65,7 @@ Will produce an XML AST equivalent to:
 (defn seq->xmlstr
   "Given a valid input for `seq->xml` output an xml string"
   [s]
-  (indent-str (seq->xml s)))
+  (indent-str (seq->xml (vec (remove nil? s)))))
 
 ;; Some common elements for our templates
 
@@ -111,6 +111,9 @@ Will produce an XML AST equivalent to:
           [:MaxKeys (str 100)]
           [:Delimiter delimiter]
           [:IsTruncated "false"]
+          (when (seq prefixes)
+            (apply vector :CommonPrefixes
+                 (for [prefix prefixes] [:Prefix prefix])))
           (for [{:keys [object size] :or {size 0}} files]
             [:Contents
              [:Key object]
@@ -202,6 +205,13 @@ Will produce an XML AST equivalent to:
         [:BucketName (:bucket payload)]
         [:RequestId reqid]
         [:HostId reqid]]
+       :no-such-bucket-policy
+       [:Error
+        [:Code "NoSuchBucketPolicy"]
+        [:Message "The bucket policy does not exist"]
+        [:RequestId reqid]
+        [:HostId reqid]
+        [:Bucket (:bucket payload)]]
        :bucket-already-exists
        [:Error
         [:Code "BucketAlreadyExists"]

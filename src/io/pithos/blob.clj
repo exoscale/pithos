@@ -112,7 +112,6 @@
     (let [btor (min (.readableBytes cb) max)
           bb   (doto (ByteBuffer/allocate btor) (.position 0))]
       (.readBytes cb bb)
-      (debug "updating hash with " btor " bytes")
       (md5-update hash (.array bb) 0 btor)
       (.position bb 0))))
 
@@ -196,11 +195,8 @@
       (stream! [this ino version handler]
         (with-session session
           (let [blocks (execute (get-block-q ino version :asc))]
-            (debug "got blocks: " blocks)
             (doseq [{:keys [block]} blocks]
-              (debug "streaming inode, version and block " ino version block)
-              (stream-block! this ino version block handler)
-              (debug "block streamed!")))
+              (stream-block! this ino version block handler)))
           (handler nil)))
 
 
