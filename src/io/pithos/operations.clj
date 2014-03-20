@@ -183,7 +183,7 @@
         (send! (:chan request)))))
 
 (defn- yield-finalizer
-  [metastore bucket object partno upload]
+  [metastore request bucket object partno upload]
   (fn [inode version size checksum]
     (debug "uploading part with details: " bucket object upload size checksum)
     (meta/update-part! metastore bucket object
@@ -207,7 +207,8 @@
         version                             (uuid/time-based)
         inode                               (uuid/random)
         finalize!                           (yield-finalizer
-                                             metastore bucket object
+                                             metastore request
+                                             bucket object
                                              partnumber uploadid)]
     (blob/append-stream! blobstore inode version body finalize!)))
 
@@ -324,6 +325,7 @@
   [request bucketstore regions]
   (-> (xml/unknown request)
       (xml-response)
+      (status 400)
       (send! (:chan request))))
 
 (def opmap
