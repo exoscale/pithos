@@ -1,5 +1,6 @@
 (ns io.pithos.util
   (:import [java.io                PipedInputStream PipedOutputStream]
+           [java.util              TimeZone Calendar]
            [java.lang              Math]
            [org.jboss.netty.buffer ChannelBuffers])
   (:require [clojure.string :refer [lower-case]]))
@@ -62,3 +63,10 @@
 (defn ->channel-buffer
   [hb]
   (ChannelBuffers/copiedBuffer hb))
+
+(def utc
+  (delay (TimeZone/getTimeZone "UTC")))
+
+(defn iso8601-timestamp
+  []
+  (javax.xml.bind.DatatypeConverter/printDateTime (Calendar/getInstance @utc)))

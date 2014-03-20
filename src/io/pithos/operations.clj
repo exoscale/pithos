@@ -3,7 +3,7 @@
                                             xml-response request-id send!
                                             content-type exception-status]]
             [io.pithos.util         :refer [piped-input-stream
-                                            parse-uuid
+                                            parse-uuid iso8601-timestamp
                                             ->channel-buffer]]
             [lamina.core            :refer [channel siphon
                                             lazy-seq->channel
@@ -188,7 +188,7 @@
                   region-details (get-region regions (:region bucket-details))
                   details        (meta/fetch (:metastore region-details)
                                              s-bucket s-object)
-                  s-meta         (or (:metadata details) {})
+                  s-meta         (assoc (or (:metadata details) {}))
                   s-blobstore    (get (:storage-classes region-details)
                                       :standard)
                   body-stream    (channel)]
@@ -210,6 +210,7 @@
                                                       :version version
                                                       :size size
                                                       :checksum checksum
+                                                      :atime (iso8601-timestamp)
                                                       :storageclass "standard"
                                                       :acl "private"
                                                       :metadata s-meta})
@@ -227,6 +228,7 @@
                                        :checksum checksum
                                        :storageclass "standard"
                                        :acl "private"
+                                       :atime (iso8601-timestamp)
                                        :metadata {"content-type" content-type}})
                         (send! (-> (response)
                                    (header "ETag" checksum)
@@ -378,6 +380,9 @@
                                      :version version
                                      :size size
                                      :checksum checksum
+                                     :atime (iso8601-timestamp)
+                                     :metadata {"content-type"
+                                                "binary/octet-stream"}
                                      :storageclass "standard"
                                      :acl "private"})
                              (deliver etag checksum))))

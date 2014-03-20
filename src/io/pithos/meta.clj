@@ -28,7 +28,7 @@
                        :object       :text
                        :inode        :uuid
                        :version      :timeuuid
-                       :atime        :timestamp
+                       :atime        :text
                        :size         :bigint
                        :checksum     :text
                        :storageclass :text

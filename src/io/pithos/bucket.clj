@@ -4,6 +4,7 @@
                                      create-table create-index
                                      column-definitions index-name
                                      delete update limit]]
+            [io.pithos.util  :refer [iso8601-timestamp]]
             [io.pithos.store :as store]))
 
 (defprotocol Bucketstore
@@ -19,6 +20,7 @@
     (create-table
      :bucket
      (column-definitions {:bucket       :text
+                          :created      :text
                           :tenant       :text
                           :region       :text
                           :acl          :text
@@ -73,7 +75,8 @@
                      :status-code 409})))
           (execute session
                    (update-bucket-q bucket
-                                    (merge {:region default-region}
+                                    (merge {:region default-region
+                                            :created (iso8601-timestamp)}
                                            columns
                                            {:tenant tenant})))))
       (update! [this bucket columns]
