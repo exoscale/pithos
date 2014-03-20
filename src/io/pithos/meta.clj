@@ -154,7 +154,11 @@
         (execute session object_inode-index)
         (execute session upload_bucket-index))
       (fetch [this bucket object]
-        (first (execute session (get-object-q bucket object))))
+        (or
+         (first (execute session (get-object-q bucket object)))
+         (throw (ex-info "no such key" {:type :no-such-key
+                                        :status-code 404
+                                        :key object}))))
       (prefixes [this bucket {:keys [prefix delimiter max-keys]}]
         (let [objects  (execute session (fetch-object-q bucket prefix))
               prefixes (if delimiter

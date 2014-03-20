@@ -114,11 +114,11 @@ Will produce an XML AST equivalent to:
           (when (seq prefixes)
             (apply vector :CommonPrefixes
                  (for [prefix prefixes] [:Prefix prefix])))
-          (for [{:keys [object size] :or {size 0}} files]
+          (for [{:keys [object size checksum] :or {size 0}} files]
             [:Contents
              [:Key object]
              [:LastModified "2013-09-15T20:52:35.000Z"]
-             [:ETag "41d8cd98f00b204e9800998ecf8427"]
+             [:ETag checksum]
              [:Size (str size)]
              [:Owner
               [:ID tenant]
@@ -211,6 +211,13 @@ Will produce an XML AST equivalent to:
               :to-sign
               .getBytes seq (map (partial format "%02x")) (s/join " "))]
         [:StringToSign (:to-sign payload)]]
+       :no-such-key
+       [:Error
+        [:Code "NoSuchKey"]
+        [:Message "The specified key does not exist."]
+        [:Key (:key payload)]
+        [:RequestId reqid]
+        [:HostId reqid]]
        :no-such-bucket
        [:Error
         [:Code "NoSuchBucket"]
