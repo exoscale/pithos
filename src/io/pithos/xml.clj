@@ -170,6 +170,13 @@ Will produce an XML AST equivalent to:
     [:Location (format "http://%s.s3.amazonaws.com/%s" bucket object)]
     [:ETag etag]]))
 
+(defn copy-object
+  [etag]
+  (seq->xmlstr
+   [:CopyObjectResult xml-ns
+    [:LastModified "2014-03-20T14:21:08.000Z"]
+    [:ETag etag]]))
+
 (defn exception
   "Dispatch on the type of exception we got and apply appropriate template.
    Thankfully, we have a nice error message list in the S3 documentation:

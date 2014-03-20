@@ -9,12 +9,57 @@
                                             lazy-seq->channel
                                             enqueue close]]
             [clojure.tools.logging  :refer [debug info warn error]]
+            [clojure.string         :refer [split]]
             [io.pithos.store        :as store]
             [io.pithos.bucket       :as bucket]
             [io.pithos.meta         :as meta]
             [io.pithos.blob         :as blob]
             [io.pithos.xml          :as xml]
             [qbits.alia.uuid        :as uuid]))
+
+(defmacro ensure!
+  [pred]
+  `(when-not ~pred
+     (debug "could not ensure: " (str (quote ~pred)))
+     (throw (ex-info "access denied" {:status-code 403
+                                      :type        :access-denied}))))
+
+(defn granted?
+  [acl needs for]
+  (= (get acl for) needs))
+
+(defn bucket-satisfies?
+  [{:keys [tenant acl]} {:keys [for groups needs]}]
+  (or (= tenant for)
+      (granted? acl needs for)
+      (some identity (map (partial granted? acl needs) groups))))
+
+(defn object-satisfies?
+  [{tenant :tenant} {acl :acl} {:keys [for groups needs]}]
+  (or (= tenant for)
+      (granted? acl needs for)
+      (some identity (map (partial granted? acl needs) groups))))
+
+(defn authorize
+  [{:keys [authorization bucket object]} perms bucketstore regions]
+  (let [{:keys [tenant memberof]} authorization
+        memberof?                 (set memberof)]
+    (doseq [[perm arg] (map (comp flatten vector) perms)]
+      (case perm
+        :authenticated (ensure! (not= tenant :anonymous))
+        :memberof      (ensure! (memberof? arg))
+        :bucket        (ensure! (bucket-satisfies?
+                                 (bucket/by-name bucketstore bucket)
+                                 {:for    tenant
+                                  :groups memberof?
+                                  :needs  arg}))
+        :object        (ensure! (object-satisfies?
+                                 (bucket/by-name bucketstore bucket)
+                                 nil ;; XXX please fix me
+                                 {:for    tenant
+                                  :groups memberof?
+                                  :needs  arg}))))
+    true))
 
 (defn get-region
   [regions region]
@@ -118,7 +163,7 @@
         (send! (:chan request)))))
 
 (defn put-object
-  [{:keys [body bucket object] :as request} bucketstore regions]
+  [{:keys [body bucket object authorization] :as request} bucketstore regions]
   (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
         {:keys [metastore storage-classes]} (get-region regions region)
         {:keys [inode]}                     (meta/fetch metastore bucket object)
@@ -130,7 +175,50 @@
                                                     "binary/octet-stream")]
 
     (if-let [source (get-in request [:headers "x-amz-copy-source"])]
-      (throw (ex-info "invalid" {:type :invalid-request :status-code 400}))
+      (if-let [[prefix s-bucket s-object] (split source #"/" 3)]
+        (if (seq prefix)
+          (throw (ex-info "invalid" {:type :invalid-request :status-code 400}))
+          (when (authorize {:bucket s-bucket
+                            :object s-object
+                            :authorization authorization}
+                           [[:bucket :READ]]
+                           bucketstore
+                           regions)
+            (let [bucket-details (bucket/by-name bucketstore s-bucket)
+                  region-details (get-region regions (:region bucket-details))
+                  details        (meta/fetch (:metastore region-details)
+                                             s-bucket s-object)
+                  s-meta         (or (:metadata details) {})
+                  s-blobstore    (get (:storage-classes region-details)
+                                      :standard)
+                  body-stream    (channel)]
+
+              (future
+                (blob/stream!
+                 s-blobstore (:inode details) (:version details)
+                 (fn [chunks]
+                   (if chunks
+                     (doseq [{:keys [payload]} chunks]
+                       (enqueue body-stream (->channel-buffer payload)))
+                     (close body-stream)))))
+              (future
+                (blob/append-stream! blobstore inode version body-stream
+                                     (fn [_ _ size checksum]
+                                       (debug "done streaming, updating copy")
+                                       (meta/update! metastore bucket object
+                                                     {:inode inode
+                                                      :version version
+                                                      :size size
+                                                      :checksum checksum
+                                                      :storageclass "standard"
+                                                      :acl "private"
+                                                      :metadata s-meta})
+                                       (send! (-> (xml/copy-object checksum)
+                                                  (xml-response)
+                                                  (request-id request))
+                                              (:chan request))))))))
+        (throw (ex-info "invalid" {:type :invalid-request :status-code 400})))
+
       (let [finalize! (fn [inode version size checksum]
                         (meta/update! metastore bucket object
                                       {:inode inode
@@ -400,48 +488,6 @@
    :get-bucket-uploads     {:handler get-bucket-uploads
                             :perms   [[:bucket :READ]]}})
 
-(defmacro ensure!
-  [pred]
-  `(when-not ~pred
-     (debug "could not ensure: " (str (quote ~pred)))
-     (throw (ex-info "access denied" {:status-code 403
-                                      :type        :access-denied}))))
-
-(defn granted?
-  [acl needs for]
-  (= (get acl for) needs))
-
-(defn bucket-satisfies?
-  [{:keys [tenant acl]} {:keys [for groups needs]}]
-  (or (= tenant for)
-      (granted? acl needs for)
-      (some identity (map (partial granted? acl needs) groups))))
-
-(defn object-satisfies?
-  [{tenant :tenant} {acl :acl} {:keys [for groups needs]}]
-  (or (= tenant for)
-      (granted? acl needs for)
-      (some identity (map (partial granted? acl needs) groups))))
-
-(defn authorize
-  [{:keys [authorization bucket object] :as request} perms bucketstore regions]
-  (let [{:keys [tenant memberof]} authorization
-        memberof?                 (set memberof)]
-    (doseq [[perm arg] (map (comp flatten vector) perms)]
-      (case perm
-        :authenticated (ensure! (not= tenant :anonymous))
-        :memberof      (ensure! (memberof? arg))
-        :bucket        (ensure! (bucket-satisfies?
-                                 (bucket/by-name bucketstore bucket)
-                                 {:for    tenant
-                                  :groups memberof?
-                                  :needs  arg}))
-        :object        (ensure! (object-satisfies?
-                                 (bucket/by-name bucketstore bucket)
-                                 nil ;; XXX please fix me
-                                 {:for    tenant
-                                  :groups memberof?
-                                  :needs  arg}))))))
 
 (defn ex-handler
   [request exception]
