@@ -2,15 +2,19 @@
   (:require [io.pithos.response     :refer [header response status
                                             xml-response request-id send!
                                             content-type exception-status]]
+            [io.pithos.util         :refer [piped-input-stream
+                                            parse-uuid
+                                            ->channel-buffer]]
+            [lamina.core            :refer [channel siphon
+                                            lazy-seq->channel
+                                            enqueue close]]
+            [clojure.tools.logging  :refer [debug info warn error]]
             [io.pithos.store        :as store]
             [io.pithos.bucket       :as bucket]
             [io.pithos.meta         :as meta]
             [io.pithos.blob         :as blob]
             [io.pithos.xml          :as xml]
-            [io.pithos.util         :refer [piped-input-stream parse-uuid ->channel-buffer]]
-            [qbits.alia.uuid        :as uuid]
-            [lamina.core            :refer [channel siphon lazy-seq->channel enqueue close]]
-            [clojure.tools.logging  :refer [debug info warn error]]))
+            [qbits.alia.uuid        :as uuid]))
 
 (defn get-region
   [regions region]
@@ -52,7 +56,6 @@
         {:keys [metastore]}               (get-region regions region)
         params (select-keys params [:delimiter :prefix])
         prefixes (meta/prefixes metastore bucket params)]
-    (debug "get-bucket got prefixes and delimiter: " (:delimiter params) (:prefix params))
     (-> (xml/list-bucket prefixes binfo params)
         (xml-response)
         (request-id request)
@@ -179,6 +182,22 @@
         (request-id request)
         (send! (:chan request)))))
 
+(defn- yield-finalizer
+  [metastore bucket object partno upload]
+  (fn [inode version size checksum]
+    (debug "uploading part with details: " bucket object upload size checksum)
+    (meta/update-part! metastore bucket object
+                       (parse-uuid upload)
+                       (Long/parseLong partno)
+                       {:inode    inode
+                        :version  version
+                        :size     size
+                        :checksum checksum})
+    (send! (-> (response)
+               (header "ETag" checksum)
+               (request-id request))
+           (:chan request))))
+
 (defn put-object-part
   [{:keys [body bucket object] :as request} bucketstore regions]
   (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
@@ -187,20 +206,9 @@
         blobstore                           (get storage-classes :standard)
         version                             (uuid/time-based)
         inode                               (uuid/random)
-        finalize!                           (fn [inode version size checksum]
-                                              (debug "uploading part with details: "
-                                                     bucket object uploadid size checksum)
-                                              (meta/update-part! metastore bucket object
-                                                                 (parse-uuid uploadid)
-                                                                 (Long/parseLong partnumber)
-                                                                 {:inode    inode
-                                                                  :version  version
-                                                                  :size     size
-                                                                  :checksum checksum})
-                                              (send! (-> (response)
-                                                         (header "ETag" checksum)
-                                                         (request-id request))
-                                                     (:chan request)))]
+        finalize!                           (yield-finalizer
+                                             metastore bucket object
+                                             partnumber uploadid)]
     (blob/append-stream! blobstore inode version body finalize!)))
 
 (defn complete-upload
