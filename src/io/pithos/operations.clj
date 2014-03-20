@@ -91,8 +91,10 @@
                 storage-classes]} (get-region regions region)
         {:keys [size checksum
                 inode version
+                metadata
                 storage-class]}   (meta/fetch metastore bucket object)
         blobstore                 (get storage-classes :standard)
+        content-type              (get metadata "content-type")
         [is os]                   (piped-input-stream)]
 
     (future ;; XXX: run this in a dedicated threadpool
@@ -110,7 +112,7 @@
         (catch Exception e
           (error e "could not completely write out: "))))
     (-> (response is)
-        (content-type "text/plain")
+        (content-type content-type)
         (header "Content-Length" size)
         (header "ETag" checksum)
         (send! (:chan request)))))
