@@ -204,20 +204,21 @@
               (future
                 (blob/append-stream! blobstore inode version body-stream
                                      (fn [_ _ size checksum]
-                                       (debug "done streaming, updating copy")
-                                       (meta/update! metastore bucket object
-                                                     {:inode inode
-                                                      :version version
-                                                      :size size
-                                                      :checksum checksum
-                                                      :atime (iso8601-timestamp)
-                                                      :storageclass "standard"
-                                                      :acl "private"
-                                                      :metadata s-meta})
-                                       (send! (-> (xml/copy-object checksum)
-                                                  (xml-response)
-                                                  (request-id request))
-                                              (:chan request))))))))
+                                       (let [date (iso8601-timestamp)]
+                                         (debug "done streaming, updating copy")
+                                         (meta/update! metastore bucket object
+                                                       {:inode inode
+                                                        :version version
+                                                        :size size
+                                                        :checksum checksum
+                                                        :atime date
+                                                        :storageclass "standard"
+                                                        :acl "private"
+                                                        :metadata s-meta})
+                                         (send! (-> (xml/copy-object checksum date)
+                                                    (xml-response)
+                                                    (request-id request))
+                                                (:chan request)))))))))
         (throw (ex-info "invalid" {:type :invalid-request :status-code 400})))
 
       (let [finalize! (fn [inode version size checksum]
@@ -286,6 +287,7 @@
                        (Long/parseLong partno)
                        {:inode    inode
                         :version  version
+                        :modified (iso8601-timestamp)
                         :size     size
                         :checksum checksum})
     (send! (-> (response)

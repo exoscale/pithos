@@ -98,7 +98,7 @@ Will produce an XML AST equivalent to:
            (for [{:keys [bucket]} buckets]
              [:Bucket
               [:Name bucket]
-              [:CreationDate "2013-09-12T16:16:38.000Z"]]))]))
+              [:CreationDate (:created bucket)]]))]))
 
 (defn list-bucket
   "Template for the list-bucket operation response"
@@ -114,10 +114,10 @@ Will produce an XML AST equivalent to:
           (when (seq prefixes)
             (apply vector :CommonPrefixes
                  (for [prefix prefixes] [:Prefix prefix])))
-          (for [{:keys [object size checksum] :or {size 0}} files]
+          (for [{:keys [atime object size checksum] :or {size 0}} files]
             [:Contents
              [:Key object]
-             [:LastModified "2013-09-15T20:52:35.000Z"]
+             [:LastModified atime]
              [:ETag checksum]
              [:Size (str size)]
              [:Owner
@@ -157,7 +157,7 @@ Will produce an XML AST equivalent to:
           (for [{:keys [partno modified checksum size]} parts]
             [:Part
              [:PartNumber (str partno)]
-             [:LastModified (or modified "2013-09-15T20:52:35.000Z")]
+             [:LastModified modified]
              [:ETag checksum]
              [:Size (str size)]]))))
 
@@ -171,10 +171,10 @@ Will produce an XML AST equivalent to:
     [:ETag etag]]))
 
 (defn copy-object
-  [etag]
+  [etag atime]
   (seq->xmlstr
    [:CopyObjectResult xml-ns
-    [:LastModified "2014-03-20T14:21:08.000Z"]
+    [:LastModified atime]
     [:ETag etag]]))
 
 (defn exception

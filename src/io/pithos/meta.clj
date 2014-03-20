@@ -51,6 +51,7 @@
                        :object      :text
                        :inode       :uuid
                        :partno      :int
+                       :modified    :text
                        :size        :bigint
                        :checksum    :text
                        :primary-key [[:bucket :object :upload] :partno]})))
