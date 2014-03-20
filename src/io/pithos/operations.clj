@@ -117,29 +117,32 @@
 
 (defn put-object
   [{:keys [body bucket object] :as request} bucketstore regions]
-  ;; put object !
   (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
         {:keys [metastore storage-classes]} (get-region regions region)
         {:keys [inode]}                     (meta/fetch metastore bucket object)
         blobstore                           (get storage-classes :standard)
         inode                               (or inode (uuid/random))
-        version                             (uuid/time-based)]
+        version                             (uuid/time-based)
+        content-type                        (get-in request
+                                                    [:headers "content-type"]
+                                                    "binary/octet-stream")]
 
-    (let [finalize! (fn [inode version size checksum]
-                      (debug "finalizing object with details "
-                             bucket object inode version size checksum)
-                      (meta/update! metastore bucket object
-                                    {:inode inode
-                                     :version version
-                                     :size size
-                                     :checksum checksum
-                                     :storageclass "standard"
-                                     :acl "private"})
-                      (send! (-> (response)
-                                 (header "ETag" checksum)
-                                 (request-id request))
-                             (:chan request)))]
-      (blob/append-stream! blobstore inode version body finalize!))))
+    (if-let [source (get-in request [:headers "x-amz-copy-source"])]
+      (throw (ex-info "invalid" {:type :invalid-request :status-code 400}))
+      (let [finalize! (fn [inode version size checksum]
+                        (meta/update! metastore bucket object
+                                      {:inode inode
+                                       :version version
+                                       :size size
+                                       :checksum checksum
+                                       :storageclass "standard"
+                                       :acl "private"
+                                       :metadata {"content-type" content-type}})
+                        (send! (-> (response)
+                                   (header "ETag" checksum)
+                                   (request-id request))
+                               (:chan request)))]
+        (blob/append-stream! blobstore inode version body finalize!)))))
 
 (defn get-bucket-uploads
   [{:keys [bucket] :as request} bucketstore regions]
@@ -280,7 +283,6 @@
     (future
       (blob/append-stream! blobstore inode version body-stream
                            (fn [_ _ size checksum]
-                             (debug "end of stream caught, delivering etag")
                              (meta/update! metastore bucket object
                                     {:inode inode
                                      :version version

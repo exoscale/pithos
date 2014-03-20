@@ -180,6 +180,12 @@ Will produce an XML AST equivalent to:
         reqid (str (:reqid request))]
     (seq->xmlstr
      (case type
+       :invalid-request
+       [:Error
+        [:Code "InvalidRequest"]
+        [:Message "Not implemented yet"]
+        [:RequestId reqid]
+        [:HostId reqid]]
        :access-denied
        [:Error
         [:Code "AccessDenied"]
