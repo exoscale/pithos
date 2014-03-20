@@ -213,6 +213,34 @@
     (blob/append-stream! blobstore inode version body finalize!)))
 
 (defn complete-upload
+  "To complete an upload, all parts are read and streamed to
+   a new inode which will aggregate all content from parts.
+
+   Work is spread across two threads and three communication
+   channels are used for synchronisation:
+
+   - A piped input stream.
+   - A promise for the content's checksum
+   - A lamina channel for chunks
+
+   As soon as a request comes in, a 200 response is emitted,
+   whose body is the piped input stream.
+
+   A thread is started which reads from all parts and pushes
+   chunks to the lamina channel. While chunks are pushed to
+   the channel, whitespace is also emitted on the piped input
+   stream to ensure the connection won't be hung up.
+
+   The second thread which is started reads chunks from the lamina
+   channel and appends them to a new inode. Once it is properly
+   streamed, an object is finalized and made available and its
+   checksum is sent to the created promise.
+
+   Once all parts have been streamed with no errors, an XML
+   payload is sent to the piped input stream to acknowledge success,
+   which relies on the promised being delivered to send back the
+   overall checksum in the payload.
+"
   [{:keys [bucket object] :as request} bucketstore regions]
   (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
         {:keys [metastore storage-classes]} (get-region regions region)
@@ -225,6 +253,9 @@
                                                 parse-uuid)
         [is os]                             (piped-input-stream)
         body-stream                         (channel)
+        push-str                            (fn [^String s]
+                                              (.write os (.getBytes s))
+                                              (.flush os))
         etag                                (promise)]
 
     (future
@@ -232,24 +263,18 @@
       (doseq [part (meta/list-upload-parts metastore bucket object uploadid)]
 
         (debug "streaming part: " (:partno part))
-        (.write os (.getBytes "\n"))
-
+        (push-str "\n")
         (blob/stream!
          blobstore (:inode part) (:version part)
          (fn [chunks]
            (when chunks
              (doseq [{:keys [payload]} chunks]
-               (.write os (.getBytes " "))
-               (.flush os)
+               (push-str " ")
                (enqueue body-stream (->channel-buffer payload)))))))
-
 
       (close body-stream)
       (debug "all streams now flushed, waiting for etag")
-
-      (.write os (.getBytes (xml/complete-multipart-upload
-                             bucket object @etag)))
-      (.flush os)
+      (push-str (xml/complete-multipart-upload bucket object @etag))
       (.close os))
 
     (future
