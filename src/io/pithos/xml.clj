@@ -95,10 +95,10 @@ Will produce an XML AST equivalent to:
    [:ListAllMyBucketsResult xml-ns
     [:Owner [:ID (:tenant bucket)] [:DisplayName (:tenant bucket)]]
     (apply vector :Buckets
-           (for [{:keys [bucket]} buckets]
+           (for [{:keys [bucket created]} buckets]
              [:Bucket
               [:Name bucket]
-              [:CreationDate (:created bucket)]]))]))
+              [:CreationDate created]]))]))
 
 (defn list-bucket
   "Template for the list-bucket operation response"
