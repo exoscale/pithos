@@ -71,7 +71,7 @@ features:
   - name: Object Deletion
     status: Ok
   - name: Object Multipart Uploads
-    status: In Progress
+    status: Ok
   - name: Object ACLs
     status: In Progress
   - name: Object Torrent

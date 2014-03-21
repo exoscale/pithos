@@ -4,9 +4,9 @@ title: Pithos Concepts
 ---
 
 <div class="page-header">
-	<h1>Concepts</h1>
+        <h1>Concepts</h1>
 </div>
 
-<p>
-	<em>Pithos</em> is the Greek name of a large storage container.
-</p>
+{% capture myinclude %}{% include concepts.md %}{% endcapture %}
+
+{{ myinclude | markdownify }}

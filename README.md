@@ -24,3 +24,6 @@ Serve the site locally:
 cd _site
 python -m http.server  # Or '-m SimpleHTTPServer' if you only have python 2
 ```
+
+Long text and pages should go in the `_includes`directory and
+be render as Markdown.
