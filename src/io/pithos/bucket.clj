@@ -27,6 +27,7 @@
                           :cors         :text
                           :website      :text
                           :policy       :text
+                          :versioned    :boolean
                           :primary-key  :bucket})))
 
 (def bucket_tenant-index

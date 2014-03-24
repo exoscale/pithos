@@ -87,13 +87,19 @@
       (send! (:chan request))))
 
 (defn delete-bucket
-  [{{:keys [tenant]} :authorization :keys [bucket] :as request}
-   bucketstore regions]
-  (bucket/delete! bucketstore bucket)
-  (-> (response)
-      (request-id request)
-      (status 204)
-      (send! (:chan request))))
+  [{:keys [bucket] :as request}  bucketstore regions]
+  (let [{:keys [region tenant]} (bucket/by-name bucketstore bucket)
+        {:keys [metastore]}     (get-region regions region)
+        [nodes _]               (meta/prefixes metastore bucket {})]
+    (when (pos? (count nodes))
+      (throw (ex-info "bucket not empty" {:type :bucket-not-empty
+                                          :bucket bucket
+                                          :status-code 409})))
+    (bucket/delete! bucketstore bucket)
+    (-> (response)
+        (request-id request)
+        (status 204)
+        (send! (:chan request)))))
 
 (defn get-bucket
   [{:keys [params bucket] :as request} bucketstore regions]
@@ -166,7 +172,8 @@
   [{:keys [body bucket object authorization] :as request} bucketstore regions]
   (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
         {:keys [metastore storage-classes]} (get-region regions region)
-        {:keys [inode]}                     (meta/fetch metastore bucket object)
+        {:keys [inode]}                     (meta/fetch metastore bucket object
+                                                        false)
         blobstore                           (get storage-classes :standard)
         inode                               (or inode (uuid/random))
         version                             (uuid/time-based)
@@ -436,14 +443,31 @@
 
 (defn delete-object
   [{:keys [bucket object] :as request} bucketstore regions]
-  (let [{:keys [region]}    (bucket/by-name bucketstore bucket)
-        {:keys [metastore]} (get-region regions region)]
+  (let [{:keys [region versioned]}          (bucket/by-name bucketstore bucket)
+        {:keys [metastore storage-classes]} (get-region regions region)
+        {:keys [inode version]}             (meta/fetch metastore bucket object)
+        blobstore                           (get storage-classes :standard)]
+
     ;; delete object
     (meta/delete! metastore bucket object)
     (-> (response)
         (request-id request)
         (send! (:chan request)))))
 
+(defn get-bucket-versioning
+  [{:keys [bucket] :as request} bucketstore regions]
+  (let [{:keys [versioned]} (bucket/by-name bucketstore bucket)]
+    (-> (xml/get-bucket-versioning versioned)
+        (xml-response)
+        (request-id request)
+        (send! (:chan request)))))
+
+(defn put-bucket-versioning
+  "No versioning support for now even though versions are stored"
+  [{:keys [bucket] :as request} bucketstore regions]
+  (-> (response)
+      (request-id request)
+      (send! (:chan request))))
 (defn unknown
   "unknown operation"
   [request bucketstore regions]
@@ -459,6 +483,10 @@
                             :perms   [:authenticated]}
    :put-bucket             {:handler put-bucket
                             :perms   [[:memberof "authenticated-users"]]}
+   :put-bucket-versioning  {:handler put-bucket-versioning
+                            :perms   [[:bucket :WRITE]]}
+   :get-bucket-versioning  {:handler get-bucket-versioning
+                            :perms   [[:bucket :WRITE]]}
    :delete-bucket          {:handler delete-bucket
                             :perms   [[:memberof "authenticated-users"]
                                       [:bucket   :owner]]}

@@ -9,7 +9,7 @@
 
 (defprotocol Metastore
   (converge! [this])
-  (fetch [this bucket object])
+  (fetch [this bucket object] [this bucket object fail?])
   (prefixes [this bucket params])
   (finalize! [this bucket key version size checksum])
   (update! [this bucket object columns])
@@ -154,12 +154,15 @@
         (execute session object_uploads-table)
         (execute session object_inode-index)
         (execute session upload_bucket-index))
-      (fetch [this bucket object]
+      (fetch [this bucket object fail?]
         (or
          (first (execute session (get-object-q bucket object)))
-         (throw (ex-info "no such key" {:type :no-such-key
-                                        :status-code 404
-                                        :key object}))))
+         (when fail?
+           (throw (ex-info "no such key" {:type :no-such-key
+                                          :status-code 404
+                                          :key object})))))
+      (fetch [this bucket object]
+        (fetch this bucket object true))
       (prefixes [this bucket {:keys [prefix delimiter max-keys]}]
         (let [objects  (execute session (fetch-object-q bucket prefix))
               prefixes (if delimiter

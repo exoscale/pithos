@@ -177,6 +177,12 @@ Will produce an XML AST equivalent to:
     [:LastModified atime]
     [:ETag etag]]))
 
+(defn get-bucket-versioning
+  [versioned?]
+  (seq->xmlstr
+   [:VersioningConfiguration xml-ns
+    [:Status (if versioned? "Enabled" "Suspended")]]))
+
 (defn exception
   "Dispatch on the type of exception we got and apply appropriate template.
    Thankfully, we have a nice error message list in the S3 documentation:
@@ -232,6 +238,13 @@ Will produce an XML AST equivalent to:
         [:RequestId reqid]
         [:HostId reqid]
         [:Bucket (:bucket payload)]]
+       :bucket-not-empty
+       [:Error
+        [:Code "BucketNotEmpty"]
+        [:Message "The bucket you tried to delete is not empty"]
+        [:BucketName (:bucket payload)]
+        [:HostId reqid]
+        [:RequestId reqid]]
        :bucket-already-exists
        [:Error
         [:Code "BucketAlreadyExists"]
