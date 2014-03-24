@@ -172,8 +172,9 @@
   [{:keys [body bucket object authorization] :as request} bucketstore regions]
   (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
         {:keys [metastore storage-classes]} (get-region regions region)
-        {:keys [inode]}                     (meta/fetch metastore bucket object
+        {:keys [inode] :as details}         (meta/fetch metastore bucket object
                                                         false)
+        old-version                         (:version details)
         blobstore                           (get storage-classes :standard)
         inode                               (or inode (uuid/random))
         version                             (uuid/time-based)
@@ -222,6 +223,9 @@
                                                         :storageclass "standard"
                                                         :acl "private"
                                                         :metadata s-meta})
+                                         (when old-version
+                                           (blob/delete! blobstore inode old-version))
+
                                          (send! (-> (xml/copy-object checksum date)
                                                     (xml-response)
                                                     (request-id request))
@@ -238,6 +242,8 @@
                                        :acl "private"
                                        :atime (iso8601-timestamp)
                                        :metadata {"content-type" content-type}})
+                        (when old-version
+                          (blob/delete! blobstore inode old-version))
                         (send! (-> (response)
                                    (header "ETag" checksum)
                                    (request-id request))
@@ -255,10 +261,15 @@
         (send! (:chan request)))))
 
 (defn initiate-upload
-  [{:keys [bucket object] :as request} bucketstore regions]
+  [{:keys [bucket object params] :as request} bucketstore regions]
   (let [{:keys [region]}    (bucket/by-name bucketstore bucket)
         {:keys [metastore]} (get-region regions region)
-        uploadid            (uuid/random)]
+        uploadid            (uuid/random)
+        content-type        (get-in request
+                                    [:headers "content-type"]
+                                    "binary/octet-stream")]
+    (meta/initiate-upload! metastore bucket object
+                           uploadid {"content-type" content-type})
     (-> (xml/initiate-multipart-upload bucket object uploadid)
         (xml-response)
         (request-id request)
@@ -266,8 +277,13 @@
 
 (defn abort-upload
   [{:keys [bucket object uploadid] :as request} bucketstore regions]
-  (let [{:keys [region]} (bucket/by-name bucketstore bucket)
-        {:keys [metastore]} (get-region regions region)]
+  (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
+        {:keys [metastore storage-classes]} (get-region regions region)
+        blobstore                           (get storage-classes :standard)]
+    (doseq [{:keys [inode version]}
+            (meta/list-upload-parts metastore bucket object
+                                    (parse-uuid uploadid))]
+      (blob/delete! blobstore inode version))
     (meta/abort-multipart-upload! metastore bucket object uploadid)
     (-> (response)
         (request-id request)
@@ -394,7 +410,18 @@
                                                 "binary/octet-stream"}
                                      :storageclass "standard"
                                      :acl "private"})
-                             (deliver etag checksum))))
+                             (deliver etag checksum)
+                             ;; successful completion, now cleanup!
+                             (doseq [upload (meta/list-upload-parts metastore
+                                                                    bucket
+                                                                    object
+                                                                    uploadid)]
+                               (blob/delete! blobstore
+                                             (:inode upload) (:version upload)))
+                             (meta/abort-multipart-upload! metastore
+                                                           bucket
+                                                           object
+                                                           uploadid))))
 
     (-> (response is)
         (content-type "application/xml")
@@ -442,6 +469,7 @@
                                            :status-code 404})))
 
 (defn delete-object
+  "Delete current revision of objects."
   [{:keys [bucket object] :as request} bucketstore regions]
   (let [{:keys [region versioned]}          (bucket/by-name bucketstore bucket)
         {:keys [metastore storage-classes]} (get-region regions region)
@@ -450,6 +478,7 @@
 
     ;; delete object
     (meta/delete! metastore bucket object)
+    (blob/delete! blobstore inode version)
     (-> (response)
         (request-id request)
         (send! (:chan request)))))

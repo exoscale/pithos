@@ -16,7 +16,9 @@
   (delete! [this bucket object])
   (abort-multipart-upload! [this bucket object upload])
   (update-part! [this bucket object upload partno columns])
+  (initiate-upload! [this bucket object upload metadata])
   (list-uploads [this bucket])
+  (list-object-uploads [this bucket object])
   (list-upload-parts [this bucket object upload]))
 
 ;; schema definition
@@ -68,6 +70,7 @@
   (column-definitions {:bucket      :text
                        :object      :text
                        :upload      :uuid
+                       :metadata    (coll-type :map :text :text)
                        :primary-key [[:bucket :object] :upload]})))
 
 
@@ -81,6 +84,14 @@
   (delete :upload (where {:bucket bucket
                           :object object
                           :upload upload})))
+
+(defn initiate-upload-q
+  [bucket object upload metadata]
+  (update :object_uploads
+          (set-columns {:metadata metadata})
+          (where {:bucket bucket
+                  :object object
+                  :upload upload})))
 
 (defn update-part-q
   [bucket object upload partno columns]
@@ -98,6 +109,10 @@
 (defn list-upload-parts-q
   [bucket object upload]
   (select :upload (where {:bucket bucket :object object :upload upload})))
+
+(defn list-object-uploads-q
+  [bucket object]
+  (select :object_uploads (where {:bucket bucket :object object})))
 
 (defn fetch-object-q
   [bucket prefix]
@@ -172,12 +187,16 @@
                          (filter-content objects prefix delimiter)
                          objects)]
          [(remove prefixes contents) prefixes]))
+      (initiate-upload! [this bucket object upload metadata]
+        (execute session (initiate-upload-q bucket object upload metadata)))
       (abort-multipart-upload! [this bucket object upload]
         (execute session (abort-multipart-upload-q bucket object upload)))
       (update-part! [this bucket object upload partno columns]
         (execute session (update-part-q bucket object upload partno columns)))
       (list-uploads [this bucket]
         (execute session (list-uploads-q bucket)))
+      (list-object-uploads [this bucket object]
+        (execute session (list-object-uploads-q bucket object)))
       (list-upload-parts [this bucket object upload]
         (execute session (list-upload-parts-q bucket object upload)))
       (update! [this bucket object columns]
