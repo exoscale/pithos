@@ -12,7 +12,7 @@
                  [org.clojure/data.zip      "0.1.1"]
                  [org.clojure/tools.cli     "0.2.4"]
                  [commons-logging/commons-logging "1.1.3"]
-                 [aleph                     "0.3.0"]
+                 [org.spootnik/aleph        "0.3.3-fix-content-length-r1"]
                  [clj-yaml                  "0.4.0"]
                  [clout                     "1.1.0"]
                  [ring/ring-codec           "1.0.0"]
