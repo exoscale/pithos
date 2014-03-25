@@ -367,7 +367,7 @@
         blobstore                           (get storage-classes :standard)
         inode                               (uuid/random)
         version                             (uuid/time-based)
-        uploadid                            (-> request
+        upload                              (-> request
                                                 :params
                                                 :uploadid
                                                 parse-uuid)
@@ -380,7 +380,7 @@
 
     (future
 
-      (doseq [part (meta/list-upload-parts metastore bucket object uploadid)]
+      (doseq [part (meta/list-upload-parts metastore bucket object upload)]
 
         (debug "streaming part: " (:partno part))
         (push-str "\n")
@@ -412,16 +412,12 @@
                                      :acl "private"})
                              (deliver etag checksum)
                              ;; successful completion, now cleanup!
-                             (doseq [upload (meta/list-upload-parts metastore
-                                                                    bucket
-                                                                    object
-                                                                    uploadid)]
+                             (doseq [part (meta/list-upload-parts
+                                           metastore bucket object upload)]
                                (blob/delete! blobstore
-                                             (:inode upload) (:version upload)))
-                             (meta/abort-multipart-upload! metastore
-                                                           bucket
-                                                           object
-                                                           uploadid))))
+                                             (:inode part) (:version part)))
+                             (meta/abort-multipart-upload!
+                              metastore bucket object upload))))
 
     (-> (response is)
         (content-type "application/xml")

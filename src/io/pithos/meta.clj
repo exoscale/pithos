@@ -80,7 +80,10 @@
   [bucket object upload]
   (delete :object_uploads (where {:bucket bucket
                                   :object object
-                                  :upload upload}))
+                                  :upload upload})))
+
+(defn delete-upload-parts-q
+  [bucket object upload]
   (delete :upload (where {:bucket bucket
                           :object object
                           :upload upload})))
@@ -190,7 +193,8 @@
       (initiate-upload! [this bucket object upload metadata]
         (execute session (initiate-upload-q bucket object upload metadata)))
       (abort-multipart-upload! [this bucket object upload]
-        (execute session (abort-multipart-upload-q bucket object upload)))
+        (execute session (abort-multipart-upload-q bucket object upload))
+        (execute session (delete-upload-parts-q bucket object upload)))
       (update-part! [this bucket object upload partno columns]
         (execute session (update-part-q bucket object upload partno columns)))
       (list-uploads [this bucket]
