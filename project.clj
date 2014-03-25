@@ -6,7 +6,7 @@
   :main io.pithos
   :jvm-opts ["-Xmx2g"]
   :profiles {:dev {:resource-paths ["test/data"]}}
-  :dependencies [[org.clojure/clojure       "1.5.1"]
+  :dependencies [[org.clojure/clojure       "1.6.0"]
                  [org.clojure/data.codec    "0.1.0"]
                  [org.clojure/data.xml      "0.0.7"]
                  [org.clojure/data.zip      "0.1.1"]
