@@ -1,7 +1,7 @@
 pithos: cassandra object storage
 --------------------------------
 
-Pithos is a fully S3 compatible object store developped and used at [exoscale](https://www.exoscale.ch), a public cloud provider.
+Pithos is a fully S3 compatible object store developed and used at [exoscale](https://www.exoscale.ch), a public cloud provider.
 
 The full design documentation and schema layout is available [here](doc/design.org)
 
@@ -12,7 +12,7 @@ In order to build and run Pithos you will need the following components:
 
 * Working Java Runtime Environment version 7 or higher
 * A [Cassandra](http://cassandra.apache.org/) cluster in version 2 or higher
-* [Leiningen](https://github.com/technomancy/leiningen) Clojure package buider
+* [Leiningen](https://github.com/technomancy/leiningen) Clojure package builder
 
 # Build
 
@@ -28,7 +28,7 @@ To run Pithos manually start it with
 
     java -jar target/pithos-0.1.0-standalone.jar
 
-Pithos will expect finding a valid configuration file under `/etc/pithos/pithos.yaml`. You can specifiy a distinct config file using the `-f` switch.
+Pithos will expect finding a valid configuration file under `/etc/pithos/pithos.yaml`. You can specify a distinct config file using the `-f` switch.
 
 The following startup switches are available:
 
@@ -39,9 +39,9 @@ The following startup switches are available:
      -q, --no-quiet, --quiet  false    Never output to stdout
      -a, --action             api-run  Specify an action (api-run, install-schema)
 
-## Bootstraping the environment
+## Bootstrapping the environment
 
-Pithos includes a shema defintion file in order to bootstrap your Cassandra cluster.
+Pithos includes a schema definition file in order to bootstrap your Cassandra cluster.
 To install the schema, run:
 
     java -jar target/pithos-0.1.0-standalone.jar -a install-schema
@@ -53,7 +53,7 @@ configure your client:
 
     s3cmd --configure
 
-and provide the key and secret defined in the cofig file
+and provide the key and secret defined in the config file
 
 If running locally, also specify protocol, proxy and port options as follow (or adjust to your running config):
 
