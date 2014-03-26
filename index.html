@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: home
 title: Pithos
 ---
 
@@ -12,34 +12,65 @@ title: Pithos
 				</div>
 			</div>
 			<div class="col-sm-8">
-				<h2>Pithos is a Cassandra-based object store.</h2>
-				<p>Its goal is to provide a robust, scalable object store compatible with the industry-standard S3 API.</p>
+				<h2>Pithos stores your data.</h2>
+				<p>The main goal of pithos is to provide a robust, scalable object store compatible with the industry-standard S3 API.
+        </p>
+        
 				<p>
 					<a href="/quickstart/" class="btn btn-success">Get started</a>
-					<a href="/concepts/" class="btn btn-warning">Learn more</a>
+					<a href="/design/" class="btn btn-warning">Learn more</a>
 				</p>
 			</div>
 		</div>
 	</div>
 </div>
 
-<h3>Feature comparison</h3>
+<div class="row" style="margin-top: 50px">
+  <div class="col-md-3">
+    <h3>Scalable</h3>
+    <p>By relying on <a href="http://cassandra.apache.org">Apache Cassandra</a>, pithos splits your files (objects)
+      in small chunks which are replicated across a cluster of machines. This allows pithos to provide the following
+      guarantees:
 
-<table class="table table-striped">
-	<thead>
-		<tr>
-			<th>Feature</th>
-			<th>Status</th>
-			<th class="hidden-xs">Notes</th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for feature in site.features %}
-			<tr class="{{ site.feature_config[feature.status].class }}">
-				<td>{{ feature.name }}</td>
-				<td><span class="label label-{{ site.feature_config[feature.status].class{{ feature.status }}"><span class="fa fa-{{ site.feature_config[feature.status].icon }}"></span> {{ feature.status }}</span></td>
-				<td class="hidden-xs">{{ feature.notes }}</td>
-			</tr>
-		{% endfor %}
-	</tbody>
-</table>
+      <ul>
+        <li>Fast writes</li>
+        <li>High Availability</li>
+        <li>Partition tolerance</li>
+      </ul>
+    </p>
+
+  </div>
+  <div class="col-md-3">
+    <h3>Compatible</h3>
+    <p>
+      While there are no wide-spread official standard for object storage, the <a href="http://en.wikipedia.org/wiki/Amazon_S3">S3 protocol</a> hash
+      become a de-facto standard and has thus been chosen as pithos' protocol. This means you can start using your favorite S3 tools to work with
+      pithos, such as:
+
+      <ul>
+        <li><a href="http://s3tools.org">s3cmd</a></li>
+        <li><a href="https://github.com/boto/boto">boto</a></li>
+      </ul>
+      Take a look at the detailed <a href="/design#api-compat">API compatibility matrix</a> to get an updated view of pithos' API support.
+    </p>
+  </div>
+
+  <div class="col-md-3">
+    <h3>Simple</h3>
+    <p>
+      Pithos was built with ease of use and operability in mind. It should be easy to get started, require as few moving parts as possible
+      and still be relatively easy to extend for larger installations.
+
+      Pithos is distributed as a single executable JAR-file and relies on a YAML configuration file. As many of the JVM specifics are
+      hidden from the administrator.
+    </p>
+  </div>
+  <div class="col-md-3">
+    <h3>Open</h3>
+    <p>
+      Pithos is free and open-source software with no strings attached. While its development has been sponsored by
+      <a href="https://exoscale.ch">exoscale</a> it is meant to be used by anyone and for any purpose.
+    </p>
+  </div>
+</div>
+

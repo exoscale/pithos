@@ -4,10 +4,8 @@ pygments: true
 nav:
   - name: Quickstart
     target: /quickstart/
-  - name: Concepts
-    target: /concepts/
-  - name: Reference
-    target: /reference/
+  - name: Design
+    target: /design/
   - name: Support
     target: /support/
   - name: <i class="fa fa-github"></i> GitHub
