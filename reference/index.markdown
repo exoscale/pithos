@@ -70,7 +70,7 @@ being defined inline.
 keystore:
   keys:
     AKIAIOSFODNN7EXAMPLE:
-# The master key allows provisinning operations
+# The master key allows provisioning operations
 # when the masterkey-provisioning feature is
 # set to true and will allow access to all
 # buckets when masterkey-access is set to true

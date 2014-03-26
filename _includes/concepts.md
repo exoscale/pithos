@@ -14,7 +14,7 @@ Apache Cassandra (tm) and for a small code base.
 
 ## Layout 
 
-Pithos splits object storage accross regions, each having one or more
+Pithos splits object storage across regions, each having one or more
 storage class. Metadata is stored globally, object data is isolated on a
 region. Bucket objects may only be stored in a single region.
 
@@ -33,7 +33,7 @@ Pithos works by exposing the following entities:
 -   *User*: A member of a tenant, identified by a unique ID or email
     address.
 
-Additionaly, pithos separates storage in different layers:
+Additionally, pithos separates storage in different layers:
 
 -  Keystore: ring global storage of credentials.
 -  Metastore: ring global storage of bucket location information.
