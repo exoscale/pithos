@@ -44,14 +44,8 @@ The following startup switches are available:
 Pithos includes a shema defintion file in order to bootstrap your Cassandra cluster.
 To install the schema, run:
 
-    java -jar target/pithos-0.1.0-standalone.jar -f <path>/<to>/pithos.yaml -a install-schema
+    java -jar target/pithos-0.1.0-standalone.jar -a install-schema
 
-
-## Configure users
-
-Users are configured in the pithos.yaml configuration file as such in the keystore section.
-
-### Generate keys
 
 ## Test using the s3cmd command line client
 
