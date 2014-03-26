@@ -30,20 +30,18 @@ Pithos works by exposing the following entities:
 -   Ring: The global storage service.
 -   Region: A location denominator, mapping to a physical location where
     bucket object data is stored.
--   Storage Class: Denotes the redundancy at which data is stored, see
-    the [[\#storage-classes][storage classes]] documentation for per
-    storage-class specifics.
+-   Storage Class: Denotes the redundancy at which data is stored.
 -   Bucket: Logical aggregation of objects sharing common properties.
 -   Object: Representation of a file as uploaded by a client.
--   Tenant: A client-organization
+-   Tenant: A client-organization.
 -   User: A member of a tenant, identified by a unique ID or email
-    address
+    address.
 
-Additionally, pithos internals stores information in different location:
+Additionally, pithos internals stores information in different locations:
 
--   Keystore: ring global ID to details storage
+-   Keystore: ring global ID to details storage.
 -   Metastore: ring global lightweight storage of bucket owner and
-    location
+    location.
 
 -   Keystore: Interface allowing ID to tenant, group and other details
     lookup
