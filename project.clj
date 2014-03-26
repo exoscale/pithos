@@ -1,6 +1,6 @@
 (defproject io.pithos/pithos "0.1.0"
   :description "cassandra-backed object storage"
-  :url "https://github.com/exoscale/ostore"
+  :url "https://github.com/exoscale/pithos"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main io.pithos
