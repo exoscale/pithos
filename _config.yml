@@ -6,6 +6,8 @@ nav:
     target: /quickstart/
   - name: Design
     target: /design/
+  - name: Reference
+    target: /reference/
   - name: Support
     target: /support/
   - name: <i class="fa fa-github"></i> GitHub

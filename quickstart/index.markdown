@@ -39,22 +39,21 @@ The following startup switches are available:
      -h, --no-help, --help    false    Show Help
      -f, --path                        Configuration file path
      -q, --no-quiet, --quiet  false    Never output to stdout
-     -a, --action             api-run  Specify an action (api-run, install-schema)
+     -a, --action             api-run  Specify an action (api-run,
+     install-schema)
+
+## Configuration
+
+Please refer to the [documentation reference](/reference) for a
+detailed walk-through of configuration options.
 
 ## Bootstraping the environment
 
 Pithos includes a shema defintion file in order to bootstrap your Cassandra cluster.
 To install the schema, run:
 
-    java -jar target/pithos-0.1.0-standalone.jar -f <path>/<to>/pithos.yaml -a install-schema
+    java -jar target/pithos-0.1.0-standalone.jar -a install-schema
 
-
-## Configure users
-
-Users are configured in the pithos.yaml configuration file in the
-keystore section. If y
-
-### Generate keys
 
 ## Test using the s3cmd command line client
 
@@ -62,7 +61,7 @@ configure your client:
 
     s3cmd --configure
 
-and provide the key and secret defined in the config file
+and provide the key and secret defined in the config file.
 
 If running locally, also specify protocol, proxy and port options as follow (or adjust to your running config):
 
