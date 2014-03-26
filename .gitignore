@@ -11,3 +11,7 @@ pom.xml.asc
 .lein-failures
 .lein-plugins
 .lein-repl-history
+.sass-cache
+_site
+img
+node_modules
