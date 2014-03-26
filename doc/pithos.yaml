@@ -34,8 +34,7 @@ logging:
 ## global options
 ## --------------
 options:
-#  server-name: 'sos.exoscale.ch'
-  service-uri: 's3.amazonaws.com' 
+  service-uri: 's3.example.com' 
   reporting: true
   server-side-encryption: true
   multipart-upload: true
