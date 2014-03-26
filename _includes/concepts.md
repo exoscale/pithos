@@ -54,7 +54,7 @@ Additionally, pithos internals stores information in different location:
 
 ## Configuration
 
-Pithos is configured y editing a single file:
+Pithos is configured by editing a single file:
     
     /etc/pithos/pithos.yaml
 
