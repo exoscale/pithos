@@ -1,7 +1,3 @@
-## Origin
-
-**Pithos** is the Greek name of a large storage container.
-
 ## Introduction
 
 Pithos aims to be a simple and effective solution for object storage
@@ -27,28 +23,22 @@ amongst several **regions** which only share metadata.
 
 Pithos works by exposing the following entities:
 
--   Ring: The global storage service.
--   Region: A location denominator, mapping to a physical location where
+-   *Ring*: The global storage service.
+-   *Region*: A location denominator, mapping to a physical location where
     bucket object data is stored.
--   Storage Class: Denotes the redundancy at which data is stored.
--   Bucket: Logical aggregation of objects sharing common properties.
--   Object: Representation of a file as uploaded by a client.
--   Tenant: A client-organization.
--   User: A member of a tenant, identified by a unique ID or email
+-   *Storage Class*: Denotes the redundancy at which data is stored.
+-   *Bucket*: Logical aggregation of objects sharing common properties.
+-   *Object*: Representation of a file as uploaded by a client.
+-   *Tenant*: A client-organization.
+-   *User*: A member of a tenant, identified by a unique ID or email
     address.
 
-Additionally, pithos internals stores information in different locations:
+Additionaly, pithos separates storage in different layers:
 
--   Keystore: ring global ID to details storage.
--   Metastore: ring global lightweight storage of bucket owner and
-    location.
-
--   Keystore: Interface allowing ID to tenant, group and other details
-    lookup
--   Metastore: Interface allowing interaction with the global ring
-    metadata
--   RegionMetastore:
--   Regionstore: Interface allowing interfaction with
+-  Keystore: ring global storage of credentials.
+-  Metastore: ring global storage of bucket location information.
+-  RegionMetastore: region local storage of object metadata.
+-  Regionstore: region local and per-storage class object storage.
 
 ## Configuration
 
@@ -59,6 +49,7 @@ Pithos is configured by editing a single file:
 
 ## Request Lifecycle
 
+<img src="/img/request_lifecycle.png" alt="request lifecycle" style="max-width: 100%" />
 
 ## Data Layout
 
@@ -68,7 +59,7 @@ Buckets are indexed by tenant and bucket name. They are a simple entity
 that can aggregate common properties across all descendant paths and
 inodes.
 
-<table>
+<table class="table">
 <thead>
 <tr class="header">
 <th align="left">bucket</th>
@@ -103,7 +94,7 @@ hierarchies.
 As a side-effect, for a specific path prefix, hierarchies are built by
 retrieving all children paths.
 
-<table>
+<table class="table">
 <thead>
 <tr class="header">
 <th align="left">path</th>
@@ -141,7 +132,7 @@ hierarchy.
 Inode versions do not store data, data is instead stored in a list of
 blocks.
 
-<table>
+<table class="table">
 <thead>
 <tr class="header">
 <th align="left">inode</th>
@@ -183,7 +174,7 @@ blocks.
 Inode blocks are a relation table holding a list of offsets at which
 blocks start.
 
-<table>
+<table class="table">
 <thead>
 <tr class="header">
 <th align="left">inode_blocks</th>
@@ -210,7 +201,7 @@ blocks start.
 
 store data in a list of chunks.
 
-<table>
+<table class="table">
 <thead>
 <tr class="header">
 <th align="left">block</th>
