@@ -19,4 +19,5 @@ will be the reference issue tracking mechanism.
 
 ## Mailing list
 
-Email can be sent to pithos@librelist.com, archives are stored at: http://librelist.com/browser/pithos
+Email can be sent to pithos@librelist.com, archives are stored at:
+[librelist.com/browser/pithos](http://librelist.com/browser/pithos)
