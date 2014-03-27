@@ -24,7 +24,7 @@
    accross many rows.
 
    To ensure metadata operations are decoupled from storage, the protocol
-   relies on
+   relies on callbacks in a few places.
 
 "
   (:import java.util.UUID
