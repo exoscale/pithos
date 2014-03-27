@@ -1,10 +1,12 @@
 (ns io.pithos.store
+  "Generic cassandra cluster connection services."
   (:import com.datastax.driver.core.exceptions.InvalidQueryException)
   (:require [qbits.alia            :as alia]
             [qbits.hayt            :refer [use-keyspace create-keyspace with]]
             [clojure.tools.logging :refer [debug]]))
 
 (defmacro execute
+  "Simple macro to wrap a body in an alia session"
   [store & body]
   `(alia/with-session ~store
      (do ~@body)))

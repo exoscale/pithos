@@ -8,6 +8,7 @@
   (:import  javax.crypto.Mac javax.crypto.spec.SecretKeySpec))
 
 (defn canonicalized
+  "Group headers starting with x-amz, each on a separate line and add uri"
   [headers uri]
   (s/join "\n"
           (concat (->> headers
@@ -18,6 +19,7 @@
                   [uri])))
 
 (defn string-to-sign
+  "Yield the string to sign for an incoming request"
   [{:keys [headers request-method sign-uri] :as request}]
   (let [content-md5  (get headers "content-md5")
         content-type (get headers "content-type")
@@ -31,6 +33,7 @@
       (canonicalized headers sign-uri)])))
 
 (defn sign-request
+  "Sign the request, signatures are basic HmacSHA1s, encoded in base64"
   [request access-key secret-key]
   (let [to-sign (string-to-sign request)
         key     (SecretKeySpec. (.getBytes secret-key) "HmacSHA1")]
@@ -39,6 +42,8 @@
                  (base64/encode)))))
 
 (defn validate
+  "Validate an incoming request (e.g: make sure the signature is correct),
+   when applicable (requests may be unauthenticated)"
   [keystore request]
   (if-let [auth-str (get-in request [:headers "authorization"])]
     (let [[_ access-key sig] (re-matches #"^AWS (.*):(.*)$" auth-str)
