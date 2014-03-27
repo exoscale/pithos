@@ -196,7 +196,7 @@
                   region-details (get-region regions (:region bucket-details))
                   details        (meta/fetch (:metastore region-details)
                                              s-bucket s-object)
-                  s-meta         (assoc (or (:metadata details) {}))
+                  s-meta         (or (:metadata details) {})
                   s-blobstore    (get (:storage-classes region-details)
                                       :standard)
                   body-stream    (channel)]
