@@ -1,4 +1,5 @@
 (ns io.pithos.logging
+  "Small veneer on top of log4j and commons logging"
   (:import (org.apache.log4j           Logger
                                        BasicConfigurator
                                        EnhancedPatternLayout
@@ -13,6 +14,7 @@
   (:require [clojure.tools.logging :as log]))
 
 (def levels
+  "Logging levels"
   {"debug" Level/DEBUG
    "info"  Level/INFO
    "warn"  Level/WARN
@@ -25,7 +27,7 @@
 (defn start-logging
   "Initialize log4j. Stolen from riemann"
   [{ :keys [external console files pattern level overrides]}]
-  ; Reset loggers
+  ;; Reset loggers
   (let [layout      (EnhancedPatternLayout. pattern)
         root-logger (Logger/getRootLogger)]
 
