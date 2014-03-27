@@ -22,5 +22,8 @@ will be the reference issue tracking mechanism.
 
 ## Mailing list
 
-Email can be sent to pithos@librelist.com, archives are stored at:
+Send an email to pithos@librelist.com to subscribe. That first email is
+dropped and subsequent emails are sent to the mailing-list.
+
+Mailing list archives are stored at
 [librelist.com/browser/pithos](http://librelist.com/browser/pithos)
