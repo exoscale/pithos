@@ -5,7 +5,11 @@ pithos: object storage daemon
 
 Pithos is an object storage daemon with
 pluggable implementation of storage
-engines. See [pithos.io] for design details"
+engines. See [pithos.io](http://pithos.io) for details.
+
+The `io.pithos` namespace is only responsible for parsing
+command line arguments, loading configuration and starting
+up the appropriate action."
   (:gen-class)
   (:require [io.pithos.api     :as api]
             [io.pithos.schema  :as schema]
@@ -39,7 +43,7 @@ engines. See [pithos.io] for design details"
       (println "Could not parse arguments: " (.getMessage e))
       (System/exit 1))))
 
-(defn -main 
+(defn -main
   "Main startup path, parse command line arguments, then dispatch to
    appropriate action.
 
@@ -54,4 +58,3 @@ engines. See [pithos.io] for design details"
       (System/exit 0))
     (-> path (config/init quiet) action))
   nil)
-
