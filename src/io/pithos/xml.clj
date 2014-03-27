@@ -162,6 +162,7 @@ Will produce an XML AST equivalent to:
              [:Size (str size)]]))))
 
 (defn complete-multipart-upload
+  "Template for the complete multipart upload response"
   [bucket object etag]
   (seq->xmlstr
    [:CompleteMultipartUploadResult xml-ns
@@ -171,6 +172,7 @@ Will produce an XML AST equivalent to:
     [:ETag etag]]))
 
 (defn copy-object
+  "Template for the copy object response"
   [etag atime]
   (seq->xmlstr
    [:CopyObjectResult xml-ns
@@ -178,6 +180,7 @@ Will produce an XML AST equivalent to:
     [:ETag etag]]))
 
 (defn get-bucket-versioning
+  "Template for the get bucket versioning response"
   [versioned?]
   (seq->xmlstr
    [:VersioningConfiguration xml-ns
