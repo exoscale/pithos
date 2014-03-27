@@ -16,7 +16,7 @@
             [io.pithos.xml        :refer [seq->xml]]))
 
 ;; ### XML ACL parsing functions
-;; 
+;;
 ;; We're doing a very sloppy type of schema validation
 ;; this should likely move to a stricter XSD validation
 ;; phase.
@@ -67,7 +67,7 @@
     (catch clojure.lang.ExceptionInfo e
       (throw e))
     (catch Exception e
-      (throw (ex-info "Invalid XML in ACL Body" 
+      (throw (ex-info "Invalid XML in ACL Body"
                       {:type :invalid-acl-xml})))))
 
 (defn xml->acl
@@ -107,18 +107,3 @@
                      [:Permission (name permission)]
                      :Grant))
              :AccessControlList)]))))
-
-
-
-;; ACL handling functions
-
-(def
-  ^{:doc "Map of expected permission per operation."}
-  by-operation
-  {})
-
-(defn matches?
-  "Authorize operation `what` for origin `who` against rules `acl`"
-  [{:keys [grants] :as acl} who what]
-  
-  true)
