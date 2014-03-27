@@ -12,6 +12,9 @@ pithos:
 Pithos developers hang out in #pithosio on irc.freenode.net. The best
 time to get questions answered will be 8am-5pm UTC.
 
+The IRC channel logs are available at
+[botbot.me](https://botbot.me/freenode/pithosio/).
+
 ## Github Issues
 
 The [issue page](https://github.com/exoscale/pithos/issues) for pithos
