@@ -77,7 +77,7 @@
    :website "website"})
 
 (defn action-routes
-  ""
+  "Really simple router, extracts target (service, bucket or object)"
   []
   (let [sroute (route-compile "/")
         broute1 (route-compile "/:bucket")
@@ -89,11 +89,14 @@
      [:object  (partial route-matches oroute)]]))
 
 (defn match-action-route
+  "Matches incoming route and yields target bucket and object"
   [request [target matcher]]
   (when-let [{bucket :bucket object :*} (matcher request)]
     {:target target :bucket bucket :object object}))
 
 (defn yield-assoc-target
+  "closure which for each incoming request will assoc target, bucket
+   abnd object"
   []
   (let [routes (action-routes)]
     (fn [request]
@@ -102,6 +105,13 @@
             {:target :unknown})))))
 
 (defn yield-assoc-operation
+  "Closure which will build an operation keyword based on the incoming
+   request. This is the bulk of the routing in pithos. This becomes necessary
+   because S3's behavior varies based on the route, but also based on query
+   arguments.
+
+   `action-params` holds query args which are relevant and need to be taken
+    into account, when found, it will be part of the operation name."
   [suffixes]
   (fn [{:keys [uri request-method action-params target params] :as request}]
     (let [suffix (some suffixes action-params)
@@ -136,7 +146,7 @@
   (assoc req :reqid (uuid/random)))
 
 (defn assoc-params
-  ""
+  "Parse, keywordize and store query arguments"
   [{:keys [query-string] :as req}]
   (or
    (when-let [params (and (seq query-string)
@@ -150,6 +160,7 @@
    (assoc req :params {} :action-params #{})))
 
 (defn rewrite-host
+  "Discard host from URI"
   [{:keys [uri] :as request}]
   (if-let [[_ trail] (re-find #"^https?://[^/]+/?(.*)" uri)]
     (assoc request :uri (str "/" trail))
@@ -167,6 +178,7 @@
         request))))
 
 (defn authenticate
+  "Authenticate tenant, allow masquerading only for _master_ keys"
   [req keystore]
   (let [auth   (validate keystore req)
         master (:master auth)
@@ -175,6 +187,7 @@
            (if (and master tenant) (assoc auth :tenant tenant) auth))))
 
 (defn prepare
+  "Generate closures and walks each requests through wrappers."
   [req keystore metastore regions {:keys [service-uri]}]
   (let [rewrite-bucket  (yield-rewrite-bucket service-uri)
         assoc-target    (yield-assoc-target)
@@ -191,6 +204,7 @@
         (authenticate keystore))))
 
 (defn safe-prepare
+  "Wrap prepare in a try-catch block"
   [req keystore metastore regions options]
   (try (prepare req keystore metastore regions options)
        (catch Exception e
