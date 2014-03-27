@@ -13,7 +13,7 @@ It focuses on the following aspects:
 
 * Concepts
 
-Pithos splits object storage accross regions, each having
+Pithos splits object storage across regions, each having
 one or more storage class. Metadata is stored globally,
 object data is isolated on a region. Bucket objects may
 only be stored in a single region.
@@ -69,7 +69,7 @@ Additionally, pithos internals stores information in different location:
 - Keystore: Interface allowing ID to tenant, group and other details lookup
 - Metastore: Interface allowing interaction with the global ring metadata
 - RegionMetastore: 
-- Regionstore: Interface allowing interfaction with 
+- Regionstore: Interface allowing interaction with
 
 * Configuration
 
