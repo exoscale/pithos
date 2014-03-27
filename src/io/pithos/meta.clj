@@ -1,4 +1,6 @@
 (ns io.pithos.meta
+  "The metastore is region-local and stores details of bucket content
+   (bucket contents are region-local as well)."
   (:require [qbits.alia      :refer [execute]]
             [qbits.hayt      :refer [select where set-columns columns
                                      delete update limit order-by coll-type
@@ -8,6 +10,7 @@
             [io.pithos.store :as store]))
 
 (defprotocol Metastore
+  "All necessary functions to manipulate bucket metadata"
   (converge! [this])
   (fetch [this bucket object] [this bucket object fail?])
   (prefixes [this bucket params])
@@ -24,7 +27,10 @@
 ;; schema definition
 
 (def object-table
- (create-table
+  "Objects are keyed by bucket and object and contain
+   several direct properties as well as a map of additional
+   schema-less properties"
+  (create-table
   :object
   (column-definitions {:bucket       :text
                        :object       :text
@@ -39,12 +45,15 @@
                        :primary-key  [:bucket :object]})))
 
 (def object_inode-index
+  "Objects are indexed by inode"
   (create-index
    :object
    :inode
    (index-name :object_inode)))
 
 (def upload-table
+  "Uploads are keyed by bucket, object and upload since several concurrent
+   uploads can be performed"
  (create-table
   :upload
   (column-definitions {:upload      :uuid
@@ -59,12 +68,14 @@
                        :primary-key [[:bucket :object :upload] :partno]})))
 
 (def upload_bucket-index
+  "Uploads are indexed by bucket for easy lookup"
   (create-index
    :upload
    :bucket
    (index-name :upload_bucket)))
 
 (def object_uploads-table
+  "Uploads are also referenced by object"
  (create-table
   :object_uploads
   (column-definitions {:bucket      :text
@@ -77,18 +88,21 @@
 ;; CQL Queries
 
 (defn abort-multipart-upload-q
+  "Delete an upload reference"
   [bucket object upload]
   (delete :object_uploads (where {:bucket bucket
                                   :object object
                                   :upload upload})))
 
 (defn delete-upload-parts-q
+  "Delete all upload parts"
   [bucket object upload]
   (delete :upload (where {:bucket bucket
                           :object object
                           :upload upload})))
 
 (defn initiate-upload-q
+  "Create an upload reference"
   [bucket object upload metadata]
   (update :object_uploads
           (set-columns {:metadata metadata})
@@ -97,6 +111,7 @@
                   :upload upload})))
 
 (defn update-part-q
+  "Update an upload part's properties"
   [bucket object upload partno columns]
   (update :upload
           (set-columns columns)
@@ -106,18 +121,22 @@
                   :partno partno})))
 
 (defn list-uploads-q
+  "List all uploads by bucket"
   [bucket]
   (select :upload (where {:bucket bucket})))
 
 (defn list-upload-parts-q
+  "List all parts of an upload"
   [bucket object upload]
   (select :upload (where {:bucket bucket :object object :upload upload})))
 
 (defn list-object-uploads-q
+  "List all uploads of an object"
   [bucket object]
   (select :object_uploads (where {:bucket bucket :object object})))
 
 (defn fetch-object-q
+  "List objects"
   [bucket prefix]
   (let [object-def    [[:bucket bucket]]
         next-prefix (inc-prefix prefix)
@@ -125,36 +144,35 @@
     (select :object (where (cond-> object-def
                                  (seq prefix) (concat prefix-def))))))
 
-(defn fetch-object-inodes-q
-  [bucket object version]
-  (select :object_inodes (where {:bucket  bucket
-                                 :object  object
-                                 :version version})))
-
 (defn get-object-q
+  "Fetch object properties"
   [bucket object]
   (select :object
           (where {:bucket bucket :object object})
           (limit 1)))
 
 (defn update-object-q
+  "Update object properties"
   [bucket object columns]
   (update :object
           (set-columns columns)
           (where {:bucket bucket :object object})))
 
 (defn delete-object-q
+  "Delete an object"
   [bucket object]
   (delete :object (where {:bucket bucket :object object})))
 
-;; utility functions
+;; ### Utility functions
 
 (defn filter-content
+  "Keep only contents in a list of objects"
   [objects prefix delimiter]
   (let [pat (re-pattern (str "^" prefix "[^\\" delimiter "]*$"))]
     (filter (comp (partial re-find pat) :object) objects)))
 
 (defn filter-prefixes
+  "Keep only prefixes from a list of objects"
   [objects prefix delimiter]
   (let [pat (re-pattern
              (str "^(" prefix "[^\\" delimiter "]*\\" delimiter ").*$"))]
@@ -163,6 +181,7 @@
          (set))))
 
 (defn cassandra-meta-store
+  "Given a cluster configuration, reify an instance of Metastore"
   [config]
   (let [session (store/cassandra-store config)]
     (reify Metastore

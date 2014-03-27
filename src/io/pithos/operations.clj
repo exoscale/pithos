@@ -1,4 +1,6 @@
 (ns io.pithos.operations
+  "The operations namespace maps an operation as figured out when
+   preparing a request and tries to service it"
   (:require [io.pithos.response     :refer [header response status
                                             xml-response request-id send!
                                             content-type exception-status]]
@@ -17,7 +19,11 @@
             [io.pithos.xml          :as xml]
             [qbits.alia.uuid        :as uuid]))
 
+;;
+;; ### acl utilities
+
 (defmacro ensure!
+  "Assert that a predicate is true, abort with access denied if not"
   [pred]
   `(when-not ~pred
      (debug "could not ensure: " (str (quote ~pred)))
@@ -25,22 +31,28 @@
                                       :type        :access-denied}))))
 
 (defn granted?
+  "Do current permissions allow for operation ?"
   [acl needs for]
   (= (get acl for) needs))
 
 (defn bucket-satisfies?
+  "Ensure sufficient rights for bucket access"
   [{:keys [tenant acl]} {:keys [for groups needs]}]
   (or (= tenant for)
       (granted? acl needs for)
       (some identity (map (partial granted? acl needs) groups))))
 
 (defn object-satisfies?
+  "Ensure sufficient rights for object accessp"
   [{tenant :tenant} {acl :acl} {:keys [for groups needs]}]
   (or (= tenant for)
       (granted? acl needs for)
       (some identity (map (partial granted? acl needs) groups))))
 
 (defn authorize
+  "Check permission to service operation, each operation has a list
+   of needed permissions, any failure results in an exception being raised
+   which prevents any further action from being taken."
   [{:keys [authorization bucket object]} perms bucketstore regions]
   (let [{:keys [tenant memberof]} authorization
         memberof?                 (set memberof)]
@@ -62,13 +74,14 @@
     true))
 
 (defn get-region
+  "Fetch the regionstore from regions"
   [regions region]
   (or (get regions region)
       (throw (ex-info (str "could not find region: " region)
                       {:status-code 500}))))
 
 (defn get-service
-  "lists all bucket"
+  "Lists all buckets for  tenant"
   [{{:keys [tenant]} :authorization :as request} bucketstore regions]
   (-> (bucket/by-tenant bucketstore tenant)
       (xml/list-all-my-buckets)
@@ -77,6 +90,7 @@
       (send! (:chan request))))
 
 (defn put-bucket
+  "Creates a bucket"
   [{{:keys [tenant]} :authorization :keys [bucket] :as request}
    bucketstore regions]
   (bucket/create! bucketstore tenant bucket {})
@@ -87,6 +101,8 @@
       (send! (:chan request))))
 
 (defn delete-bucket
+  "Deletes a bucket, only possible if the bucket isn't empty. The bucket
+   should also be checked for in-progress uploads."
   [{:keys [bucket] :as request}  bucketstore regions]
   (let [{:keys [region tenant]} (bucket/by-name bucketstore bucket)
         {:keys [metastore]}     (get-region regions region)
@@ -102,6 +118,9 @@
         (send! (:chan request)))))
 
 (defn get-bucket
+  "List bucket content. It's worth noting that S3 has no actual concept of
+   directories, instead, a delimiter can be supplied, in which case results will
+   be split between contents and prefixes"
   [{:keys [params bucket] :as request} bucketstore regions]
   (let [{:keys [region tenant] :as binfo} (bucket/by-name bucketstore bucket)
         {:keys [metastore]}               (get-region regions region)
@@ -113,6 +132,7 @@
       (send! (:chan request)))))
 
 (defn put-bucket-acl
+  "Update bucket acl"
   [{:keys [bucket body] :as request} bucketstore regions]
   (let [acl (slurp body)]
     (bucket/update! bucketstore bucket {:acl acl})
@@ -121,6 +141,7 @@
       (send! (:chan request)))))
 
 (defn get-bucket-acl
+  "Retrieve and display bucket ACL as xml"
   [{:keys [bucket] :as request} bucketstore regions]
   (-> (bucket/by-name bucketstore bucket)
       :acl
@@ -129,13 +150,11 @@
       (request-id request)
       (send! (:chan request))))
 
-(defn as-string
-  [bb]
-  (String. (.array bb)))
-
 (defn get-object
+  "Retrieve object. A response is sent immediately, whose body
+  is a piped input stream. The connected outputstream will be fed data
+  on a different thread."
   [{:keys [bucket object] :as request} bucketstore regions]
-  ;; get object !
 
   (let [{:keys [region]}          (bucket/by-name bucketstore bucket)
         {:keys [metastore
@@ -169,6 +188,17 @@
         (send! (:chan request)))))
 
 (defn put-object
+  "Accept data for storage. The body of this function is a bit messy and
+   needs to be reworked.
+
+   There are two radically different upload scenario, a standard upload
+   where the body of the request needs to be stored and requests containing
+   an `x-amz-copy-source header` which contains a reference to another object to copy.
+
+   In this case a new inode is created and data copied over, if permissions are
+   sufficient for a copy.
+
+   Otherwise, data is streamed in."
   [{:keys [body bucket object authorization] :as request} bucketstore regions]
   (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
         {:keys [metastore storage-classes]} (get-region regions region)
@@ -251,6 +281,7 @@
         (blob/append-stream! blobstore inode version body finalize!)))))
 
 (defn get-bucket-uploads
+  "List current uploads"
   [{:keys [bucket] :as request} bucketstore regions]
   (let [{:keys [region]}    (bucket/by-name bucketstore bucket)
         {:keys [metastore]} (get-region regions region)]
@@ -261,6 +292,7 @@
         (send! (:chan request)))))
 
 (defn initiate-upload
+  "Start a new upload"
   [{:keys [bucket object params] :as request} bucketstore regions]
   (let [{:keys [region]}    (bucket/by-name bucketstore bucket)
         {:keys [metastore]} (get-region regions region)
@@ -276,6 +308,7 @@
         (send! (:chan request)))))
 
 (defn abort-upload
+  "Abort an ongoing upload"
   [{:keys [bucket object uploadid] :as request} bucketstore regions]
   (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
         {:keys [metastore storage-classes]} (get-region regions region)
@@ -291,6 +324,7 @@
         (send! (:chan request)))))
 
 (defn get-upload-parts
+  "Retrieve upload parts"
   [{:keys [body bucket object params] :as request} bucketstore regions]
   (let [{:keys [region]}    (bucket/by-name bucketstore bucket)
         {:keys [metastore]} (get-region regions region)
@@ -301,7 +335,8 @@
         (request-id request)
         (send! (:chan request)))))
 
-(defn- yield-finalizer
+(defn yield-finalizer
+  "Closure for updating an upload reference once its data is written out"
   [metastore request bucket object partno upload]
   (fn [inode version size checksum]
     (debug "uploading part with details: " bucket object upload size checksum)
@@ -319,6 +354,7 @@
            (:chan request))))
 
 (defn put-object-part
+  "Insert a new part in a multi-part upload"
   [{:keys [body bucket object] :as request} bucketstore regions]
   (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
         {:keys [metastore storage-classes]} (get-region regions region)
@@ -425,6 +461,7 @@
         (send! (:chan request)))))
 
 (defn head-object
+  "Retrieve object information"
   [{:keys [bucket object] :as request} bucketstore regions]
   (let [{:keys [region]} (bucket/by-name bucketstore bucket)
         {:keys [metastore]}        (get-region regions region)
@@ -438,6 +475,7 @@
         (send! (:chan request)))))
 
 (defn get-object-acl
+  "Retrieve and format object acl"
   [{:keys [bucket object] :as request} bucketstore regions]
   (let [{:keys [region]} (bucket/by-name bucketstore bucket)
         {:keys [metastore]}        (get-region regions region)]
@@ -449,6 +487,7 @@
         (send! (:chan request)))))
 
 (defn put-object-acl
+  "Update object acl"
   [{:keys [bucket object body] :as request} bucketstore regions]
   (let [{:keys [region]} (bucket/by-name bucketstore bucket)
         {:keys [metastore]} (get-region regions region)
@@ -459,6 +498,7 @@
         (send! (:chan request)))))
 
 (defn get-bucket-policy
+  "Retrieve object policy: always fails for now"
   [request bucketstore regions]
   (throw (ex-info "no such bucket policy" {:type :no-such-bucket-policy
                                            :bucket (:bucket request)
@@ -480,6 +520,7 @@
         (send! (:chan request)))))
 
 (defn get-bucket-versioning
+  "Retrieve bucket versioning configuration"
   [{:keys [bucket] :as request} bucketstore regions]
   (let [{:keys [versioned]} (bucket/by-name bucketstore bucket)]
     (-> (xml/get-bucket-versioning versioned)
@@ -493,6 +534,7 @@
   (-> (response)
       (request-id request)
       (send! (:chan request))))
+
 (defn unknown
   "unknown operation"
   [request bucketstore regions]
@@ -548,8 +590,8 @@
    :get-bucket-uploads     {:handler get-bucket-uploads
                             :perms   [[:bucket :READ]]}})
 
-
 (defn ex-handler
+  "Wrap exceptions and report them correctly"
   [request exception]
   (-> (xml-response (xml/exception request exception))
       (exception-status (ex-data exception))
@@ -558,6 +600,7 @@
   nil)
 
 (defn dispatch
+  "Dispatch operation"
   [{:keys [operation] :as request} bucketstore regions]
   (when request
     (debug "handling operation: " operation)
