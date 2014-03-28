@@ -16,12 +16,11 @@ layout: nil
   </url>
   {% endfor %}
   {% for page in site.pages %}
-  {% if page.sitemap != null and page.sitemap != empty %}
+  {% if page.url != '/sitemap.xml' %}
   <url>
     <loc>{{ site.baseurl }}{{ page.url }}</loc>
-    <lastmod>{{ page.sitemap.lastmod | date_to_xmlschema }}</lastmod>
-    <changefreq>{{ page.sitemap.changefreq }}</changefreq>
-    <priority>{{ page.sitemap.priority }}</priority>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
   </url>
   {% endif %}
   {% endfor %}
