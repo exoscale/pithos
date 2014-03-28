@@ -1,6 +1,7 @@
 name: Pithos
 markdown: redcarpet
 pygments: true
+baseurl: 'http://pithos.io'
 nav:
   - name: Quickstart
     target: /quickstart/
