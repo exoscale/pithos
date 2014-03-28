@@ -1,6 +1,7 @@
 (defproject io.pithos/pithos "0.1.0"
   :description "cassandra-backed object storage"
-  :url "https://github.com/exoscale/pithos"
+  :maintainer {:email "Pierre-Yves Ritschard <pyr@spootnik.org>"}
+  :url "http://pithos.io"
   :license {:name "Apache License, Version 2.0"
             :url " http://www.apache.org/licenses/LICENSE-2.0"}
   :main io.pithos
