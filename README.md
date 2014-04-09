@@ -63,7 +63,7 @@ If running locally, also specify protocol, proxy and port options as follow (or 
 
 Create a bucket:
 
-    s3cmd md S3://BUCKET
+    s3cmd mb S3://BUCKET
 
 List your buckets:
 
