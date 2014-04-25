@@ -1,0 +1,3 @@
+motd: 'puppet managed host with hiera support'
+cassandra_heap_size: "8G"
+cassandra_heap_new: "800m"
