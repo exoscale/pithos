@@ -244,7 +244,7 @@
               (when-let [{:keys [offset chunksize]} (stream-chunks! offset)]
                 (recur (+ offset chunksize))))
             (catch Exception e
-              (error e "something went wront during recur loop"))
+              (error e "something went wrong during recur loop"))
             )))
 
 
