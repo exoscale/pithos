@@ -1,8 +1,6 @@
 (ns io.pithos.schema
   "Namespace holding a single action which installs the schema"
-  (:require [qbits.hayt            :refer :all]
-            [qbits.alia            :refer [execute]]
-            [clojure.tools.logging :refer [info error]]
+  (:require [clojure.tools.logging :refer [info error]]
             [io.pithos.bucket      :as bucket]
             [io.pithos.meta        :as meta]
             [io.pithos.blob        :as blob]))

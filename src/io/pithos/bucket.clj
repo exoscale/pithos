@@ -2,7 +2,7 @@
   "The bucketstore stores ring-global information on bucket
    ownership. It contains a single column-family and an
    accompanying index."
-  (:require [qbits.alia      :refer [execute with-session]]
+  (:require [qbits.alia      :refer [execute]]
             [qbits.hayt      :refer [select where set-columns
                                      create-table create-index
                                      column-definitions index-name
@@ -47,24 +47,24 @@
 (defn bucket-by-tenant-q
   "Cassandra query for bucket by tenant"
   [tenant]
-  (select :bucket (where {:tenant tenant})))
+  (select :bucket (where [[= :tenant tenant]])))
 
 (defn fetch-bucket-q
   "Cassandra query for bucket by name"
   [bucket]
-  (select :bucket (where {:bucket bucket}) (limit 1)))
+  (select :bucket (where [[= :bucket bucket]]) (limit 1)))
 
 (defn update-bucket-q
   "Bucket creation or update"
   [bucket columns]
   (update :bucket
           (set-columns columns)
-          (where {:bucket bucket})))
+          (where [[= :bucket bucket]])))
 
 (defn delete-bucket-q
   "Bucket destruction"
   [bucket]
-  (delete :bucket (where {:bucket bucket})))
+  (delete :bucket (where [[= :bucket bucket]])))
 
 (defn cassandra-bucket-store
   "Given a cluster configuration, reify an instance of Bucketstore.
@@ -108,10 +108,9 @@
       (update! [this bucket columns]
         (execute session (update-bucket-q bucket columns)))
       (delete! [this bucket]
-        (with-session session
-          (if-let [info (seq (execute (fetch-bucket-q bucket)))]
-            (execute (delete-bucket-q bucket))
-            (throw (ex-info "bucket not found"
-                            {:type        :no-such-bucket
-                             :status-code 404
-                             :bucket      bucket}))))))))
+        (if-let [info (seq (execute session (fetch-bucket-q bucket)))]
+          (execute session (delete-bucket-q bucket))
+          (throw (ex-info "bucket not found"
+                          {:type        :no-such-bucket
+                           :status-code 404
+                           :bucket      bucket})))))))
