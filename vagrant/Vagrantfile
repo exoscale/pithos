@@ -9,6 +9,9 @@ PITHOS_CLUSTER_SIZE = (ENV['PITHOS_CLUSTER_SIZE'] && ENV['PITHOS_CLUSTER_SIZE'].
 EXOSCALE_API_KEY = ENV['EXOSCALE_API_KEY']
 EXOSCALE_API_SECRET = ENV['EXOSCALE_API_SECRET']
 EXOSCALE_INSTANCE_TYPE = ENV['EXOSCALE_INSTANCE_TYPE']
+EXOSCALE_TEMPLATE = ENV['EXOSCALE_TEMPLATE']
+EXOSCALE_ZONE = ENV['EXOSCALE_ZONE']
+EXOSCALE_HOST = ENV['EXOSCALE_HOST']
 
 EXOSCALE_KEYPAIR = ENV['EXOSCALE_KEYPAIR'] || 'default'
 
@@ -22,14 +25,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
 
   config.vm.provider :cloudstack do |cloudstack, override|
-    cloudstack.host = 'api.exoscale.ch'
+    cloudstack.host = EXOSCALE_HOST
     cloudstack.path = "/compute"
     cloudstack.port = "443"
     cloudstack.scheme = "https"
     cloudstack.network_id = "00304a04-c7ea-4e77-a786-18bc64347bf7"
 
-    cloudstack.template_id = "dbae13e9-fa6b-4c19-944a-629ca64e221d"
-    cloudstack.zone_id = "1128bd56-b4d9-4ac6-a7b9-c715b187ce11"
+    cloudstack.template_id = EXOSCALE_TEMPLATE
+    cloudstack.zone_id = EXOSCALE_ZONE
 
 
     cloudstack.network_type = "Basic"
