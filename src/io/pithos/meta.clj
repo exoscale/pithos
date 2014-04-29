@@ -3,7 +3,7 @@
    (bucket contents are region-local as well)."
   (:require [qbits.alia      :refer [execute]]
             [qbits.hayt      :refer [select where set-columns columns
-                                     delete update limit order-by coll-type
+                                     delete update limit map-type
                                      create-table column-definitions
                                      create-index index-name]]
             [io.pithos.util  :refer [inc-prefix]]
@@ -41,7 +41,7 @@
                        :checksum     :text
                        :storageclass :text
                        :acl          :text
-                       :metadata     (coll-type :map :text :text)
+                       :metadata     (map-type :text :text)
                        :primary-key  [:bucket :object]})))
 
 (def object_inode-index
@@ -81,74 +81,86 @@
   (column-definitions {:bucket      :text
                        :object      :text
                        :upload      :uuid
-                       :metadata    (coll-type :map :text :text)
+                       :metadata    (map-type :text :text)
                        :primary-key [[:bucket :object] :upload]})))
 
 
 ;; CQL Queries
 
+;; Note: Possible improvements, all of these are preparable, with the
+;; exception of initiate-upload-q and update-part-q (unless we freeze
+;; the fields to update making them parameters). A function taking a
+;; session that returns a map of prepared queries could be invoked from
+;; cassandra-meta-store, destructured in a let via {:keys [...]} then
+;; used with execute in that scope.
+
 (defn abort-multipart-upload-q
   "Delete an upload reference"
   [bucket object upload]
-  (delete :object_uploads (where {:bucket bucket
-                                  :object object
-                                  :upload upload})))
+  (delete :object_uploads (where [[= :bucket bucket]
+                                  [= :object object]
+                                  [= :upload upload]])))
 
 (defn delete-upload-parts-q
   "Delete all upload parts"
   [bucket object upload]
-  (delete :upload (where {:bucket bucket
-                          :object object
-                          :upload upload})))
+  (delete :upload (where [[= :bucket bucket]
+                          [= :object object]
+                          [= :upload upload]])))
 
 (defn initiate-upload-q
   "Create an upload reference"
   [bucket object upload metadata]
   (update :object_uploads
           (set-columns {:metadata metadata})
-          (where {:bucket bucket
-                  :object object
-                  :upload upload})))
+          (where [[= :bucket bucket]
+                  [= :object object]
+                  [= :upload upload]])))
 
 (defn update-part-q
   "Update an upload part's properties"
   [bucket object upload partno columns]
   (update :upload
           (set-columns columns)
-          (where {:bucket bucket
-                  :object object
-                  :upload upload
-                  :partno partno})))
+          (where [[= :bucket bucket]
+                  [= :object object]
+                  [= :upload upload]
+                  [= :partno partno]])))
 
 (defn list-uploads-q
   "List all uploads by bucket"
   [bucket]
-  (select :upload (where {:bucket bucket})))
+  (select :upload (where [[= :bucket bucket]])))
 
 (defn list-upload-parts-q
   "List all parts of an upload"
   [bucket object upload]
-  (select :upload (where {:bucket bucket :object object :upload upload})))
+  (select :upload (where [[= :bucket bucket]
+                          [= :object object]
+                          [= :upload upload]])))
 
 (defn list-object-uploads-q
   "List all uploads of an object"
   [bucket object]
-  (select :object_uploads (where {:bucket bucket :object object})))
+  (select :object_uploads (where [[= :bucket bucket]
+                                  [= :object object]])))
 
 (defn fetch-object-q
   "List objects"
   [bucket prefix]
-  (let [object-def    [[:bucket bucket]]
+  (let [object-def  [[= :bucket bucket]]
         next-prefix (inc-prefix prefix)
-        prefix-def  [[:object [:>= prefix]] [:object [:< next-prefix]]]]
+        prefix-def  [[>= :object prefix]
+                     [< :object next-prefix]]]
     (select :object (where (cond-> object-def
-                                 (seq prefix) (concat prefix-def))))))
+                                   (seq prefix) (concat prefix-def))))))
 
 (defn get-object-q
   "Fetch object properties"
   [bucket object]
   (select :object
-          (where {:bucket bucket :object object})
+          (where [[= :bucket bucket]
+                  [= :object object]])
           (limit 1)))
 
 (defn update-object-q
@@ -156,12 +168,14 @@
   [bucket object columns]
   (update :object
           (set-columns columns)
-          (where {:bucket bucket :object object})))
+          (where [[= :bucket bucket]
+                  [= :object object]])))
 
 (defn delete-object-q
   "Delete an object"
   [bucket object]
-  (delete :object (where {:bucket bucket :object object})))
+  (delete :object (where [[= :bucket bucket]
+                          [= :object object]])))
 
 ;; ### Utility functions
 

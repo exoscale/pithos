@@ -34,7 +34,7 @@
             [qbits.alia.uuid       :as uuid]
             [aleph.formats         :as formats]
             [lamina.core           :refer [channel? map* on-drained receive-in-order]]
-            [qbits.alia            :refer [execute with-session]]
+            [qbits.alia            :refer [execute]]
             [qbits.hayt            :refer [select where columns order-by
                                            insert values limit delete
                                            create-table column-definitions]]
@@ -100,7 +100,8 @@
   [inode version order]
   (select :inode_blocks
           (columns :block)
-          (where {:inode inode :version version})
+          (where [[= :inode inode]
+                  [= :version version]])
           (order-by [:block order])))
 
 (defn set-block-q
@@ -114,7 +115,9 @@
   "Fetch the last chunk in a block."
   [inode version block]
   (select :block
-          (where {:inode inode :version version :block block})
+          (where [[= :inode inode]
+                  [= :version version]
+                  [= :block block]])
           (order-by [:offset :desc])
           (limit 1)))
 
@@ -122,17 +125,17 @@
   "Fetch a specific chunk in a block."
   ([inode version block offset]
      (select :block
-             (where {:inode inode
-                     :version version
-                     :block block
-                     :offset [:>= offset]})
+             (where [[= :inode inode]
+                     [= :version version]
+                     [= :block block]
+                     [>= :offset offset]])
              (order-by [:offset :asc])))
   ([inode version block offset max]
      (select :block
-             (where {:inode inode
-                     :version version
-                     :block block
-                     :offset [:>= offset]})
+             (where [[= :inode inode]
+                     [= :version version]
+                     [= :block block]
+                     [>= :offset offset]])
              (limit max))))
 
 (defn set-chunk-q
@@ -149,12 +152,15 @@
 (defn delete-blockref-q
   "Remove all blocks in an inode."
   [inode version]
-  (delete :inode_blocks (where {:inode inode :version version})))
+  (delete :inode_blocks (where [[= :inode inode]
+                                [= :version version]])))
 
 (defn delete-block-q
   "Delete a specific inode block."
   [inode version block]
-  (delete :block (where {:inode inode :version version :block block})))
+  (delete :block (where [[= :inode inode]
+                         [= :version version]
+                         [= :block block]])))
 
 ;; Data manipulation
 
@@ -211,9 +217,8 @@
 
         ;;
         ;; execute creation querie
-        (with-session session
-          (execute inode_blocks-table)
-          (execute block-table)))
+        (execute session inode_blocks-table)
+        (execute session block-table))
 
 
       ;;
@@ -230,8 +235,8 @@
         (let [stream-chunks!
               (fn [offset]
                 (when-let [chunks (seq
-                                   (execute
-                                    (get-chunk-q ino version block offset limit)))]
+                                   (execute session
+                                            (get-chunk-q ino version block offset limit)))]
                   (handler chunks)
                   (last chunks)))]
           (try
@@ -250,11 +255,10 @@
       ;;
 
       (stream! [this ino version handler]
-        (with-session session
-          (let [blocks (execute (get-block-q ino version :asc))]
-            (doseq [{:keys [block]} blocks]
-              (stream-block! this ino version block handler)))
-          (handler nil)))
+        (let [blocks (execute session (get-block-q ino version :asc))]
+          (doseq [{:keys [block]} blocks]
+            (stream-block! this ino version block handler)))
+        (handler nil))
 
 
       ;;
@@ -263,10 +267,9 @@
       ;;
 
       (delete! [this ino version]
-        (with-session session
-          (doseq [{block :block} (execute (get-block-q ino version :asc))]
-            (execute (delete-block-q ino version block)))
-          (execute (delete-blockref-q ino version))))
+        (doseq [{block :block} (execute session (get-block-q ino version :asc))]
+          (execute session (delete-block-q ino version block)))
+        (execute session (delete-blockref-q ino version)))
 
       ;; Writing to inodes is split in two functions:
       ;;

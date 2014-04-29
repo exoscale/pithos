@@ -5,12 +5,6 @@
             [qbits.hayt            :refer [use-keyspace create-keyspace with]]
             [clojure.tools.logging :refer [debug]]))
 
-(defmacro execute
-  "Simple macro to wrap a body in an alia session"
-  [store & body]
-  `(alia/with-session ~store
-     (do ~@body)))
-
 (defn cassandra-store
   "Connect to a cassandra cluster, and use a specific keyspace.
    When the keyspace is not found, try creating it"
@@ -18,7 +12,7 @@
     :or {hints {:replication {:class             "SimpleStrategy"
                               :replication_factor 1}}}}]
   (debug "building cassandra store for: " cluster keyspace hints)
-  (let [session (-> (alia/cluster cluster) (alia/connect))]
+  (let [session (-> (alia/cluster {:contact-points [cluster]}) (alia/connect))]
     (try (alia/execute session (use-keyspace keyspace))
          session
          (catch clojure.lang.ExceptionInfo e
