@@ -131,6 +131,16 @@
         (request-id request)
       (send! (:chan request)))))
 
+(defn head-bucket
+  [{:keys [params bucket] :as request} bucketstore regions]
+  (let [{:keys [region tenant] :as binfo} (bucket/by-name bucketstore bucket)
+        {:keys [metastore]}               (get-region regions region)
+        params (select-keys params [:delimiter :prefix])
+        prefixes (meta/prefixes metastore bucket params)]
+    (-> (response)
+        (request-id request)
+        (send! (:chan request)))))
+
 (defn put-bucket-acl
   "Update bucket acl"
   [{:keys [bucket body] :as request} bucketstore regions]
@@ -557,6 +567,8 @@
    :delete-bucket          {:handler delete-bucket
                             :perms   [[:memberof "authenticated-users"]
                                       [:bucket   :owner]]}
+   :head-bucket            {:handler head-bucket
+                            :perms [[:bucket :READ]]}
    :get-bucket             {:handler get-bucket
                             :perms   [[:bucket :READ]]}
    :get-bucket-acl         {:handler get-bucket-acl
