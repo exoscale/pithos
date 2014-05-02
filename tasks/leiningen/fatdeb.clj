@@ -55,7 +55,7 @@
   [project]
   (join "\n"
         (map (fn [[k v]] (str (capitalize (name k)) ": " v))
-             {:package (:name project)
+             {:package (str (:name project) "-s3")
               :version (get-version project)
               :section "base"
               :priority "optional"
