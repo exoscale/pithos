@@ -60,7 +60,7 @@
               :section "base"
               :priority "optional"
               :architecture "all"
-              :depends (join ", " ["bash" "openjdk-7-jre" "cassandra"])
+              :depends (join ", " ["bash" "openjdk-7-jre"])
               :maintainer (:email (:maintainer project))
               :description (:description project)})))
 
