@@ -145,7 +145,7 @@
   (print (:err (sh "dpkg" "--build"
                    (str deb-dir)
                    (str (file (:root project) "target")))))
-  (let [deb-file-name (str (:name project) "_"
+  (let [deb-file-name (str (:name project) "-s3_"
                            (get-version project) "_"
                            "all" ".deb")
         deb-file (file (:root project) "target" deb-file-name)]
