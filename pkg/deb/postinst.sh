@@ -5,7 +5,7 @@ set -e
 chown -R root:root /usr/lib/pithos
 chown root:root /usr/bin/pithos
 chown pithos:pithos /var/log/pithos
-chown pithos:pithos /etc/pithos.yaml
+chown pithos:pithos /etc/pithos/pithos.yaml
 chown root:root /etc/init.d/pithos
 
 if [ -x "/etc/init.d/pithos" ]; then
