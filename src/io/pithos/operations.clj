@@ -285,7 +285,7 @@
                         (when old-version
                           (blob/delete! blobstore inode old-version))
                         (send! (-> (response)
-                                   (header "ETag" checksum)
+                                   (header "ETag" (str "\"" checksum "\""))
                                    (request-id request))
                                (:chan request)))]
         (blob/append-stream! blobstore inode version body finalize!)))))
