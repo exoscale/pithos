@@ -28,7 +28,7 @@
 (defn inc-prefix
   "Given an object path, yield the next semantic one."
   [p]
-  (when (seq a)
+  (when (seq p)
     (let [[c & s] (reverse p)
           reversed (conj s (-> c int inc char))]
       (apply str (reverse reversed)))))
