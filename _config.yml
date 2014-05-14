@@ -42,9 +42,9 @@ features:
   - name: Bucket Deletion
     status: Ok
   - name: Bucket Info
-    status: In Progress
+    status: Ok
   - name: Bucket Location
-    status: In Progress
+    status: Ok
   - name: Bucket ACLs
     status: In Progress
   - name: Bucket CORS
