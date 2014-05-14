@@ -3,6 +3,7 @@
    augment the incoming request map."
   (:require [clojure.string        :refer [lower-case join]]
             [clojure.tools.logging :refer [debug info warn error]]
+            [clojure.pprint        :refer [pprint]]
             [clout.core            :refer [route-matches route-compile]]
             [io.pithos.sig         :refer [validate]]
             [io.pithos.operations  :refer [ex-handler]]
@@ -172,7 +173,8 @@
   (let [pattern-str (str "^(.*)." service-uri "$")
         pattern     (re-pattern pattern-str)
         transformer (fn [bucket uri] (str "/" bucket (if (seq uri) uri "/")))]
-    (fn [{:keys [uri] {:strs [host]} :headers :as request}]
+    (fn [{:keys [uri] {:strs [host] :or {host ""}} :headers :as request}]
+      (info "got request:\n" (with-out-str (pprint request)))
       (if-let [[_ bucket] (re-find pattern host)]
         (assoc request :uri (transformer bucket uri))
         request))))
