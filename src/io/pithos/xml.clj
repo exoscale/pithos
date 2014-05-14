@@ -171,6 +171,12 @@ Will produce an XML AST equivalent to:
     [:Location (format "http://%s.s3.amazonaws.com/%s" bucket object)]
     [:ETag etag]]))
 
+(defn bucket-location
+  [location]
+  (seq->xmlstr
+   [:LocationConstraint xml-ns
+    location]))
+
 (defn copy-object
   "Template for the copy object response"
   [etag atime]

@@ -129,7 +129,7 @@
     (-> (xml/list-bucket prefixes binfo params)
         (xml-response)
         (request-id request)
-      (send! (:chan request)))))
+        (send! (:chan request)))))
 
 (defn head-bucket
   [{:keys [params bucket] :as request} bucketstore regions]
@@ -138,6 +138,14 @@
         params (select-keys params [:delimiter :prefix])
         prefixes (meta/prefixes metastore bucket params)]
     (-> (response)
+        (request-id request)
+        (send! (:chan request)))))
+
+(defn get-bucket-location
+  [{:keys [bucket] :as request} bucketstore regions]
+  (let [{:keys [region] :as binfo} (bucket/by-name bucketstore bucket)]
+    (-> (xml/bucket-location region)
+        (xml-response)
         (request-id request)
         (send! (:chan request)))))
 
@@ -573,6 +581,8 @@
                             :perms   [[:bucket :READ]]}
    :get-bucket-acl         {:handler get-bucket-acl
                             :perms   [[:bucket :READ_ACP]]}
+   :get-bucket-location    {:handler get-bucket-location
+                            :perms  [[:bucket :READ]]}
    :put-bucket-acl         {:handler put-bucket-acl
                             :perms   [[:bucket :WRITE_ACP]]}
    :get-object             {:handler get-object
