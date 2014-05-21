@@ -21,7 +21,7 @@ Provide details of where the HTTP S3 service should be exposed.
 
 ```yaml
 service:
-  ip: '127.0.0.1'
+  host: '127.0.0.1'
   port: 8080
 ```
 
