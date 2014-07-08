@@ -17,10 +17,10 @@
    inside the request to mimick the operations of http-kit then runs
    several wrappers defined in `io.pithos.api.request` before letting
    `io.pithos.operations` dispatch based on the type of request"
-  [{:keys [keystore bucketstore regions service options]}]
+  [{:keys [keystore bucketstore regions service options reporter]}]
   (let [handler (fn [chan request]
                   (-> (assoc request :chan chan)
                       (safe-prepare keystore bucketstore regions options)
-                      (dispatch bucketstore regions)))]
+                      (dispatch bucketstore regions reporter)))]
     (http/start-http-server handler service))
   (info "server up and running"))

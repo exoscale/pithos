@@ -7,6 +7,7 @@
             [io.pithos.util         :refer [piped-input-stream
                                             parse-uuid iso8601-timestamp
                                             ->channel-buffer]]
+            [io.pithos.reporter     :refer [report!]]
             [lamina.core            :refer [channel siphon
                                             lazy-seq->channel
                                             enqueue close]]
@@ -82,7 +83,7 @@
 
 (defn get-service
   "Lists all buckets for  tenant"
-  [{{:keys [tenant]} :authorization :as request} bucketstore regions]
+  [{{:keys [tenant]} :authorization :as request} bucketstore regions reporter]
   (-> (bucket/by-tenant bucketstore tenant)
       (xml/list-all-my-buckets)
       (xml-response)
@@ -92,7 +93,7 @@
 (defn put-bucket
   "Creates a bucket"
   [{{:keys [tenant]} :authorization :keys [bucket] :as request}
-   bucketstore regions]
+   bucketstore regions reporter]
   (bucket/create! bucketstore tenant bucket {})
   (-> (response)
       (request-id request)
@@ -103,7 +104,7 @@
 (defn delete-bucket
   "Deletes a bucket, only possible if the bucket isn't empty. The bucket
    should also be checked for in-progress uploads."
-  [{:keys [bucket] :as request}  bucketstore regions]
+  [{:keys [bucket] :as request}  bucketstore regions reporter]
   (let [{:keys [region tenant]} (bucket/by-name bucketstore bucket)
         {:keys [metastore]}     (get-region regions region)
         [nodes _]               (meta/prefixes metastore bucket {})]
@@ -121,7 +122,7 @@
   "List bucket content. It's worth noting that S3 has no actual concept of
    directories, instead, a delimiter can be supplied, in which case results will
    be split between contents and prefixes"
-  [{:keys [params bucket] :as request} bucketstore regions]
+  [{:keys [params bucket] :as request} bucketstore regions reporter]
   (let [{:keys [region tenant] :as binfo} (bucket/by-name bucketstore bucket)
         {:keys [metastore]}               (get-region regions region)
         params (select-keys params [:delimiter :prefix])
@@ -132,7 +133,7 @@
         (send! (:chan request)))))
 
 (defn head-bucket
-  [{:keys [params bucket] :as request} bucketstore regions]
+  [{:keys [params bucket] :as request} bucketstore regions reporter]
   (let [{:keys [region tenant] :as binfo} (bucket/by-name bucketstore bucket)
         {:keys [metastore]}               (get-region regions region)
         params (select-keys params [:delimiter :prefix])
@@ -142,7 +143,7 @@
         (send! (:chan request)))))
 
 (defn get-bucket-location
-  [{:keys [bucket] :as request} bucketstore regions]
+  [{:keys [bucket] :as request} bucketstore regions reporter]
   (let [{:keys [region] :as binfo} (bucket/by-name bucketstore bucket)]
     (-> (xml/bucket-location region)
         (xml-response)
@@ -151,7 +152,7 @@
 
 (defn put-bucket-acl
   "Update bucket acl"
-  [{:keys [bucket body] :as request} bucketstore regions]
+  [{:keys [bucket body] :as request} bucketstore regions reporter]
   (let [acl (slurp body)]
     (bucket/update! bucketstore bucket {:acl acl})
     (-> (response)
@@ -160,7 +161,7 @@
 
 (defn get-bucket-acl
   "Retrieve and display bucket ACL as xml"
-  [{:keys [bucket] :as request} bucketstore regions]
+  [{:keys [bucket] :as request} bucketstore regions reporter]
   (-> (bucket/by-name bucketstore bucket)
       :acl
       (xml/default)
@@ -172,7 +173,7 @@
   "Retrieve object. A response is sent immediately, whose body
   is a piped input stream. The connected outputstream will be fed data
   on a different thread."
-  [{:keys [bucket object] :as request} bucketstore regions]
+  [{:keys [bucket object] :as request} bucketstore regions reporter]
 
   (let [{:keys [region]}          (bucket/by-name bucketstore bucket)
         {:keys [metastore
@@ -217,8 +218,9 @@
    sufficient for a copy.
 
    Otherwise, data is streamed in."
-  [{:keys [body bucket object authorization] :as request} bucketstore regions]
-  (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
+  [{:keys [body bucket object authorization] :as request}
+   bucketstore regions reporter]
+  (let [{:keys [tenant region]}             (bucket/by-name bucketstore bucket)
         {:keys [metastore storage-classes]} (get-region regions region)
         {:keys [inode] :as details}         (meta/fetch metastore bucket object
                                                         false)
@@ -271,8 +273,11 @@
                                                         :storageclass "standard"
                                                         :acl "private"
                                                         :metadata s-meta})
+                                         (report! reporter :put-object {:size size :tenant tenant})
                                          (when old-version
-                                           (blob/delete! blobstore inode old-version))
+                                           (blob/delete! blobstore inode old-version)
+                                           (report! reporter :delete-object {:size size :tenant tenant}))
+
 
                                          (send! (-> (xml/copy-object checksum date)
                                                     (xml-response)
@@ -281,6 +286,7 @@
         (throw (ex-info "invalid" {:type :invalid-request :status-code 400})))
 
       (let [finalize! (fn [inode version size checksum]
+                        (report! reporter :put-object {:size size :tenant tenant})
                         (meta/update! metastore bucket object
                                       {:inode inode
                                        :version version
@@ -291,7 +297,8 @@
                                        :atime (iso8601-timestamp)
                                        :metadata {"content-type" content-type}})
                         (when old-version
-                          (blob/delete! blobstore inode old-version))
+                          (blob/delete! blobstore inode old-version)
+                          (report! reporter :delete-object {:size size :tenant tenant}))
                         (send! (-> (response)
                                    (header "ETag" (str "\"" checksum "\""))
                                    (request-id request))
@@ -300,7 +307,7 @@
 
 (defn get-bucket-uploads
   "List current uploads"
-  [{:keys [bucket] :as request} bucketstore regions]
+  [{:keys [bucket] :as request} bucketstore regions reporter]
   (let [{:keys [region]}    (bucket/by-name bucketstore bucket)
         {:keys [metastore]} (get-region regions region)]
     (-> (meta/list-uploads metastore bucket)
@@ -311,7 +318,7 @@
 
 (defn initiate-upload
   "Start a new upload"
-  [{:keys [bucket object params] :as request} bucketstore regions]
+  [{:keys [bucket object params] :as request} bucketstore regions reporter]
   (let [{:keys [region]}    (bucket/by-name bucketstore bucket)
         {:keys [metastore]} (get-region regions region)
         uploadid            (uuid/random)
@@ -327,7 +334,7 @@
 
 (defn abort-upload
   "Abort an ongoing upload"
-  [{:keys [bucket object uploadid] :as request} bucketstore regions]
+  [{:keys [bucket object uploadid] :as request} bucketstore regions reporter]
   (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
         {:keys [metastore storage-classes]} (get-region regions region)
         blobstore                           (get storage-classes :standard)]
@@ -343,7 +350,7 @@
 
 (defn get-upload-parts
   "Retrieve upload parts"
-  [{:keys [body bucket object params] :as request} bucketstore regions]
+  [{:keys [body bucket object params] :as request} bucketstore regions reporter]
   (let [{:keys [region]}    (bucket/by-name bucketstore bucket)
         {:keys [metastore]} (get-region regions region)
         {:keys [uploadid]}  params]
@@ -356,7 +363,7 @@
 (defn yield-finalizer
   "Closure for updating an upload reference once its data is written out"
   [metastore request bucket object partno upload]
-  (fn [inode version size checksum]
+  (fn [inode version size checksum reporter]
     (debug "uploading part with details: " bucket object upload size checksum)
     (meta/update-part! metastore bucket object
                        (parse-uuid upload)
@@ -373,7 +380,7 @@
 
 (defn put-object-part
   "Insert a new part in a multi-part upload"
-  [{:keys [body bucket object] :as request} bucketstore regions]
+  [{:keys [body bucket object] :as request} bucketstore regions reporter]
   (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
         {:keys [metastore storage-classes]} (get-region regions region)
         {:keys [partnumber uploadid]}       (:params request)
@@ -415,7 +422,7 @@
    which relies on the promised being delivered to send back the
    overall checksum in the payload.
 "
-  [{:keys [bucket object] :as request} bucketstore regions]
+  [{:keys [bucket object] :as request} bucketstore regions reporter]
   (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
         {:keys [metastore storage-classes]} (get-region regions region)
         blobstore                           (get storage-classes :standard)
@@ -480,7 +487,7 @@
 
 (defn head-object
   "Retrieve object information"
-  [{:keys [bucket object] :as request} bucketstore regions]
+  [{:keys [bucket object] :as request} bucketstore regions reporter]
   (let [{:keys [region]} (bucket/by-name bucketstore bucket)
         {:keys [metastore]}        (get-region regions region)
         {:keys [atime size checksum] :as payload} (meta/fetch metastore bucket object)]
@@ -494,7 +501,7 @@
 
 (defn get-object-acl
   "Retrieve and format object acl"
-  [{:keys [bucket object] :as request} bucketstore regions]
+  [{:keys [bucket object] :as request} bucketstore regions reporter]
   (let [{:keys [region]} (bucket/by-name bucketstore bucket)
         {:keys [metastore]}        (get-region regions region)]
     (-> (meta/fetch metastore bucket object)
@@ -506,7 +513,7 @@
 
 (defn put-object-acl
   "Update object acl"
-  [{:keys [bucket object body] :as request} bucketstore regions]
+  [{:keys [bucket object body] :as request} bucketstore regions reporter]
   (let [{:keys [region]} (bucket/by-name bucketstore bucket)
         {:keys [metastore]} (get-region regions region)
         acl              (slurp body)]
@@ -517,14 +524,14 @@
 
 (defn get-bucket-policy
   "Retrieve object policy: always fails for now"
-  [request bucketstore regions]
+  [request bucketstore regions reporter]
   (throw (ex-info "no such bucket policy" {:type :no-such-bucket-policy
                                            :bucket (:bucket request)
                                            :status-code 404})))
 
 (defn delete-object
   "Delete current revision of objects."
-  [{:keys [bucket object] :as request} bucketstore regions]
+  [{:keys [bucket object] :as request} bucketstore regions reporter]
   (let [{:keys [region versioned]}          (bucket/by-name bucketstore bucket)
         {:keys [metastore storage-classes]} (get-region regions region)
         {:keys [inode version]}             (meta/fetch metastore bucket object)
@@ -539,7 +546,7 @@
 
 (defn get-bucket-versioning
   "Retrieve bucket versioning configuration"
-  [{:keys [bucket] :as request} bucketstore regions]
+  [{:keys [bucket] :as request} bucketstore regions reporter]
   (let [{:keys [versioned]} (bucket/by-name bucketstore bucket)]
     (-> (xml/get-bucket-versioning versioned)
         (xml-response)
@@ -548,14 +555,14 @@
 
 (defn put-bucket-versioning
   "No versioning support for now even though versions are stored"
-  [{:keys [bucket] :as request} bucketstore regions]
+  [{:keys [bucket] :as request} bucketstore regions reporter]
   (-> (response)
       (request-id request)
       (send! (:chan request))))
 
 (defn unknown
   "unknown operation"
-  [request bucketstore regions]
+  [request bucketstore regions reporter]
   (-> (xml/unknown request)
       (xml-response)
       (status 400)
@@ -623,12 +630,12 @@
 
 (defn dispatch
   "Dispatch operation"
-  [{:keys [operation] :as request} bucketstore regions]
+  [{:keys [operation] :as request} bucketstore regions reporter]
   (when request
     (debug "handling operation: " operation)
     (let [{:keys [handler perms] :or {handler unknown}} (get opmap operation)]
       (try (authorize request perms bucketstore regions)
-           (handler request bucketstore regions)
+           (handler request bucketstore regions reporter)
            (catch Exception e
              (when-not (:type (ex-data e))
                (error e "caught exception during operation"))
