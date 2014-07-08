@@ -21,6 +21,7 @@
                  [net.jpountz.lz4/lz4       "1.2.0"]
                  [org.xerial.snappy/snappy-java "1.0.5"]
                  [org.slf4j/slf4j-log4j12   "1.6.4"]
+                 [clj-logging-config         "1.9.10"]
                  [log4j/apache-log4j-extras "1.0"]
                  [log4j/log4j               "1.2.16"
                   :exclusions [javax.mail/mail

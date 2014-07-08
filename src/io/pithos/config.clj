@@ -120,6 +120,7 @@
     (-> (load-path path)
         (update-in [:logging] (partial merge default-logging))
         (update-in [:logging] get-instance :logging)
+        (update-in [:reporter] get-instance :reporter)
         (update-in [:service] (partial merge default-service))
         (update-in [:options] (partial merge default-options))
         (update-in [:keystore] (partial merge default-keystore))
