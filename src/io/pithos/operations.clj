@@ -327,10 +327,11 @@
 
 (defn abort-upload
   "Abort an ongoing upload"
-  [{:keys [bucket object uploadid] :as request} bucketstore regions]
+  [{:keys [bucket object params] :as request} bucketstore regions]
   (let [{:keys [region]}                    (bucket/by-name bucketstore bucket)
         {:keys [metastore storage-classes]} (get-region regions region)
-        blobstore                           (get storage-classes :standard)]
+        blobstore                           (get storage-classes :standard)
+        {:keys [uploadid]}                  params]
     (doseq [{:keys [inode version]}
             (meta/list-upload-parts metastore bucket object
                                     (parse-uuid uploadid))]
