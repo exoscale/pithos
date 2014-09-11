@@ -60,7 +60,7 @@
               :section "base"
               :priority "optional"
               :architecture "all"
-              :depends (join ", " ["bash" "openjdk-7-jre"])
+              :depends (join ", " ["bash" "java7-runtime-headless | openjdk-7-jre-headless"])
               :maintainer (:email (:maintainer project))
               :description (:description project)})))
 
