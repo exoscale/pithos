@@ -5,6 +5,11 @@
 (defprotocol Reporter
   (report! [this opcode attrs]))
 
+(defn nil-reporter
+  [_]
+  (reify Reporter
+    (report! [this _ _])))
+
 (defn log4j-reporter
   [_]
   (reify Reporter

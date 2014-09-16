@@ -45,6 +45,10 @@
   {:host "127.0.0.1"
    :port 8080})
 
+(def default-reporter
+  "nil reporter by default"
+  {:use "io.pithos.reporter/nil-reporter"})
+
 (def default-options
   "Some default global options."
   {:service-uri "s3.amazonaws.com"
@@ -120,6 +124,7 @@
     (-> (load-path path)
         (update-in [:logging] (partial merge default-logging))
         (update-in [:logging] get-instance :logging)
+        (update-in [:reporter] (partial merge default-reporter))
         (update-in [:reporter] get-instance :reporter)
         (update-in [:service] (partial merge default-service))
         (update-in [:options] (partial merge default-options))
