@@ -10,7 +10,8 @@
            (org.apache.log4j.spi       RootLogger)
            (org.apache.log4j.rolling   TimeBasedRollingPolicy
                                        RollingFileAppender)
-           (org.apache.commons.logging LogFactory))
+           (org.apache.commons.logging LogFactory)
+           (net.logstash.log4j JSONEventLayoutV1))
   (:require [clojure.tools.logging :as log]))
 
 (def levels
@@ -26,9 +27,11 @@
 
 (defn start-logging
   "Initialize log4j. Stolen from riemann"
-  [{ :keys [external console files pattern level overrides]}]
+  [{ :keys [external console files pattern level overrides json]}]
   ;; Reset loggers
-  (let [layout      (EnhancedPatternLayout. pattern)
+  (let [layout      (if json
+                      (JSONEventLayoutV1.)
+                      (EnhancedPatternLayout. pattern))
         root-logger (Logger/getRootLogger)]
 
     (when (not external)

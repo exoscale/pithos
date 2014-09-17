@@ -1,4 +1,4 @@
-(defproject io.pithos/pithos "0.1.1"
+(defproject io.pithos/pithos "0.1.2"
   :description "cassandra-backed object storage"
   :maintainer {:email "Pierre-Yves Ritschard <pyr@spootnik.org>"}
   :url "http://pithos.io"
@@ -20,6 +20,7 @@
                  [cc.qbits/alia             "2.1.2"]
                  [net.jpountz.lz4/lz4       "1.2.0"]
                  [org.xerial.snappy/snappy-java "1.0.5"]
+                 [net.logstash.log4j/jsonevent-layout "1.7"]
                  [org.slf4j/slf4j-log4j12   "1.6.4"]
                  [log4j/apache-log4j-extras "1.0"]
                  [log4j/log4j               "1.2.16"
