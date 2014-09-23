@@ -476,6 +476,7 @@
 
     (-> (response is)
         (content-type "application/xml")
+        (header "X-Accel-Buffering" "no")
         (request-id request)
         (send! (:chan request)))))
 
