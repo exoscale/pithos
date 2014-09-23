@@ -2,6 +2,7 @@
   "The bucketstore stores ring-global information on bucket
    ownership. It contains a single column-family and an
    accompanying index."
+  (:refer-clojure :exclude [update])
   (:require [qbits.alia      :refer [execute]]
             [qbits.hayt      :refer [select where set-columns
                                      create-table create-index

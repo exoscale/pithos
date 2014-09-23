@@ -210,6 +210,4 @@
   [req keystore metastore regions options]
   (try (prepare req keystore metastore regions options)
        (catch Exception e
-         (when-not (:type (ex-data e))
-           (error e "caught exception during operation"))
-         (ex-handler req e))))
+         {:operation :error :exception e})))

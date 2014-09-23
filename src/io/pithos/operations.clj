@@ -2,14 +2,12 @@
   "The operations namespace maps an operation as figured out when
    preparing a request and tries to service it"
   (:require [io.pithos.response     :refer [header response status
-                                            xml-response request-id send!
+                                            xml-response request-id
                                             content-type exception-status]]
             [io.pithos.util         :refer [piped-input-stream
                                             parse-uuid iso8601-timestamp
                                             ->channel-buffer]]
-            [lamina.core            :refer [channel siphon
-                                            lazy-seq->channel
-                                            enqueue close]]
+            [clojure.core.async     :refer [go chan >! <! put! close!]]
             [clojure.tools.logging  :refer [debug info warn error]]
             [clojure.string         :refer [split]]
             [io.pithos.store        :as store]
@@ -18,6 +16,10 @@
             [io.pithos.blob         :as blob]
             [io.pithos.xml          :as xml]
             [qbits.alia.uuid        :as uuid]))
+
+(defn send!
+  [response ch]
+  (put! ch response))
 
 ;;
 ;; ### acl utilities
@@ -87,6 +89,7 @@
       (xml/list-all-my-buckets)
       (xml-response)
       (request-id request)
+
       (send! (:chan request))))
 
 (defn put-bucket
@@ -247,16 +250,16 @@
                   s-meta         (or (:metadata details) {})
                   s-blobstore    (get (:storage-classes region-details)
                                       :standard)
-                  body-stream    (channel)]
+                  body-stream    (chan)]
 
               (future
                 (blob/stream!
                  s-blobstore (:inode details) (:version details)
                  (fn [chunks]
                    (if chunks
-                     (doseq [{:keys [payload]} chunks]
-                       (enqueue body-stream (->channel-buffer payload)))
-                     (close body-stream)))))
+                     (doseq [chunk chunks]
+                       (put! body-stream chunk))
+                     (close! body-stream)))))
               (future
                 (blob/append-stream! blobstore inode version body-stream
                                      (fn [_ _ size checksum]
@@ -281,6 +284,7 @@
         (throw (ex-info "invalid" {:type :invalid-request :status-code 400})))
 
       (let [finalize! (fn [inode version size checksum]
+                        (debug "finalizing object")
                         (meta/update! metastore bucket object
                                       {:inode inode
                                        :version version
@@ -396,17 +400,17 @@
 
    - A piped input stream.
    - A promise for the content's checksum
-   - A lamina channel for chunks
+   - A channel for chunks
 
    As soon as a request comes in, a 200 response is emitted,
    whose body is the piped input stream.
 
    A thread is started which reads from all parts and pushes
-   chunks to the lamina channel. While chunks are pushed to
+   chunks to the channel. While chunks are pushed to
    the channel, whitespace is also emitted on the piped input
    stream to ensure the connection won't be hung up.
 
-   The second thread which is started reads chunks from the lamina
+   The second thread which is started reads chunks from the
    channel and appends them to a new inode. Once it is properly
    streamed, an object is finalized and made available and its
    checksum is sent to the created promise.
@@ -427,52 +431,57 @@
                                                 :uploadid
                                                 parse-uuid)
         [is os]                             (piped-input-stream)
-        body-stream                         (channel)
         push-str                            (fn [^String s]
                                               (.write os (.getBytes s))
                                               (.flush os))
-        etag                                (promise)]
+        etag                                (promise)
+        finalize!                           (chan)
+        opaque
+        (blob/start-stream!
+         blobstore
+         inode
+         version
+         (fn [_ _ size checksum]
+           (meta/update!
+            metastore bucket object
+            {:inode inode
+             :version version
+             :size size
+             :checksum checksum
+             :atime (iso8601-timestamp)
+             :metadata {"content-type"
+                        "binary/octet-stream"}
+             :storageclass  "standard"
+             :acl "private"})
+
+           (deliver etag checksum)
+           (doseq [part (meta/list-upload-parts
+                         metastore bucket object upload)]
+             (blob/delete! blobstore
+                           (:inode part) (:version part)))
+           (meta/abort-multipart-upload!
+            metastore bucket object upload)))
+        db                                  (atom opaque)]
 
     (future
-
       (doseq [part (meta/list-upload-parts metastore bucket object upload)]
-
         (debug "streaming part: " (:partno part))
         (push-str "\n")
         (blob/stream!
          blobstore (:inode part) (:version part)
          (fn [chunks]
            (when chunks
-             (doseq [{:keys [payload]} chunks]
-               (push-str " ")
-               (enqueue body-stream (->channel-buffer payload)))))))
+             (doseq [{:keys [payload chunksize] :as chunk} (sort-by :offset (set chunks))]
+               (.position payload 0)
+               (.limit payload chunksize)
+               (let [opaque (blob/append-stream! blobstore @db payload)]
+                 (reset! db opaque))
+               (push-str " "))))))
+      (blob/stop-stream! blobstore @db)
 
-      (close body-stream)
       (debug "all streams now flushed, waiting for etag")
       (push-str (xml/complete-multipart-upload bucket object @etag))
       (.close os))
-
-    (future
-      (blob/append-stream! blobstore inode version body-stream
-                           (fn [_ _ size checksum]
-                             (meta/update! metastore bucket object
-                                    {:inode inode
-                                     :version version
-                                     :size size
-                                     :checksum checksum
-                                     :atime (iso8601-timestamp)
-                                     :metadata {"content-type"
-                                                "binary/octet-stream"}
-                                     :storageclass "standard"
-                                     :acl "private"})
-                             (deliver etag checksum)
-                             ;; successful completion, now cleanup!
-                             (doseq [part (meta/list-upload-parts
-                                           metastore bucket object upload)]
-                               (blob/delete! blobstore
-                                             (:inode part) (:version part)))
-                             (meta/abort-multipart-upload!
-                              metastore bucket object upload))))
 
     (-> (response is)
         (content-type "application/xml")
@@ -618,19 +627,23 @@
   [request exception]
   (-> (xml-response (xml/exception request exception))
       (exception-status (ex-data exception))
-      (request-id request)
-      (send! (:chan request)))
-  nil)
+      (request-id request)))
 
 (defn dispatch
   "Dispatch operation"
-  [{:keys [operation] :as request} bucketstore regions]
-  (when request
-    (debug "handling operation: " operation)
-    (let [{:keys [handler perms] :or {handler unknown}} (get opmap operation)]
-      (try (authorize request perms bucketstore regions)
-           (handler request bucketstore regions)
-           (catch Exception e
-             (when-not (:type (ex-data e))
-               (error e "caught exception during operation"))
-             (ex-handler request e))))))
+  [{:keys [operation exception] :as request} bucketstore regions]
+  (debug "handling operation: " operation)
+  (cond
+   (= :error operation)
+   (ex-handler request exception)
+
+   request
+   (let [{:keys [handler perms] :or {handler unknown}} (get opmap operation)
+         ch                                            (chan)]
+     (try (authorize request perms bucketstore regions)
+          (handler (assoc request :chan ch) bucketstore regions)
+          ch
+          (catch Exception e
+            (when-not (:type (ex-data e))
+              (error e "caught exception during operation"))
+            (ex-handler request e))))))

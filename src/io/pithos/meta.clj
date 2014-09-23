@@ -1,6 +1,7 @@
 (ns io.pithos.meta
   "The metastore is region-local and stores details of bucket content
    (bucket contents are region-local as well)."
+  (:refer-clojure :exclude [update])
   (:require [qbits.alia      :refer [execute]]
             [qbits.hayt      :refer [select where set-columns columns
                                      delete update limit map-type
