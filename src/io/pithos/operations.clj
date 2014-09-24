@@ -43,7 +43,7 @@
       (some identity (map (partial granted? acl needs) groups))))
 
 (defn object-satisfies?
-  "Ensure sufficient rights for object accessp"
+  "Ensure sufficient rights for object access"
   [{tenant :tenant} {acl :acl} {:keys [for groups needs]}]
   (or (= tenant for)
       (granted? acl needs for)
