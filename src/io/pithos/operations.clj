@@ -307,6 +307,7 @@
           (error e "error in multipart completion"))))
     (-> (response is)
         (content-type "application/xml"))))
+        (header "X-Accel-Buffering" "no"))))
 
 (defn unknown
   "unknown operation"
