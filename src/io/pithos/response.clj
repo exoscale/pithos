@@ -1,8 +1,7 @@
 (ns io.pithos.response
   "Provides ring like facilities for working with
    HTTP responses"
-  (:require [lamina.core :refer [enqueue close]]
-            [clojure.tools.logging :refer [debug error]]))
+  (:require [clojure.tools.logging :refer [debug error]]))
 
 (defn response
   "Create a basic response, with optional body"
@@ -55,11 +54,3 @@
   (let [{:keys [status-code] :or {status-code 500}} details]
     (-> resp
         (status status-code))))
-
-(defn send!
-  "When a response is ready to be sent out, put it on the response channel."
-  [response chan]
-  (try
-    (enqueue chan response)
-    (catch Exception e
-      (error e "exception in enqueue"))))

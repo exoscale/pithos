@@ -6,8 +6,9 @@
    just cannot be handled by the traditional synchronous handlers
    like ring, such as the 100: Continue response expected for uploads.
 "
-  (:require [aleph.http            :as http]
+  (:require [qbits.jet.server      :refer [run-jetty]]
             [clojure.tools.logging :refer [info]]
+            [io.pithos.system      :refer [service]]
             [io.pithos.operations  :refer [dispatch]]
             [io.pithos.request     :refer [safe-prepare]]))
 
@@ -17,10 +18,9 @@
    inside the request to mimick the operations of http-kit then runs
    several wrappers defined in `io.pithos.api.request` before letting
    `io.pithos.operations` dispatch based on the type of request"
-  [{:keys [keystore bucketstore regions service options]}]
-  (let [handler (fn [chan request]
-                  (-> (assoc request :chan chan)
-                      (safe-prepare keystore bucketstore regions options)
-                      (dispatch bucketstore regions)))]
-    (http/start-http-server handler service))
+  [system]
+  (let [handler (fn [request]
+                  (-> (safe-prepare request system)
+                      (dispatch system)))]
+    (run-jetty (merge (service system) {:ring-handler handler})))
   (info "server up and running"))

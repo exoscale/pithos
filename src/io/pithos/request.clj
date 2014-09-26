@@ -7,6 +7,7 @@
             [clout.core            :refer [route-matches route-compile]]
             [io.pithos.sig         :refer [validate]]
             [io.pithos.operations  :refer [ex-handler]]
+            [io.pithos.system      :refer [service-uri keystore]]
             [ring.util.codec       :as codec]
             [qbits.alia.uuid       :as uuid]))
 
@@ -174,15 +175,15 @@
         pattern     (re-pattern pattern-str)
         transformer (fn [bucket uri] (str "/" bucket (if (seq uri) uri "/")))]
     (fn [{:keys [uri] {:strs [host] :or {host ""}} :headers :as request}]
-      (debug "got request:\n" (with-out-str (pprint request)))
+      (comment (debug "got request:\n" (with-out-str (pprint request))))
       (if-let [[_ bucket] (re-find pattern host)]
         (assoc request :uri (transformer bucket uri))
         request))))
 
 (defn authenticate
   "Authenticate tenant, allow masquerading only for _master_ keys"
-  [req keystore]
-  (let [auth   (validate keystore req)
+  [req system]
+  (let [auth   (validate (keystore system) req)
         master (:master auth)
         tenant (get-in req [:headers "x-amz-masquerade-tenant"])]
     (assoc req :authorization
@@ -190,8 +191,9 @@
 
 (defn prepare
   "Generate closures and walks each requests through wrappers."
-  [req keystore metastore regions {:keys [service-uri]}]
-  (let [rewrite-bucket  (yield-rewrite-bucket service-uri)
+  [req system]
+  (let [service-uri     (service-uri system)
+        rewrite-bucket  (yield-rewrite-bucket service-uri)
         assoc-target    (yield-assoc-target)
         assoc-operation (yield-assoc-operation actions)]
 
@@ -203,13 +205,11 @@
 
         (assoc-target)
         (assoc-operation)
-        (authenticate keystore))))
+        (authenticate system))))
 
 (defn safe-prepare
   "Wrap prepare in a try-catch block"
-  [req keystore metastore regions options]
-  (try (prepare req keystore metastore regions options)
+  [req system]
+  (try (prepare req system)
        (catch Exception e
-         (when-not (:type (ex-data e))
-           (error e "caught exception during operation"))
-         (ex-handler req e))))
+         {:operation :error :exception e})))

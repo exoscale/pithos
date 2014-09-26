@@ -55,6 +55,7 @@
         (info "will throw because of failed signature!")
         (throw (ex-info "invalid request signature"
                         {:type :signature-does-not-match
+                         :status-code 403
                          :auth-string auth-str
                          :request request
                          :expected signed
