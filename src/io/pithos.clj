@@ -14,6 +14,7 @@ up the appropriate action."
   (:require [io.pithos.api     :as api]
             [io.pithos.schema  :as schema]
             [io.pithos.config  :as config]
+            [io.pithos.system  :as system]
             [clojure.tools.cli :refer [cli]]))
 
 (defn get-action
@@ -53,8 +54,13 @@ up the appropriate action."
      - `install-schema`: converge cassandra schema"
   [& args]
   (let [[{:keys [path help action quiet]} args banner] (get-cli args)]
+
     (when help
       (println banner)
       (System/exit 0))
-    (-> path (config/init quiet) action))
+
+    (-> path
+        (config/init quiet)
+        (system/system-descriptor)
+        action))
   nil)

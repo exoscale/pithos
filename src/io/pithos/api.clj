@@ -8,6 +8,7 @@
 "
   (:require [qbits.jet.server      :refer [run-jetty]]
             [clojure.tools.logging :refer [info]]
+            [io.pithos.system      :refer [service]]
             [io.pithos.operations  :refer [dispatch]]
             [io.pithos.request     :refer [safe-prepare]]))
 
@@ -17,9 +18,9 @@
    inside the request to mimick the operations of http-kit then runs
    several wrappers defined in `io.pithos.api.request` before letting
    `io.pithos.operations` dispatch based on the type of request"
-  [{:keys [keystore bucketstore regions service options]}]
+  [system]
   (let [handler (fn [request]
-                  (-> (safe-prepare request keystore bucketstore regions options)
-                      (dispatch bucketstore regions)))]
-    (run-jetty (merge service {:ring-handler handler})))
+                  (-> (safe-prepare request system)
+                      (dispatch system)))]
+    (run-jetty (merge (service system) {:ring-handler handler})))
   (info "server up and running"))

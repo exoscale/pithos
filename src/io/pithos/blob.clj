@@ -31,6 +31,7 @@
            java.nio.ByteBuffer)
   (:require [clojure.java.io       :as io]
             [io.pithos.store       :as store]
+            [io.pithos.desc        :as d]
             [qbits.alia.uuid       :as uuid]
             [qbits.alia            :refer [execute]]
             [qbits.hayt            :refer [select where columns order-by
@@ -58,7 +59,13 @@
   (write-chunk! [this ino version hash buf block offset])
   (stream-block! [this ino version block handler])
   (stream! [this inode version handler])
-  (delete! [this inode version]))
+  (delete! [this inode version])
+  (blocks [this od])
+  (max-chunk [this])
+  (chunks [this od block offset])
+  (start-block! [this od block offset])
+  (chunk! [this od block offset chunk])
+  (boundary? [this block offset]))
 
 ;; CQL Schema
 (def inode_blocks-table
@@ -171,8 +178,7 @@
 (defn put-chunk!
   "Insert a chunk in a block."
   [chunk session inode version block offset]
-  (.position chunk 0)
-  (let [size (.remaining chunk)]
+  (let [size (- (.limit chunk) (.position chunk))]
     (execute session (set-chunk-q inode version block offset size chunk))
     size))
 
@@ -249,15 +255,30 @@
         (handler nil))
 
 
+      (blocks [this od]
+        (let [ino (d/inode od)
+              ver (d/version od)]
+          (execute session (get-block-q ino ver :asc))))
+
+      (max-chunk [this]
+        max-chunk)
+
+      (chunks [this od block offset]
+        (let [ino (d/inode od)
+              ver (d/version od)]
+          (seq (execute session (get-chunk-q ino ver block offset limit)))))
+
+
       ;;
       ;; Delete an inode.
       ;; Rather straightforward, deletes all blocks then all inodes_blocks
       ;;
 
-      (delete! [this ino version]
-        (doseq [{block :block} (execute session (get-block-q ino version :asc))]
-          (execute session (delete-block-q ino version block)))
-        (execute session (delete-blockref-q ino version)))
+      (delete! [this od version]
+        (let [ino (d/inode od)]
+          (doseq [{block :block} (execute session (get-block-q ino version :asc))]
+            (execute session (delete-block-q ino version block)))
+          (execute session (delete-blockref-q ino version))))
 
       ;; Writing to inodes is split in two functions:
       ;;
@@ -284,9 +305,7 @@
 
       (write-chunk! [this ino version hash buf block offset]
 
-        (.position buf 0)
-        (md5-update hash (.array buf) 0 (.remaining buf))
-        (.position buf 0)
+        (md5-update hash (.array buf) 0 (- (.limit buf) (.position buf)))
 
         (let [sz        (put-chunk! buf session ino version block offset)
               offset    (+ sz offset)
@@ -309,7 +328,20 @@
 
       (stop-stream! [this opaque]
         (let [{:keys [finalize offset]} opaque]
+          (debug "finalizing with offset: " offset)
           (finalize offset)))
+
+      (boundary? [this block offset]
+        (>= offset (+ block bs)))
+
+      (start-block! [this od block offset]
+        (set-block! session (d/inode od) (d/version od) block offset))
+
+      (chunk! [this od block offset chunk]
+        (let [size (- (.limit chunk) (.position chunk))]
+          (execute session (set-chunk-q (d/inode od) (d/version od)
+                                        block offset size chunk))
+          size))
 
       (append-stream! [this opaque bb]
         (let [{:keys [block offset hash ino version]} opaque]
@@ -317,6 +349,7 @@
             (set-block! session ino version block offset))
           (let [[block offset] (write-chunk! this ino version hash bb
                                              block offset)]
+            (debug "new offset: " offset)
             (assoc opaque :block block :offset offset))))
       (append-stream! [this ino version stream tell!]
         (let [hash (md5-init)]

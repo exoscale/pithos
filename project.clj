@@ -20,7 +20,7 @@
                  [ring/ring-codec           "1.0.0"]
                  [cc.qbits/alia             "2.2.0"]
                  [cc.qbits/hayt              "2.0.0-rc2"]
-                 [cc.qbits/jet              "0.4.0"]
+                 [cc.qbits/jet              "0.5.0-alpha2"]
                  [net.jpountz.lz4/lz4       "1.2.0"]
                  [org.xerial.snappy/snappy-java "1.0.5"]
                  [net.logstash.log4j/jsonevent-layout "1.7"]

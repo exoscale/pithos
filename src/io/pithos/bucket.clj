@@ -9,6 +9,7 @@
                                      column-definitions index-name
                                      delete update limit]]
             [io.pithos.util  :refer [iso8601-timestamp]]
+            [io.pithos.system :as system]
             [io.pithos.store :as store]))
 
 (defprotocol Bucketstore
@@ -20,6 +21,14 @@
   (create! [this tenant bucket columns])
   (update! [this bucket columns])
   (delete! [this bucket]))
+
+(defprotocol BucketDescriptor
+  (region [this])
+  (versioned? [this]))
+
+(defprotocol RegionDescriptor
+  (metastore [this])
+  (storage-classes [this]))
 
 ;; ring-global metastore
 
@@ -115,3 +124,29 @@
                           {:type        :no-such-bucket
                            :status-code 404
                            :bucket      bucket})))))))
+
+(defn get-region
+  "Fetch the regionstore from regions"
+  [system region]
+  (or (get (system/regions system) region)
+      (throw (ex-info (str "could not find region: " region)
+                      {:status-code 500}))))
+
+(defn bucket-descriptor
+  [system bucket]
+  (let [bucketstore                         (system/bucketstore system)
+        details                             (by-name bucketstore bucket)
+        {:keys [versioned region bucket]}   details
+        {:keys [metastore storage-classes]} (get-region system region)]
+    (reify
+      BucketDescriptor
+      (versioned? [this] versioned)
+      (region [this] region)
+      RegionDescriptor
+      (metastore [this] metastore)
+      (storage-classes [this] storage-classes)
+      clojure.lang.ILookup
+      (valAt [this k]
+        (get details k))
+      (valAt [this k def]
+        (get details k def)))))
