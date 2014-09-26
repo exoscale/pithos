@@ -1,8 +1,8 @@
 (ns io.pithos.api
   "Our main HTTP facade. Serving functionality is provided by aleph.
-   Aleph is preferred over more traditionnal HTTP servers because
+   Aleph is preferred over more traditional HTTP servers because
    it avoids creating one thread per (potentially) long streaming
-   requests or responses. Moreover, certain specific operations
+   request or response. Moreover, certain specific operations
    just cannot be handled by the traditional synchronous handlers
    like ring, such as the 100: Continue response expected for uploads.
 "

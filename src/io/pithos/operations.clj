@@ -30,7 +30,6 @@
               :od (desc/object-descriptor system bucket object)
               :upload-id (parse-uuid uploadid))
     req))
-
 (defn get-service
   "Lists all buckets for  tenant"
   [{{:keys [tenant]} :authorization :as request} system]
