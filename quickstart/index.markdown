@@ -13,7 +13,8 @@ Pithos is a fully S3 compatible object store developed and used at [exoscale](ht
 In order to build and run Pithos you will need the following components:
 
 * Working Java Runtime Environment version 7 or higher
-* A [Cassandra](http://cassandra.apache.org/) cluster in version 2 or higher
+* A [Cassandra](http://cassandra.apache.org/) cluster in version 2 or
+  higher (2.1 is recommended)
 * [Leiningen](https://github.com/technomancy/leiningen) Clojure package builder
 
 # Build
@@ -28,7 +29,7 @@ you will get a standalone Java jar file in the `target/` directory
 
 To run Pithos manually start it with
 
-    java -jar target/pithos-0.1.0-standalone.jar
+    java -jar target/pithos-0.1.4-standalone.jar
 
 Pithos will expect finding a valid configuration file under `/etc/pithos/pithos.yaml`. You can specify a distinct config file using the `-f` switch.
 
@@ -52,7 +53,7 @@ detailed walk-through of configuration options.
 Pithos includes a schema definition file in order to bootstrap your Cassandra cluster.
 To install the schema, run:
 
-    java -jar target/pithos-0.1.0-standalone.jar -a install-schema
+    java -jar target/pithos-0.1.4-standalone.jar -a install-schema
 
 
 ## Test using the s3cmd command line client
