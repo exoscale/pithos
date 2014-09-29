@@ -68,13 +68,6 @@
                        :checksum    :text
                        :primary-key [[:bucket :object :upload] :partno]})))
 
-(def upload_bucket-index
-  "Uploads are indexed by bucket for easy lookup"
-  (create-index
-   :upload
-   :bucket
-   (index-name :upload_bucket)))
-
 (def object_uploads-table
   "Uploads are also referenced by object"
  (create-table
@@ -85,6 +78,12 @@
                        :metadata    (map-type :text :text)
                        :primary-key [[:bucket :object] :upload]})))
 
+(def upload_bucket-index
+  "Uploads are indexed by bucket for easy lookup"
+  (create-index
+   :object_uploads
+   :bucket
+   (index-name :upload_bucket)))
 
 ;; CQL Queries
 
@@ -131,7 +130,7 @@
 (defn list-uploads-q
   "List all uploads by bucket"
   [bucket]
-  (select :upload (where [[= :bucket bucket]])))
+  (select :object_uploads (where [[= :bucket bucket]])))
 
 (defn list-upload-parts-q
   "List all parts of an upload"
