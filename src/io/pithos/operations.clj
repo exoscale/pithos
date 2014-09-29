@@ -322,7 +322,6 @@
                             :target  :service
                             :perms   [:authenticated]}
    :put-bucket             {:handler put-bucket
-                            :target  :bucket
                             :perms   [[:memberof "authenticated-users"]]}
    :put-bucket-versioning  {:handler put-bucket-versioning
                             :target  :bucket
@@ -353,7 +352,8 @@
                             :target  :bucket
                             :perms   [[:bucket :READ_ACP]]}
    :get-bucket-uploads     {:handler get-bucket-uploads
-                            :perms   [[:bucket :READ]]}
+                            :perms   [[:bucket :READ]]
+                            :target  :bucket}
    :get-object             {:handler get-object
                             :target  :object
                             :perms   [[:object :READ]]}
