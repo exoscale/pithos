@@ -8,9 +8,9 @@
 (defn cassandra-store
   "Connect to a cassandra cluster, and use a specific keyspace.
    When the keyspace is not found, try creating it"
-  [{:keys [cluster keyspace hints]
+  [{:keys [cluster keyspace hints repfactor]
     :or {hints {:replication {:class             "SimpleStrategy"
-                              :replication_factor 1}}}}]
+                              :replication_factor (or repfactor 1)}}}}]
   (debug "building cassandra store for: " cluster keyspace hints)
   (let [session (-> (alia/cluster {:contact-points [cluster]}) (alia/connect))]
     (try (alia/execute session (use-keyspace keyspace))
