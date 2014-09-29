@@ -1,19 +1,21 @@
 (ns io.pithos.schema
   "Namespace holding a single action which installs the schema"
   (:require [clojure.tools.logging :refer [info error]]
+            [io.pithos.system      :as system]
             [io.pithos.bucket      :as bucket]
             [io.pithos.meta        :as meta]
             [io.pithos.blob        :as blob]))
 
 (defn converge-schema
   "Loops through all storage layers and calls converge! on them"
-  [{:keys [bucketstore regions] :as config}]
+  [system]
   (info "converging all schemas...")
   (try
     (info "converging bucketstore schema")
-    (bucket/converge! bucketstore)
+    (bucket/converge! (system/bucketstore system))
 
-    (doseq [[region {:keys [metastore storage-classes]}] regions]
+    (doseq [region (system/regions system)
+            :let [[region {:keys [metastore storage-classes]}] region]]
       (info "converging metastore for region " region)
       (meta/converge! metastore)
 
