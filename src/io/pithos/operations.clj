@@ -149,7 +149,7 @@
   [{:keys [bucket object od] :as request} system]
   (-> (response)
       (content-type "application/binary")
-      (header "ETag" (str (desc/checksum od)))
+      (header "ETag" (str "\"" (desc/checksum od) "\""))
       (header "Last-Modified" (str (:atime od)))
       (header "Content-Length" (str (desc/size od)))))
 
@@ -177,7 +177,7 @@
     (-> (response is)
         (content-type (desc/content-type od))
         (header "Content-Length" (desc/size od))
-        (header "ETag" (desc/checksum od)))))
+        (header "ETag" (str "\"" (desc/checksum od) "\"")))))
 
 (defn put-object
   "Accept data for storage. The body of this function is a bit messy and
@@ -230,7 +230,7 @@
     (debug "step4: " (desc/version dst))
 
     (-> (response)
-        (header "ETag" (desc/checksum dst)))))
+        (header "ETag" (str "\"" (desc/checksum dst) "\"")))))
 
 (defn abort-upload
   "Abort an ongoing upload"
@@ -267,7 +267,7 @@
     (stream/stream-from body pd)
     (desc/save! pd)
     (-> (response)
-        (header "ETag" (desc/checksum pd)))))
+        (header "ETag" (str "\"" (desc/checksum pd) "\"")))))
 
 (defn complete-upload
   "To complete an upload, all parts are read and streamed to
@@ -398,7 +398,8 @@
 (defn dispatch
   "Dispatch operation"
   [{:keys [operation exception] :as request} system]
-  (debug "handling operation: " operation)
+  (when (not= operation :options-service)
+    (debug "handling operation: " operation))
 
   (cond
    (= :error operation)
