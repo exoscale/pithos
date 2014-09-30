@@ -394,8 +394,8 @@
 (defn dispatch
   "Dispatch operation"
   [{:keys [operation exception] :as request} system]
-  (when (not= operation :options-service))
-  (debug "handling operation: " operation)
+  (when (not= operation :options-service)
+    (debug "handling operation: " operation))
 
   (cond
    (= :error operation)
