@@ -284,14 +284,17 @@
         (let [parts (desc/part-descriptors system bucket object upload-id)
               od    (stream/stream-copy-parts parts od push-str)]
           (desc/save! od)
-          (when previous
-            (blob/delete! (desc/blobstore od) od previous))
-          (doseq [part parts]
-            (meta/abort-multipart-upload! (bucket/metastore part)
-                                          bucket
-                                          object
-                                          upload-id)
-            (blob/delete! (desc/blobstore part) part (desc/version part)))
+
+          (future
+            ;; This can be time consuming
+            (doseq [part parts]
+              (meta/abort-multipart-upload! (bucket/metastore part)
+                                            bucket
+                                            object
+                                            upload-id)
+              (blob/delete! (desc/blobstore part) part (desc/version part)))
+            (when previous
+              (blob/delete! (desc/blobstore od) od previous)))
 
           (debug "all streams now flushed")
           (push-str (xml/complete-multipart-upload bucket object
