@@ -7,6 +7,8 @@
   :main io.pithos
   :jvm-opts ["-Xmx2g"]
   :profiles {:dev {:resource-paths ["test/data"]}}
+  :plugins [[lein-sub "0.3.0"]]
+  :sub ["pithos-quickstart"]
   :dependencies [[org.clojure/clojure       "1.7.0-alpha2"]
                  [org.clojure/data.codec    "0.1.0"]
                  [org.clojure/data.xml      "0.0.7"]
