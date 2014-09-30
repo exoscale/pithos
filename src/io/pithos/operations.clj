@@ -219,7 +219,7 @@
           (desc/increment! dst))
         (if-let [size (some-> (get-in request [:headers "content-length"])
                               (Long/parseLong))]
-          (stream/stream-from body dst true size)
+          (stream/stream-from body dst size true)
           (stream/stream-from body dst))))
 
     ;; if a previous copy existed, kill it
@@ -265,7 +265,7 @@
                                                    upload-id partnumber)]
     (if-let [size (some-> (get-in request [:headers "content-length"])
                           (Long/parseLong))]
-      (stream/stream-from body pd true size)
+      (stream/stream-from body pd size true)
       (stream/stream-from body pd))
     (desc/save! pd)
     (-> (response)
