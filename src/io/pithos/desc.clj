@@ -96,7 +96,9 @@
         (col! this :version (uuid/time-based)))
       (save! [this]
         (let [meta (-> meta
-                       (merge {:inode inode :version version})
+                       (merge {:inode inode
+                               :version version
+                               :atime (util/iso8601-timestamp)})
                        (merge @cols)
                        (dissoc :bucket :object))]
           (meta/update! metastore bucket object meta)))
