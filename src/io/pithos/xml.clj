@@ -118,7 +118,7 @@ Will produce an XML AST equivalent to:
             [:Contents
              [:Key object]
              [:LastModified atime]
-             [:ETag checksum]
+             [:ETag (str "\"" checksum "\"") ]
              [:Size (str size)]
              [:Owner
               [:ID tenant]
@@ -158,7 +158,7 @@ Will produce an XML AST equivalent to:
             [:Part
              [:PartNumber (str partno)]
              [:LastModified modified]
-             [:ETag checksum]
+             [:ETag (str "\"" checksum "\"")]
              [:Size (str size)]]))))
 
 (defn complete-multipart-upload
@@ -169,7 +169,7 @@ Will produce an XML AST equivalent to:
     [:Bucket bucket]
     [:Key object]
     [:Location (format "http://%s.s3.amazonaws.com/%s" bucket object)]
-    [:ETag etag]]))
+    [:ETag (str "\"" etag "\"")]]))
 
 (defn bucket-location
   [location]
@@ -183,7 +183,7 @@ Will produce an XML AST equivalent to:
   (seq->xmlstr
    [:CopyObjectResult xml-ns
     [:LastModified atime]
-    [:ETag etag]]))
+    [:ETag (str "\"" etag "\"")]]))
 
 (defn get-bucket-versioning
   "Template for the get bucket versioning response"
