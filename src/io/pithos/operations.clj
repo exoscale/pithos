@@ -213,21 +213,20 @@
         (throw (ex-info "invalid" {:type :invalid-request :status-code 400})))
 
       ;; we're dealing with a standard object creation
-
       (do
+        (debug "got headers: " (:headers request))
         (when previous
-          (debug "step1: " (desc/version dst))
           (desc/increment! dst))
-          (debug "step2: " (desc/version dst))
-        (stream/stream-from body dst)))
+        (if-let [size (some-> (get-in request [:headers "content-length"])
+                              (Long/parseLong))]
+          (stream/stream-from body dst true size)
+          (stream/stream-from body dst))))
 
     ;; if a previous copy existed, kill it
     (when previous
       (blob/delete! (desc/blobstore dst) dst previous))
 
-    (debug "step3: " (desc/version dst))
     (desc/save! dst)
-    (debug "step4: " (desc/version dst))
 
     (-> (response)
         (header "ETag" (str "\"" (desc/checksum dst) "\"")))))
@@ -264,7 +263,10 @@
   (let [{:keys [partnumber]} (:params request)
         pd                   (desc/part-descriptor system bucket object
                                                    upload-id partnumber)]
-    (stream/stream-from body pd)
+    (if-let [size (some-> (get-in request [:headers "content-length"])
+                          (Long/parseLong))]
+      (stream/stream-from body pd true size)
+      (stream/stream-from body pd))
     (desc/save! pd)
     (-> (response)
         (header "ETag" (str "\"" (desc/checksum pd) "\"")))))
@@ -398,8 +400,8 @@
 (defn dispatch
   "Dispatch operation"
   [{:keys [operation exception] :as request} system]
-  (when (not= operation :options-service)
-    (debug "handling operation: " operation))
+  (when (not= operation :options-service))
+  (debug "handling operation: " operation)
 
   (cond
    (= :error operation)

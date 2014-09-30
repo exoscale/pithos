@@ -74,6 +74,42 @@
          (finally
            (debug "closing after write")
            (when close?
+             (.close stream))))))
+  ([^InputStream stream od size close?]
+     (let [blob   (d/blobstore od)
+           hash   (u/md5-init)]
+       (try
+         (loop [block  0
+                offset 0]
+           (when (>= block offset)
+             (debug "marking new block")
+             (b/start-block! blob od block offset))
+           (if (>= offset size)
+             (let [chunk-size (b/max-chunk blob)
+                   ba         (byte-array chunk-size)
+                   br         (.read stream ba)
+                   chunk      (ByteBuffer/wrap ba)
+                   sz         (b/chunk! blob od block offset chunk)
+                   offset     (+ sz offset)]
+               (u/md5-update hash ba 0 br)
+               (if (b/boundary? blob block offset)
+                 (recur offset offset)
+                 (recur block offset)))
+             (do
+               (debug "read whole stream")
+               (d/col! od :size offset)
+               (d/col! od :checksum (u/md5-sum hash))
+               od)))
+         (catch java.io.IOException ioe
+           (debug "read error, could not input expected size")
+           (b/delete! blob (d/inode od) (d/version od)))
+         (catch Exception e
+           (error e "error during write")
+           (debug "read error, could not input expected size")
+           (b/delete! blob (d/inode od) (d/version od)))
+         (finally
+           (debug "closing after write")
+           (when close?
              (.close stream)))))))
 
 (defn stream-copy
@@ -105,6 +141,7 @@
       (if part
         (let [sblob  (d/blobstore part)
               blocks (b/blocks sblob part)]
+          (debug "streaming part: " (:partnumber part))
           (recur
            (last
             (for [{:keys [block]} blocks

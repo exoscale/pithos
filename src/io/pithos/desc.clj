@@ -145,4 +145,12 @@
         (let [meta (-> {:inode inode :version version}
                        (merge @cols)
                        (merge {:modified (util/iso8601-timestamp)}))]
-          (meta/update-part! metastore bucket object upload-id part meta))))))
+          (meta/update-part! metastore bucket object upload-id part meta)))
+            clojure.lang.ILookup
+      (valAt [this k]
+        (get (merge meta  {:partnumber part})
+             k))
+      (valAt [this k def]
+        (get (merge meta {:partnumber part})
+             k
+             def)))))
