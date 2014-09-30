@@ -108,7 +108,7 @@
       (if part
         (let [sblob  (d/blobstore part)
               blocks (b/blocks sblob part)]
-          (debug "streaming part: " (:partnumber part))
+          (debug "streaming part: " (d/part part))
           (recur
            (last
             (for [{:keys [block]} blocks
