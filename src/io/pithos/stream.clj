@@ -2,7 +2,9 @@
   "Read and write to cassandra from OutputStream and InputStream"
   (:import java.io.OutputStream
            java.io.InputStream
-           java.nio.ByteBuffer)
+           java.nio.ByteBuffer
+           org.eclipse.jetty.server.HttpInputOverHTTP
+           javax.servlet.ReadListener)
   (:require [io.pithos.blob :as b]
             [io.pithos.desc :as d]
             [io.pithos.util :as u]
@@ -53,61 +55,25 @@
            (when (>= block offset)
              (debug "marking new block")
              (b/start-block! blob od block offset))
-           (if (not (zero? (.available stream)))
-             (let [chunk-size (min (.available stream) (b/max-chunk blob))
-                   ba         (byte-array chunk-size)
-                   br         (.read stream ba)
-                   chunk      (ByteBuffer/wrap ba)
-                   sz         (b/chunk! blob od block offset chunk)
-                   offset     (+ sz offset)]
-               (u/md5-update hash ba 0 br)
-               (if (b/boundary? blob block offset)
-                 (recur offset offset)
-                 (recur block offset)))
-             (do
-               (debug "read whole stream")
-               (d/col! od :size offset)
-               (d/col! od :checksum (u/md5-sum hash))
-               od)))
+
+           (let [chunk-size (b/max-chunk blob)
+                 ba         (byte-array chunk-size)
+                 br         (.read stream ba)]
+             (if (neg? br)
+               (do
+                 (debug "negative write, read whole stream")
+                 (d/col! od :size offset)
+                 (d/col! od :checksum (u/md5-sum hash))
+                 od)
+               (let [chunk  (ByteBuffer/wrap ba 0 br)
+                     sz     (b/chunk! blob od block offset chunk)
+                     offset (+ sz offset)]
+                 (u/md5-update hash ba 0 br)
+                 (if (b/boundary? blob block offset)
+                   (recur offset offset)
+                   (recur block offset))))))
          (catch Exception e
            (error e "error during write"))
-         (finally
-           (debug "closing after write")
-           (when close?
-             (.close stream))))))
-  ([^InputStream stream od size close?]
-     (debug "streaming with size: " size)
-     (let [blob   (d/blobstore od)
-           hash   (u/md5-init)]
-       (try
-         (loop [block  0
-                offset 0]
-           (when (>= block offset)
-             (debug "marking new block")
-             (b/start-block! blob od block offset))
-           (if (>= size offset)
-             (let [chunk-size (b/max-chunk blob)
-                   ba         (byte-array chunk-size)
-                   br         (.read stream ba)
-                   chunk      (ByteBuffer/wrap ba)
-                   sz         (b/chunk! blob od block offset chunk)
-                   offset     (+ sz offset)]
-               (u/md5-update hash ba 0 br)
-               (if (b/boundary? blob block offset)
-                 (recur offset offset)
-                 (recur block offset)))
-             (do
-               (debug "read whole stream")
-               (d/col! od :size offset)
-               (d/col! od :checksum (u/md5-sum hash))
-               od)))
-         (catch java.io.IOException ioe
-           (debug "read error, could not input expected size")
-           (b/delete! blob (d/inode od) (d/version od)))
-         (catch Exception e
-           (error e "error during write")
-           (debug "read error, could not input expected size")
-           (b/delete! blob (d/inode od) (d/version od)))
          (finally
            (debug "closing after write")
            (when close?

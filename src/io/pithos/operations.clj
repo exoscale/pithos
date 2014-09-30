@@ -217,10 +217,7 @@
         (debug "got headers: " (:headers request))
         (when previous
           (desc/increment! dst))
-        (if-let [size (some-> (get-in request [:headers "content-length"])
-                              (Long/parseLong))]
-          (stream/stream-from body dst size true)
-          (stream/stream-from body dst))))
+        (stream/stream-from body od)))
 
     ;; if a previous copy existed, kill it
     (when previous
@@ -263,10 +260,7 @@
   (let [{:keys [partnumber]} (:params request)
         pd                   (desc/part-descriptor system bucket object
                                                    upload-id partnumber)]
-    (if-let [size (some-> (get-in request [:headers "content-length"])
-                          (Long/parseLong))]
-      (stream/stream-from body pd size true)
-      (stream/stream-from body pd))
+    (stream/stream-from body pd)
     (desc/save! pd)
     (-> (response)
         (header "ETag" (str "\"" (desc/checksum pd) "\"")))))
