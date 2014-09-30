@@ -76,6 +76,7 @@
            (when close?
              (.close stream))))))
   ([^InputStream stream od size close?]
+     (debug "streaming with size: " size)
      (let [blob   (d/blobstore od)
            hash   (u/md5-init)]
        (try
@@ -84,7 +85,7 @@
            (when (>= block offset)
              (debug "marking new block")
              (b/start-block! blob od block offset))
-           (if (>= offset size)
+           (if (>= size offset)
              (let [chunk-size (b/max-chunk blob)
                    ba         (byte-array chunk-size)
                    br         (.read stream ba)
