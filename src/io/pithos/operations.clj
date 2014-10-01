@@ -87,19 +87,21 @@
 
 (defn get-bucket-acl
   "Retrieve and display bucket ACL as xml"
-  [{:keys [bucket bd] :as request} system]
-  (-> (bucket/by-name (system/bucketstore system) bucket)
-      :acl
-      (read-string)
-      (acl/as-xml)
-      (xml-response)))
+  [{:keys [bucket bd] {:keys [tenant]} :authorization :as request} system]
+  (let [acl (or (-> (bucket/by-name (system/bucketstore system) bucket)
+                    :acl)
+                (pr-str {:FULL_CONTROL [{:ID tenant}]}))]
+    (->  acl
+         (read-string)
+         (acl/as-xml)
+         (xml-response)))
 
-(defn get-bucket-uploads
+  (defn get-bucket-uploads
   "List current uploads"
   [{:keys [bucket bd] :as request} system]
   (-> (meta/list-uploads (bucket/metastore bd) bucket)
       (xml/list-multipart-uploads bucket)
-      (xml-response)))
+      (xml-response))))
 
 (defn initiate-upload
   "Start a new upload"
