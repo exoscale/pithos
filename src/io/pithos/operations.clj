@@ -406,10 +406,12 @@
 
    request
    (let [{:keys [handler perms target]} (get opmap operation)
-         request                        (assoc-targets request system target)
          handler                        (or handler unknown)]
      (try (perms/authorize request perms system)
-          (-> (handler request system) (request-id request))
+          (-> request
+              (assoc-targets system target)
+              (handler system)
+              (request-id request))
           (catch Exception e
             (when-not (:type (ex-data e))
               (error e "caught exception during operation"))
