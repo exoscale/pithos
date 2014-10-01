@@ -94,14 +94,14 @@
                 {:FULL_CONTROL [{:ID tenant}]})]
     (->  acl
          (acl/as-xml)
-         (xml-response)))
+         (xml-response))))
 
-  (defn get-bucket-uploads
+(defn get-bucket-uploads
   "List current uploads"
   [{:keys [bucket bd] :as request} system]
   (-> (meta/list-uploads (bucket/metastore bd) bucket)
       (xml/list-multipart-uploads bucket)
-      (xml-response))))
+      (xml-response)))
 
 (defn initiate-upload
   "Start a new upload"
