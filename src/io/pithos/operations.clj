@@ -151,7 +151,7 @@
 
 (defn get-bucket-lifecycle
   [request system]
-  (-> (xml/bucket-lifecyle)
+  (-> (xml/bucket-lifecycle)
       (xml-response)))
 
 (defn put-bucket-versioning
