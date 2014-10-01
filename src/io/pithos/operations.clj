@@ -225,9 +225,12 @@
         previous (desc/init-version dst)]
 
     (if-let [source (get-in request [:headers "x-amz-copy-source"])]
-
       ;; we're dealing with a copy object request
-      (if-let [[prefix s-bucket s-object] (split source #"/" 3)]
+      (if-let [[prefix s-bucket s-object] (split (if (.startsWith source "/")
+                                                   source
+                                                   (str "/" source))
+                                                 #"/"
+                                                 3)]
         (if (seq prefix)
           (throw (ex-info "invalid" {:type :invalid-request :status-code 400}))
           (when (perms/authorize {:bucket s-bucket
