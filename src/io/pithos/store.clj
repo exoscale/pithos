@@ -13,7 +13,7 @@
                               :replication_factor (or repfactor 1)}}}}]
   (debug "building cassandra store for: " cluster keyspace hints)
   (let [cluster (if (sequential? cluster) cluster [cluster])
-        session (-> (alia/cluster {:contact-points [cluster]}) (alia/connect))]
+        session (-> (alia/cluster {:contact-points cluster}) (alia/connect))]
     (try (alia/execute session (use-keyspace keyspace))
          session
          (catch clojure.lang.ExceptionInfo e
