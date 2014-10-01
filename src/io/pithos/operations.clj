@@ -147,6 +147,11 @@
 (defn head-object
   "Retrieve object information"
   [{:keys [bucket object od] :as request} system]
+  (when-not (desc/init-version od)
+    (throw (ex-info "no such key" {:type :no-such-key
+                                   :status-code 404
+                                   :bucket bucket
+                                   :key object})))
   (-> (response)
       (content-type "application/binary")
       (header "ETag" (str "\"" (desc/checksum od) "\""))
