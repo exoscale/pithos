@@ -19,6 +19,7 @@
             [io.pithos.desc         :as desc]
             [io.pithos.stream       :as stream]
             [io.pithos.perms        :as perms]
+            [io.pithos.acl          :as acl]
             [qbits.alia.uuid        :as uuid]))
 
 (defn assoc-targets
@@ -80,7 +81,7 @@
 (defn put-bucket-acl
   "Update bucket acl"
   [{:keys [bucket body] :as request} system]
-  (let [acl (slurp body)]
+  (let [acl (-> (slurp body) (acl/xml->acl) (pr-str))]
     (bucket/update! (system/bucketstore system) bucket {:acl acl})
     (response)))
 
@@ -89,7 +90,8 @@
   [{:keys [bucket bd] :as request} system]
   (-> (bucket/by-name (system/bucketstore system) bucket)
       :acl
-      (xml/default)
+      (read-string)
+      (acl/as-xml)
       (xml-response)))
 
 (defn get-bucket-uploads
