@@ -177,6 +177,11 @@ Will produce an XML AST equivalent to:
    [:LocationConstraint xml-ns
     location]))
 
+(defn bucket-lifecycle
+  []
+  (seq->xmlstr
+   [:LifecycleConfiguration xml-ns]))
+
 (defn copy-object
   "Template for the copy object response"
   [etag atime]

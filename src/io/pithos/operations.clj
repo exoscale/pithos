@@ -139,6 +139,20 @@
   (-> (xml/get-bucket-versioning (bucket/versioned? bd))
       (xml-response)))
 
+(defn delete-bucket-lifecycle
+  [request system]
+  (-> (response)
+      (status 204)))
+
+(defn put-bucket-lifecycle
+  [request system]
+  (-> (response)
+      (status 204)))
+
+(defn get-bucket-lifecycle
+  (-> (xml/bucket-lifecyle)
+      (xml-response)))
+
 (defn put-bucket-versioning
   "No versioning support for now even though versions are stored"
   [{:keys [bucket] :as request} system]
@@ -342,6 +356,18 @@
                             :target  :bucket
                             :perms   [[:memberof "authenticated-users"]
                                       [:bucket   :owner]]}
+   :delete-bucket-lifecycle {:handler delete-bucket-lifecycle
+                             :target  :bucket
+                             :perms  [[:memberof "authenticated-users"]
+                                      [:bucket   :owner]]}
+   :put-bucket-lifecycle {:handler put-bucket-lifecycle
+                          :target  :bucket
+                          :perms  [[:memberof "authenticated-users"]
+                                   [:bucket   :owner]]}
+   :get-bucket-lifecycle {:handler get-bucket-lifecycle
+                          :target  :bucket
+                          :perms  [[:memberof "authenticated-users"]
+                                   [:bucket   :owner]]}
    :head-bucket            {:handler head-bucket
                             :target  :bucket
                             :perms [[:bucket :READ]]}
