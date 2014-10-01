@@ -109,12 +109,14 @@
                     {:type :bucket-already-exists
                      :bucket bucket
                      :status-code 409})))
-          (execute session
-                   (update-bucket-q bucket
-                                    (merge {:region default-region
-                                            :created (iso8601-timestamp)}
-                                           columns
-                                           {:tenant tenant})))))
+          (let [acl {:FULL_CONTROL [{:ID tenant}]}]
+            (execute session
+                     (update-bucket-q bucket
+                                      (merge {:region default-region
+                                              :created (iso8601-timestamp)
+                                              :acl     (pr-str acl)}
+                                             columns
+                                             {:tenant tenant}))))))
       (update! [this bucket columns]
         (execute session (update-bucket-q bucket columns)))
       (delete! [this bucket]
