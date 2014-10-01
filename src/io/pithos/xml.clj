@@ -55,11 +55,13 @@ Will produce an XML AST equivalent to:
   (letfn [(tag-nodes->xml [[tag & nodes]]
             (let [attrs (if (map? (first nodes)) (first nodes) {})
                   nodes (if (map? (first nodes)) (rest nodes) nodes)]
-              (->Element (name tag)
-                         attrs
-                         (if (every? sequential? nodes)
-                           (mapv tag-nodes->xml (remove empty? nodes))
-                           (first nodes)))))]
+              (if (vector? tag)
+                (tag-nodes->xml tag)
+                (->Element (name tag)
+                           attrs
+                           (if (every? sequential? nodes)
+                             (mapv tag-nodes->xml (remove empty? nodes))
+                             (first nodes))))))]
     (tag-nodes->xml input)))
 
 (defn seq->xmlstr
@@ -112,8 +114,8 @@ Will produce an XML AST equivalent to:
           [:Delimiter delimiter]
           [:IsTruncated "false"]
           (when (seq prefixes)
-            (apply vector :CommonPrefixes
-                 (for [prefix prefixes] [:Prefix prefix])))
+            (vec
+             (for [prefix prefixes] [:CommonPrefixes [:Prefix prefix]])))
           (for [{:keys [atime object size checksum] :or {size 0}} files]
             [:Contents
              [:Key object]
