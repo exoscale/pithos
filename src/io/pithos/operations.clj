@@ -150,6 +150,7 @@
       (status 204)))
 
 (defn get-bucket-lifecycle
+  [request system]
   (-> (xml/bucket-lifecyle)
       (xml-response)))
 
