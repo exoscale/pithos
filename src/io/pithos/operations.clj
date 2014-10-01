@@ -170,6 +170,11 @@
   is a piped input stream. The connected outputstream will be fed data
   on a different thread."
   [{:keys [od bucket object] :as request} system]
+  (when-not (desc/init-version od)
+    (throw (ex-info "no such key" {:type :no-such-key
+                                   :status-code 404
+                                   :bucket bucket
+                                   :key object})))
 
   (let [[is os]                   (piped-input-stream)]
 
