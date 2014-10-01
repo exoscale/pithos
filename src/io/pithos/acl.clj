@@ -68,12 +68,12 @@
       (throw e))
     (catch Exception e
       (throw (ex-info "Invalid XML in ACL Body"
-                      {:type :invalid-acl-xml})))))
+                      {:type :invalid-acl-xml
+                       :status-code 400})))))
 
 (defn xml->acl
   "Given an XML source, try to parse it and return valid"
   [src]
-
   (let [xml-tree (safe-xml-zip src)
         policies (xml-> xml-tree
                         :AccessControlList
@@ -81,7 +81,8 @@
                         node->grant)
         policy   (apply merge-with concat policies)]
     (when-not (every? valid-permission? (keys policy))
-      (throw (ex-info "Invalid XML Acl Body" {:type :invalid-acl-xml})))
+      (throw (ex-info "Invalid XML Acl Body" {:type :invalid-acl-xml
+                                              :status-code 400})))
     policy))
 
 (defn as-xml

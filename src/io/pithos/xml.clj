@@ -261,6 +261,12 @@ Will produce an XML AST equivalent to:
         [:BucketName (:bucket payload)]
         [:HostId reqid]
         [:RequestId reqid]]
+       :invalid-acl-xml
+       [:Error
+        [:Code "MalformedACLError"]
+        [:Message "The XML you provided was not well-formed or did not validate against our published schema."]
+        [:RequestId reqid]
+        [:HostId reqid]]
        :bucket-already-exists
        [:Error
         [:Code "BucketAlreadyExists"]
