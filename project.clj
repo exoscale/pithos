@@ -11,7 +11,7 @@
   :sub ["pithos-quickstart"]
   :dependencies [[org.clojure/clojure       "1.7.0-alpha2"]
                  [org.clojure/data.codec    "0.1.0"]
-                 [org.clojure/data.xml      "0.0.7"]
+                 [org.clojure/data.xml      "0.0.8"]
                  [org.clojure/data.zip      "0.1.1"]
                  [org.clojure/tools.cli     "0.2.4"]
                  [org.clojure/tools.logging "0.3.1"]

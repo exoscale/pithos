@@ -52,16 +52,21 @@ Will produce an XML AST equivalent to:
 
 "
   [input]
-  (letfn [(tag-nodes->xml [[tag & nodes]]
+  (letfn [(seq-nodes->xml [node]
+            (map tag-nodes->xml node))
+          (tag-nodes->xml [[tag & nodes]]
             (let [attrs (if (map? (first nodes)) (first nodes) {})
                   nodes (if (map? (first nodes)) (rest nodes) nodes)]
-              (if (vector? tag)
-                (tag-nodes->xml tag)
-                (->Element (name tag)
-                           attrs
-                           (if (every? sequential? nodes)
-                             (mapv tag-nodes->xml (remove empty? nodes))
-                             (first nodes))))))]
+              (if (every? sequential? nodes)
+                (let [seq-nodes (->> nodes
+                                     (filter (comp vector? first))
+                                     (mapcat seq-nodes->xml))
+                      tag-nodes (->> nodes
+                                     (filter (complement (comp vector? first)))
+                                     (remove empty?)
+                                     (map tag-nodes->xml))]
+                  (->Element (name tag) attrs (vec (concat seq-nodes tag-nodes))))
+                (->Element (name tag) attrs (first nodes)))))]
     (tag-nodes->xml input)))
 
 (defn seq->xmlstr
