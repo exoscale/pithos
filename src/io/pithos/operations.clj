@@ -88,11 +88,11 @@
 (defn get-bucket-acl
   "Retrieve and display bucket ACL as xml"
   [{:keys [bucket bd] {:keys [tenant]} :authorization :as request} system]
-  (let [acl (or (-> (bucket/by-name (system/bucketstore system) bucket)
-                    :acl)
-                (pr-str {:FULL_CONTROL [{:ID tenant}]}))]
+  (let [acl (or (some-> (bucket/by-name (system/bucketstore system) bucket)
+                        :acl
+                        read-string)
+                {:FULL_CONTROL [{:ID tenant}]})]
     (->  acl
-         (read-string)
          (acl/as-xml)
          (xml-response)))
 
