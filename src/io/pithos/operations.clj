@@ -117,16 +117,19 @@
 
 (defn get-object-acl
   "Retrieve and format object acl"
-  [{:keys [od bucket object] :as request} system]
-  (-> (meta/fetch (bucket/metastore od) bucket object)
-      :acl
-      (xml/default)
-      (xml-response)))
+  [{:keys [od bucket object] {:keys [tenant]} :authorization :as request} system]
+  (let [acl (or (some-> (meta/fetch (bucket/metastore od) bucket object)
+                        :acl
+                        read-string)
+                {:FULL_CONTROL [{:ID tenant}]})]
+    (->  acl
+         (acl/as-xml)
+         (xml-response))))
 
 (defn put-object-acl
   "Update object acl"
   [{:keys [od bucket object body] :as request} system]
-  (let [acl (slurp body)]
+  (let [acl (-> (slurp body) (acl/xml->acl) (pr-str))]
     (meta/update! (bucket/metastore od) bucket object {:acl acl})
     (response)))
 
