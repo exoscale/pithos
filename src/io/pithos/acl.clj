@@ -29,13 +29,23 @@
   valid-grantee-tag?
   #{:ID :DisplayName :URI})
 
+(def ^{:doc "List of known URIs"}
+  known-uris
+  {"http://acs.amazonaws.com/groups/global/AllUsers" "anonymous"})
+
+(def ^{:doc "List of known Groups"}
+  known-groups
+  (reduce merge {} (map (juxt val key) known-uris)))
+
 (defn node->grantee-spec
   "Produce a grantee specifier (ID, DisplayName or URI)"
   [n]
   (let [{:keys [tag content]} (node n)
         text                  (first content)]
     (when (and (valid-grantee-tag? tag) (string? text))
-      (hash-map tag text))))
+      (if (= :URI tag)
+        (hash-map tag (or (known-uris text) text))
+        (hash-map tag text)))))
 
 (defn node->grantee
   "Produce a valid grantee."
@@ -93,7 +103,7 @@
       [:Grant
        (if URI
          [:Grantee {:xmlns:xsi xmlns-xsi :xsi:type "Group"}
-          [:URI URI]]
+          [:URI (or (known-groups URI) URI)]]
          [:Grantee {:xmlns:xsi xmlns-xsi :xsi:type "CanonicalUser"}
           [:ID ID]
           [:DisplayName DisplayName]])

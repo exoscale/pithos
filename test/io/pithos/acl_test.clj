@@ -9,7 +9,8 @@
               :acl4 {:FULL_CONTROL [{:ID "foo" :DisplayName "bar"}
                                     {:URI "bar"}]
                      :READ_ACP [{:ID "foo" :DisplayName "bar"}
-                                {:URI "bar"}]}}]
+                                {:URI "bar"}]}
+              :acl5 {:READ [{:URI "anonymous"}]}}]
 
     (doseq [[src int-repr] repr
             :let [path (format "%s.xml" (name src))
