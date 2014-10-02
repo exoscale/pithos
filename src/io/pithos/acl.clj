@@ -86,6 +86,7 @@
     policy))
 
 (defn grant->permission
+  "Generate grant XML tags from a hash map of permissions to grantees"
   [[permission grantees]]
   (let [xmlns-xsi "http://www.w3.org/2001/XMLSchema-instance"]
     (for [{:keys [ID DisplayName URI]} grantees]
