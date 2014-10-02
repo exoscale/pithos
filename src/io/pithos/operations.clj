@@ -7,7 +7,7 @@
             [io.pithos.util         :refer [piped-input-stream
                                             parse-uuid
                                             ->channel-buffer]]
-            [clojure.core.async     :refer [go chan >! <!]]
+            [clojure.core.async     :refer [go chan >! <! put! close!]]
             [clojure.tools.logging  :refer [debug info warn error]]
             [clojure.string         :refer [split]]
             [io.pithos.store        :as store]
@@ -305,12 +305,10 @@
    a new inode which will aggregate all content from parts.
 "
   [{:keys [bucket object upload-id od] :as request} system]
-  (let [[is os]   (piped-input-stream)
+  (let [ch        (chan)
         previous  (desc/init-version od)
         push-str  (fn [type]
-                    (.write os (-> (case type :block "\n" :chunk " " type)
-                                   (.getBytes)))
-                    (.flush os))
+                    (put! ch (case type :block "\n" :chunk " " type)))
         etag      (promise)]
     (future
       (try
@@ -333,12 +331,12 @@
 
           (debug "all streams now flushed")
           (push-str (xml/complete-multipart-upload bucket object
-                                                   (desc/checksum od)))
-          (.flush os)
-          (.close os))
+                                                   (desc/checksum od))))
         (catch Exception e
-          (error e "error in multipart completion"))))
-    (-> (response is)
+          (error e "error in multipart completion"))
+        (finally
+          (close! ch))))
+    (-> (response ch)
         (content-type "application/xml")
         (header "X-Accel-Buffering" "no"))))
 
