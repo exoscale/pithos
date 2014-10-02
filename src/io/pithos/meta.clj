@@ -21,6 +21,7 @@
   (abort-multipart-upload! [this bucket object upload])
   (update-part! [this bucket object upload partno columns])
   (initiate-upload! [this bucket object upload metadata])
+  (get-upload-details [this bucket object upload])
   (list-uploads [this bucket])
   (list-object-uploads [this bucket object])
   (list-upload-parts [this bucket object upload]))
@@ -139,6 +140,12 @@
                           [= :object object]
                           [= :upload upload]])))
 
+(defn get-upload-details-q
+  [bucket object upload]
+  (select :object_uploads (where [[= :bucket bucket]
+                                  [= :object object]
+                                  [= :upload upload]])))
+
 (defn list-object-uploads-q
   "List all uploads of an object"
   [bucket object]
@@ -230,6 +237,9 @@
         (execute session (delete-upload-parts-q bucket object upload)))
       (update-part! [this bucket object upload partno columns]
         (execute session (update-part-q bucket object upload partno columns)))
+      (get-upload-details [this bucket object upload]
+        (first
+         (execute session (get-upload-details-q bucket object upload))))
       (list-uploads [this bucket]
         (execute session (list-uploads-q bucket)))
       (list-object-uploads [this bucket object]
