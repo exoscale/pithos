@@ -303,6 +303,10 @@
 (defn complete-upload
   "To complete an upload, all parts are read and streamed to
    a new inode which will aggregate all content from parts.
+
+   The body of the response is a channel which will be fed keepalive bytes
+   while the parts are streamed. Once all parts have been streamed a final
+   XML payload is pushed out, described the results of the operation.
 "
   [{:keys [bucket object upload-id od] :as request} system]
   (let [ch        (chan)
