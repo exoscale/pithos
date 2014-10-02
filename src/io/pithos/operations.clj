@@ -354,7 +354,7 @@
    permissions"
   {:get-service            {:handler get-service
                             :target  :service
-                            :perms   [:authenticated]}
+                            :perms   [[:memberof "authenticated-users"]]}
    :put-bucket             {:handler put-bucket
                             :perms   [[:memberof "authenticated-users"]]}
    :put-bucket-versioning  {:handler put-bucket-versioning
