@@ -6,6 +6,10 @@ node_modules
 /docs
 /classes
 /checkouts
+/pithos-quickstart
+/site
+/test
+/vagrant
 pom.xml
 pom.xml.asc
 *.jar

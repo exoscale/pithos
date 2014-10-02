@@ -60,7 +60,7 @@ features:
     notes: Makes no sense yet in our case.
   - name: Bucket Lifecycle
     status: "No"
-    notes: Makes no sense yet in our case.
+    notes: Dummy requests and responses supported for client compatibility
   - name: Bucket Requester Pays
     status: "No"
     notes: Makes no sense yet in our case.
@@ -74,6 +74,7 @@ features:
   - name: Object Multipart Uploads
     status: Ok
   - name: Object ACLs
-    status: In Progress
+    status: Ok
+    notes: Public ACLs supported
   - name: Object Torrent
     status: "No"
