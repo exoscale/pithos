@@ -1,5 +1,6 @@
 (ns io.pithos.acl-test
   (:require [clojure.test    :refer :all]
+            [clojure.pprint  :refer [pprint]]
             [io.pithos.acl   :refer [as-xml xml->acl]]
             [clojure.java.io :as io]))
 
@@ -10,26 +11,25 @@
                      :READ_ACP [{:ID "foo" :DisplayName "bar"}
                                 {:URI "bar"}]}}]
 
-    (testing "valid xml input"
-      (doseq [[src int-repr] repr
-              :let [path (format "%s.xml" (name src))
-                    ext-repr (slurp (io/resource path))]]
-        (is (= (xml->acl ext-repr)
-               int-repr))))
+    (doseq [[src int-repr] repr
+            :let [path (format "%s.xml" (name src))
+                  ext-repr (slurp (io/resource path))]]
+      (testing (str "valid xml input for " (name src))
+        (is (= (xml->acl ext-repr) int-repr))))
 
-    (testing "valid xml output"
-      (doseq [[src int-repr] repr
-              :let [path (format "%s.xml" (name src))
-                    ext-repr (slurp (io/resource path))]]
-        (is (= (as-xml int-repr) ext-repr))))
+    (doseq [[src int-repr] repr
+            :let [path (format "%s.xml" (name src))
+                  ext-repr (slurp (io/resource path))]]
+      (testing (str "valid xml output for " (name src))
+               (is (= (as-xml int-repr true) ext-repr))))
 
     (testing "invalid xml"
-      (is (thrown-with-msg? 
+      (is (thrown-with-msg?
            clojure.lang.ExceptionInfo
            #"Invalid XML in ACL Body"
            (xml->acl (slurp (io/resource "acl2.xml")))))
 
-      (is (thrown-with-msg? 
+      (is (thrown-with-msg?
            clojure.lang.ExceptionInfo
            #"XML Root Node should be AccessControlPolicy"
            (xml->acl (slurp (io/resource "acl3.xml"))))))))

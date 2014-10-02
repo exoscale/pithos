@@ -5,24 +5,30 @@
   </Owner>
   <AccessControlList>
     <Grant>
-      <Permission>READ_ACP</Permission>
       <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CanonicalUser">
         <ID>foo</ID>
         <DisplayName>bar</DisplayName>
       </Grantee>
-      <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Group">
-        <URI>bar</URI>
-      </Grantee>
+      <Permission>READ_ACP</Permission>
     </Grant>
     <Grant>
-      <Permission>FULL_CONTROL</Permission>
+      <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Group">
+        <URI>bar</URI>
+      </Grantee>
+      <Permission>READ_ACP</Permission>
+    </Grant>
+    <Grant>
       <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CanonicalUser">
         <ID>foo</ID>
         <DisplayName>bar</DisplayName>
       </Grantee>
+      <Permission>FULL_CONTROL</Permission>
+    </Grant>
+    <Grant>
       <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Group">
         <URI>bar</URI>
       </Grantee>
+      <Permission>FULL_CONTROL</Permission>
     </Grant>
   </AccessControlList>
 </AccessControlPolicy>

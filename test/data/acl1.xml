@@ -5,11 +5,11 @@
   </Owner>
   <AccessControlList>
     <Grant>
-      <Permission>FULL_CONTROL</Permission>
       <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CanonicalUser">
         <ID>foo</ID>
         <DisplayName>bar</DisplayName>
       </Grantee>
+      <Permission>FULL_CONTROL</Permission>
     </Grant>
   </AccessControlList>
 </AccessControlPolicy>
