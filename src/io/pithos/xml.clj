@@ -266,6 +266,14 @@ Will produce an XML AST equivalent to:
         [:BucketName (:bucket payload)]
         [:HostId reqid]
         [:RequestId reqid]]
+       :invalid-argument
+       [:Error
+        [:Code "InvalidArgument"]
+        [:Message "Invalid Argument"]
+        [:ArgumentName (:arg payload)]
+        [:ArgumentValue (:arg payload)]
+        [:HostId reqid]
+        [:RequestId reqid]]
        :invalid-acl-xml
        [:Error
         [:Code "MalformedACLError"]
