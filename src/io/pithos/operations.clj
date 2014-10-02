@@ -224,8 +224,11 @@
 
    Otherwise, data is streamed in."
   [{:keys [od body bucket object authorization] :as request} system]
-  (let [dst      od
-        previous (desc/init-version dst)]
+  (let [dst        od
+        previous   (desc/init-version dst)
+        target-acl (perms/initialize-object (:bd request)
+                                            (:tenant authorization)
+                                            (:headers request))]
 
     (if-let [source (get-in request [:headers "x-amz-copy-source"])]
       ;; we're dealing with a copy object request
@@ -258,6 +261,7 @@
     (when previous
       (blob/delete! (desc/blobstore dst) dst previous))
 
+    (desc/col! dst :acl target-acl)
     (desc/save! dst)
 
     (-> (response)
