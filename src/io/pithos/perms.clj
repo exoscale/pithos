@@ -1,6 +1,7 @@
 (ns io.pithos.perms
   (:require [io.pithos.bucket      :as bucket]
             [io.pithos.system      :as system]
+            [io.pithos.desc        :as desc]
             [clojure.tools.logging :refer [debug]]))
 
 (defmacro ensure!
@@ -11,24 +12,35 @@
      (throw (ex-info "access denied" {:status-code 403
                                       :type        :access-denied}))))
 
+(defn granted-for?
+  "Do current permission allow for operation on this particular perm ?"
+  [acl for needs]
+  (loop [[{:keys [URI DisplayName ID] :as id} & ids] (get acl needs)]
+    (when id
+      (or (= URI for) (= ID for) (recur ids)))))
+
 (defn granted?
   "Do current permissions allow for operation ?"
   [acl needs for]
-  (= (get acl for) needs))
+  (some identity (map (partial granted-for? acl for) needs)))
 
 (defn bucket-satisfies?
   "Ensure sufficient rights for bucket access"
   [{:keys [tenant acl]} {:keys [for groups needs]}]
-  (or (= tenant for)
-      (granted? acl needs for)
-      (some identity (map (partial granted? acl needs) groups))))
+  (let [needs [:FULL_CONTROL needs]
+        acl   (if acl (read-string acl))]
+    (or (= tenant for)
+        (granted? acl needs for)
+        (some identity (map (partial granted? acl needs) groups)))))
 
 (defn object-satisfies?
   "Ensure sufficient rights for object accessp"
   [{tenant :tenant} {acl :acl} {:keys [for groups needs]}]
-  (or (= tenant for)
-      (granted? acl needs for)
-      (some identity (map (partial granted? acl needs) groups))))
+  (let [needs [:FULL_CONTROL needs]
+        acl   (if acl (read-string acl))]
+    (or (= tenant for)
+        (granted? acl needs for)
+        (some identity (map (partial granted? acl needs) groups)))))
 
 (defn authorize
   "Check permission to service operation, each operation has a list
@@ -49,7 +61,7 @@
                                   :needs  arg}))
         :object        (ensure! (object-satisfies?
                                  (bucket/by-name bucketstore bucket)
-                                 nil ;; XXX please fix me
+                                 (desc/object-descriptor system bucket object)
                                  {:for    tenant
                                   :groups memberof?
                                   :needs  arg}))))
