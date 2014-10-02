@@ -9,7 +9,7 @@
        {:URI \"http://groups/group-uri\"}]
       ...}
 "
-  (:require [clojure.data.xml     :refer [parse-str indent-str]]
+  (:require [clojure.data.xml     :refer [parse-str emit-str indent-str]]
             [clojure.zip          :refer [xml-zip node root]]
             [clojure.data.zip     :refer [children]]
             [clojure.data.zip.xml :refer [xml-> xml1-> text]]
@@ -79,32 +79,39 @@
                         :AccessControlList
                         :Grant
                         node->grant)
-        policy   (apply merge-with concat policies)]
+        policy   (apply merge-with (comp vec concat) policies)]
     (when-not (every? valid-permission? (keys policy))
       (throw (ex-info "Invalid XML Acl Body" {:type :invalid-acl-xml
                                               :status-code 400})))
     policy))
 
+(defn grant->permission
+  [[permission grantees]]
+  (let [xmlns-xsi "http://www.w3.org/2001/XMLSchema-instance"]
+    (for [{:keys [ID DisplayName URI]} grantees]
+      [:Grant
+       (if URI
+         [:Grantee {:xmlns:xsi xmlns-xsi :xsi:type "Group"}
+          [:URI URI]]
+         [:Grantee {:xmlns:xsi xmlns-xsi :xsi:type "CanonicalUser"}
+          [:ID ID]
+          [:DisplayName DisplayName]])
+       [:Permission (name permission)]])))
+
 (defn as-xml
   "Given an internal representation of an ACL, output a valid
-   XML representation."
-  [grants]
-  (let [xmlns     "http://s3.amazonaws.com/doc/2006-03-01/"
-        xmlns-xsi "http://www.w3.org/2001/XMLSchema-instance"]
-    (indent-str
-     (seq->xml
-      [:AccessControlPolicy {:xmlns xmlns}
-       [:Owner
-        [:ID "foo"]
-        [:DisplayName "bar"]]
-       (conj (for [[permission grantees] grants]
-               (conj (for [{:keys [ID DisplayName URI]} grantees]
-                       (if URI
-                         [:Grantee {:xmlns:xsi xmlns-xsi :xsi:type "Group"}
-                          [:URI URI]]
-                         [:Grantee {:xmlns:xsi xmlns-xsi :xsi:type "CanonicalUser"}
-                          [:ID ID]
-                          [:DisplayName DisplayName]]))
-                     [:Permission (name permission)]
-                     :Grant))
-             :AccessControlList)]))))
+   XML representation.
+   Optionaly supply a boolean to indicate whether to indent the output"
+  ([grants indent?]
+     (let [xmlns     "http://s3.amazonaws.com/doc/2006-03-01/"
+           format    (if indent? indent-str emit-str)]
+       (format
+        (seq->xml
+         [:AccessControlPolicy {:xmlns xmlns}
+          [:Owner
+           [:ID "foo"]
+           [:DisplayName "bar"]]
+          (apply vector :AccessControlList
+                 (mapcat grant->permission grants))]))))
+  ([grants]
+     (as-xml grants false)))
