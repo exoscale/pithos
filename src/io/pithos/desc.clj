@@ -90,7 +90,7 @@
       (content-type [this]
         (metadata this "content-type" "application/binary"))
       (col! [this field val]
-        (if (#{:size :checksum :inode :version} field)
+        (if (#{:acl :atime :storageclass :size :checksum :inode :version} field)
           (swap! cols assoc (keyword field) val)
           (swap! cols assoc-in [:metadata (name field)] val)))
       (increment! [this]
