@@ -41,10 +41,12 @@
 (defn put-bucket
   "Creates a bucket"
   [{{:keys [tenant]} :authorization :keys [bucket] :as request} system]
-  (bucket/create! (system/bucketstore system) tenant bucket {})
-  (-> (response)
-      (header "Location" (str "/" bucket))
-      (header "Connection" "close")))
+  (let [target-acl (perms/initialize tenant (:headers request))]
+    (bucket/create! (system/bucketstore system) tenant bucket
+                    {:acl target-acl})
+    (-> (response)
+        (header "Location" (str "/" bucket))
+        (header "Connection" "close"))))
 
 (defn delete-bucket
   "Deletes a bucket, only possible if the bucket isn't empty. The bucket
@@ -110,9 +112,9 @@
                                     [:headers "content-type"]
                                     "binary/octet-stream")
         upload-id           (uuid/random)
-        target-acl          (perms/initialize-object (:bd request)
-                                                     (:tenant authorization)
-                                                     (:headers request))]
+        target-acl          (perms/initialize (:bd request)
+                                              (:tenant authorization)
+                                              (:headers request))]
     (meta/initiate-upload! (bucket/metastore od) bucket object
                            upload-id {"content-type" content-type
                                       "acl" target-acl})
@@ -230,9 +232,9 @@
   [{:keys [od body bucket object authorization] :as request} system]
   (let [dst        od
         previous   (desc/init-version dst)
-        target-acl (perms/initialize-object (:bd request)
-                                            (:tenant authorization)
-                                            (:headers request))]
+        target-acl (perms/initialize (:bd request)
+                                     (:tenant authorization)
+                                     (:headers request))]
 
     (if-let [source (get-in request [:headers "x-amz-copy-source"])]
       ;; we're dealing with a copy object request
