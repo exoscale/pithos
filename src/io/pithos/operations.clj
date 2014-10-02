@@ -105,13 +105,17 @@
 
 (defn initiate-upload
   "Start a new upload"
-  [{:keys [od bucket object params] :as request} system]
+  [{:keys [od bucket object params authorization] :as request} system]
   (let [content-type        (get-in request
                                     [:headers "content-type"]
                                     "binary/octet-stream")
-        upload-id           (uuid/random)]
+        upload-id           (uuid/random)
+        target-acl          (perms/initialize-object (:bd request)
+                                                     (:tenant authorization)
+                                                     (:headers request))]
     (meta/initiate-upload! (bucket/metastore od) bucket object
-                           upload-id {"content-type" content-type})
+                           upload-id {"content-type" content-type
+                                      "acl" target-acl})
     (-> (xml/initiate-multipart-upload bucket object upload-id)
         (xml-response))))
 
@@ -317,25 +321,32 @@
         previous  (desc/init-version od)
         push-str  (fn [type]
                     (put! ch (case type :block "\n" :chunk " " type)))
-        etag      (promise)]
+        etag      (promise)
+        details   (meta/get-upload-details (bucket/metastore od)
+                                           bucket object upload-id)]
     (future
       (try
         (when previous
           (desc/increment! od))
         (let [parts (desc/part-descriptors system bucket object upload-id)
               od    (stream/stream-copy-parts parts od push-str)]
+
+          (desc/col! od :acl (get-in details [:metadata "acl"]))
+          (desc/col! od :content-type (get-in details [:metadata "content-type"]))
           (desc/save! od)
 
-          (future
-            ;; This can be time consuming
-            (doseq [part parts]
-              (meta/abort-multipart-upload! (bucket/metastore part)
-                                            bucket
-                                            object
-                                            upload-id)
-              (blob/delete! (desc/blobstore part) part (desc/version part)))
-            (when previous
-              (blob/delete! (desc/blobstore od) od previous)))
+          (doseq [part parts]
+            (push-str :block)
+            (meta/abort-multipart-upload! (bucket/metastore part)
+                                          bucket
+                                          object
+                                          upload-id)
+            (push-str :block)
+            (blob/delete! (desc/blobstore part) part (desc/version part)))
+
+          (when previous
+            (push-str :block)
+            (blob/delete! (desc/blobstore od) od previous))
 
           (debug "all streams now flushed")
           (push-str (xml/complete-multipart-upload bucket object
