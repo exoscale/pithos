@@ -70,23 +70,25 @@
 
 (defn initialize-object
   [bd tenant headers]
-  (let [canned-acl (get headers "x-amz-acl")]
-    (cond
-     canned-acl
-     (let [init {:FULL_CONTROL [{:ID tenant}]}]
-       (pr-str
-        (case canned-acl
-          "public-read-write"  (merge init {:READ  [{:URI "anonymous"}]
-                                            :WRITE [{:URI "anonymous"}]})
-          "public-read"        (merge init {:READ [{:URI "anonymous"}]})
-          "authenticated-read" (merge init {:READ [{:URI "authenticated"}]})
-          "log-delivery-write" init
-          "private"            init
-          nil                  init
-          (throw (ex-info "Invalid Argument"
-                          {:arg "x-amz-acl"
-                           :val canned-acl
-                           :status-code 400
-                           :type :invalid-argument})))))))
+  (let [init       {:FULL_CONTROL [{:ID tenant}]}
+        canned-acl (get headers "x-amz-acl")]
+    (pr-str
+     (cond
 
-)
+      canned-acl
+      (case canned-acl
+        "public-read-write"  (merge init {:READ  [{:URI "anonymous"}]
+                                          :WRITE [{:URI "anonymous"}]})
+        "public-read"        (merge init {:READ [{:URI "anonymous"}]})
+        "authenticated-read" (merge init {:READ [{:URI "authenticated"}]})
+        "log-delivery-write" init
+        "private"            init
+        nil                  init
+        (throw (ex-info "Invalid Argument"
+                        {:arg "x-amz-acl"
+                         :val canned-acl
+                         :status-code 400
+                         :type :invalid-argument})))
+
+      :else
+      init))))
