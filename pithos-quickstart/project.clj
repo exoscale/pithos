@@ -1,4 +1,4 @@
-(defproject io.pithos/pithos-quickstart "0.6.0"
+(defproject io.pithos/pithos-quickstart "0.6.1-SNAPSHOT"
   :description "pithos and cassandra, bundled together"
   :url "http://pithos.io"
   :license {:name "Eclipse Public License"
