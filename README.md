@@ -1,5 +1,6 @@
 pithos: cassandra object storage
 --------------------------------
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/exoscale/pithos?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Pithos is a fully S3 compatible object store developed and used at [exoscale](https://www.exoscale.ch), a public cloud provider.
 
