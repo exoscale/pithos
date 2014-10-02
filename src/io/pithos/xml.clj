@@ -4,7 +4,7 @@
   instead, data structures should be emitted by other subsystems, this
   namespace will then take care of making them suitable for sending out
   on the wire."
-  (:require [clojure.data.xml :refer [->Element emit-str indent-str]]
+  (:require [clojure.data.xml :refer [->Element emit-str]]
             [clojure.pprint   :refer [pprint]]
             [clojure.string   :as s]
             [io.pithos.sig    :as sig]))
@@ -72,7 +72,7 @@ Will produce an XML AST equivalent to:
 (defn seq->xmlstr
   "Given a valid input for `seq->xml` output an xml string"
   [s]
-  (indent-str (seq->xml (vec (remove nil? s)))))
+  (emit-str (seq->xml (vec (remove nil? s)))))
 
 ;; Some common elements for our templates
 
