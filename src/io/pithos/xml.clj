@@ -287,6 +287,12 @@ Will produce an XML AST equivalent to:
         [:BucketName (:bucket payload)]
         [:RequestId reqid]
         [:HostId reqid]]
+       :forbidden
+       [:Error
+        [:Code "Forbidden"]
+        [:Message "Forbidden"]
+        [:RequestId reqid]
+        [:HostId reqid]]
        [:Error
         [:Code "Unknown"]
         [:Message (str exception)]

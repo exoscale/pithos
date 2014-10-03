@@ -143,6 +143,20 @@
       (xml/list-multipart-uploads bucket)
       (xml-response)))
 
+(defn options-bucket
+  [{:keys [bucket headers request-method] :as request} system]
+  (let [cors   (some-> (bucket/by-name (system/bucketstore system) bucket)
+                       :cors
+                       read-string)]
+    (when-not cors
+      (throw (ex-info "Forbidden"
+                      {:type :forbidden
+                       :status-code 403})))
+    (-> (response)
+        (status 204)
+        (update-in [:headers] merge (cors/matches? cors headers
+                                                   request-method)))))
+
 (defn initiate-upload
   "Start a new upload"
   [{:keys [od bucket object params authorization] :as request} system]
@@ -478,6 +492,12 @@
    :get-bucket-uploads     {:handler get-bucket-uploads
                             :perms   [[:bucket :READ]]
                             :target  :bucket}
+   :options-bucket         {:handler options-bucket
+                            :target  :bucket
+                            :perms   [[:object :READ]]}
+   :options-object         {:handler options-bucket
+                            :target  :bucket
+                            :perms   [[:object :READ]]}
    :get-object             {:handler get-object
                             :target  :object
                             :perms   [[:object :READ]]}
