@@ -81,7 +81,16 @@
       (xml-response)))
 
 (defn put-bucket-acl
-  "Update bucket acl"
+  "Update bucket acl, ACLs may be supplied in three different ways:
+
+   - canned ACLs through the `x-amz-acl` header
+   - explicit header ACLs with the `x-amz-acl-grant-*` headers
+   - an XML body conforming to the AWS S3 format
+
+  If several ACL method submission methods are used in the same request,
+  canned ACLs take precedence over explicit header ACLs which take
+  precedence over an XML body
+  "
   [{:keys [bucket body headers authorization] :as request} system]
   (let [header-acl (if (perms/has-header-acl? header)
                      (perms/header-acl (:tenant authorization) headers))
@@ -136,7 +145,16 @@
          (xml-response))))
 
 (defn put-object-acl
-  "Update object acl"
+  "Update object acl, ACLs may be supplied in three different ways:
+
+   - canned ACLs through the `x-amz-acl` header
+   - explicit header ACLs with the `x-amz-acl-grant-*` headers
+   - an XML body conforming to the AWS S3 format
+
+  If several ACL method submission methods are used in the same request,
+  canned ACLs take precedence over explicit header ACLs which take
+  precedence over an XML body
+  "
   [{:keys [od bd headers bucket object body authorization] :as request} system]
   (let [header-acl (if (perms/has-header-acl? headers)
                      (perms/header-acl bd headers (:tenant authorization)))
