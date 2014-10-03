@@ -83,7 +83,16 @@
           :else                         {:URI (or (acl/known-uris dest)
                                                   dest)})))
 
-(defn initialize
+(defn has-header-acl?
+  [headers]
+  (or (get headers "x-amz-acl")
+      (get headers "x-amz-grant-read")
+      (get headers "x-amz-grant-read-acp")
+      (get headers "x-amz-grant-write")
+      (get headers "x-amz-grant-write-acp")
+      (get headers "x-amz-grant-full-control")))
+
+(defn header-acl
   ([bd tenant headers]
      (let [init          {:FULL_CONTROL [{:ID tenant
                                           :DisplayName tenant}]}
@@ -96,7 +105,7 @@
                                  (split #","))
            acl-write-acp (some-> (get headers "x-amz-grant-write-acp")
                                  (split #","))
-           acl-full-ctl  (some-> (get headers "x-amz-bbbgrant-full-control")
+           acl-full-ctl  (some-> (get headers "x-amz-grant-full-control")
                                  (split #","))
            explicit-acl  {:READ         (mapv ->grantee acl-read)
                           :READ_ACP     (mapv ->grantee acl-read-acp)
@@ -154,4 +163,4 @@
          :else
          init))))
   ([tenant headers]
-     (initialize nil tenant headers)))
+     (header-acl nil tenant headers)))
