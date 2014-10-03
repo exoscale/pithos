@@ -53,7 +53,7 @@ Pithos is configured by editing a single file:
 
 ## Data Layout
 
-### Metadata Keyspace
+### Bucketstore Keyspace
 
 Buckets are indexed by tenant and bucket name. They are a simple entity
 that can aggregate common properties across all descendant paths and
@@ -63,7 +63,7 @@ inodes.
 <thead>
 <tr class="header">
 <th align="left">bucket</th>
-<th align="left">key: (tenant,bucket)</th>
+<th align="left">key: bucket</th>
 </tr>
 </thead>
 <tbody>
@@ -72,51 +72,93 @@ inodes.
 <td align="left">text</td>
 </tr>
 <tr class="even">
-<td align="left">bucket</td>
+<td align="left">acl</td>
 <td align="left">text</td>
 </tr>
-<tr class="odd">
-<td align="left">attrs</td>
-<td align="left">map<text,text></td>
+<tr class="even">
+<td align="left">cors</td>
+<td align="left">text</td>
 </tr>
 <tr class="even">
-<td align="left">tags</td>
-<td align="left">set<text></td>
+<td align="left">created</td>
+<td align="left">text</td>
+</tr>
+<tr class="even">
+<td align="left">policy</td>
+<td align="left">text</td>
+</tr>
+<tr class="even">
+<td align="left">region</td>
+<td align="left">text</td>
+</tr>
+<tr class="even">
+<td align="left">tenant</td>
+<td align="left">text <small>(indexed)</small></td>
+</tr>
+<tr class="even">
+<td align="left">versioned</td>
+<td align="left">boolean</td>
 </tr>
 </tbody>
 </table>
 
-Paths allow the construction of an arbitrary tree of inodes. Paths are
+### Metastore Keyspace
+
+Objects allow the construction of an arbitrary tree of inodes. Objects are
 semantically sorted and although the data model does not account for
 hierarchy, the use of user-supplied delimiters can realize ad-hoc
 hierarchies.
 
 As a side-effect, for a specific path prefix, hierarchies are built by
-retrieving all children paths.
+retrieving all children objects.
 
 <table class="table">
 <thead>
 <tr class="header">
-<th align="left">path</th>
-<th align="left">key: ((tenant,bucket),path)</th>
+<th align="left">object</th>
+<th align="left">key: (bucket,object)</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">tenant</td>
-<td align="left">text</td>
-</tr>
 <tr class="even">
 <td align="left">bucket</td>
 <td align="left">text</td>
 </tr>
 <tr class="odd">
-<td align="left">path</td>
+<td align="left">object</td>
 <td align="left">text</td>
 </tr>
 <tr class="even">
 <td align="left">inode</td>
 <td align="left">uuid</td>
+</tr>
+<tr class="even">
+<td align="left">version</td>
+<td align="left">uuid</td>
+</tr>
+<tr class="odd">
+<td align="left">acl</td>
+<td align="left">text</td>
+</tr>
+<tr class="odd">
+<td align="left">atime</td>
+<td align="left">text</td>
+</tr>
+<tr class="odd">
+<td align="left">checksum</td>
+<td align="left">text</td>
+</tr>
+<tr class="odd">
+<td align="left">size</td>
+<td align="left">bigint</td>
+</tr>
+<tr class="odd">
+<td align="left">storageclass</td>
+<td align="left">text</td>
+</tr>
+<tr class="odd">
+<td align="left">metadata</td>
+<td align="left">map&lt;text,text&gt;</td>
 </tr>
 </tbody>
 </table>
