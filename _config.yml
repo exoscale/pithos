@@ -46,7 +46,7 @@ features:
   - name: Bucket Location
     status: Ok
   - name: Bucket ACLs
-    status: In Progress
+    status: Ok
   - name: Bucket CORS
     status: In Progress
   - name: Bucket Versioning
