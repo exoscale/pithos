@@ -20,6 +20,7 @@
             [io.pithos.stream       :as stream]
             [io.pithos.perms        :as perms]
             [io.pithos.acl          :as acl]
+            [io.pithos.cors         :as cors]
             [qbits.alia.uuid        :as uuid]))
 
 (defn assoc-targets
@@ -79,6 +80,31 @@
   [{:keys [bd bucket] :as request} system]
   (-> (xml/bucket-location (bucket/region bd))
       (xml-response)))
+
+(defn get-bucket-cors
+  "Retrieve bucket CORS configuration"
+  [{:keys [bucket]} system]
+  (let [cors (or (some-> (bucket/by-name (system/bucketstore system) bucket)
+                         :cors
+                         read-string)
+                 [])]
+    (-> cors
+        (cors/as-xml)
+        (xml-response))))
+
+(defn delete-bucket-cors
+  "Destroy any previous CORS configuration"
+  [{:keys [bucket]} system]
+  (bucket/update! (system/bucketstore system) bucket {:cors nil})
+  (status (response) 204))
+
+(defn put-bucket-cors
+  "Update bucket CORS configuration"
+  [{:keys [bucket body]} system]
+  (let [cors (-> (slurp body) (cors/xml->cors) (pr-str))]
+    (debug "got cors: " cors)
+    (bucket/update! (system/bucketstore system) bucket {:cors cors})
+    (response)))
 
 (defn put-bucket-acl
   "Update bucket acl, ACLs may be supplied in three different ways:
@@ -428,6 +454,15 @@
    :get-bucket             {:handler get-bucket
                             :target  :bucket
                             :perms   [[:bucket :READ]]}
+   :get-bucket-cors        {:handler get-bucket-cors
+                            :target  :bucket
+                            :perms   [[:bucket :READ]]}
+   :delete-bucket-cors     {:handler delete-bucket-cors
+                            :target  :bucket
+                            :perms   [[:bucket :WRITE]]}
+   :put-bucket-cors        {:handler put-bucket-cors
+                            :target  :bucket
+                            :perms   [[:bucket :WRITE]]}
    :get-bucket-acl         {:handler get-bucket-acl
                             :target  :bucket
                             :perms   [[:bucket :READ_ACP]]}

@@ -63,6 +63,7 @@
 (def subresources
   "known subresources, used when signing"
   {:acl "acl"
+   :cors "cors"
    :lifecycle "lifecycle"
    :location "location"
    :logging "logging"
@@ -175,7 +176,6 @@
         pattern     (re-pattern pattern-str)
         transformer (fn [bucket uri] (str "/" bucket (if (seq uri) uri "/")))]
     (fn [{:keys [uri] {:strs [host] :or {host ""}} :headers :as request}]
-      (comment (debug "got request:\n" (with-out-str (pprint request))))
       (if-let [[_ bucket] (re-find pattern host)]
         (assoc request :uri (transformer bucket uri))
         request))))
