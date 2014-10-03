@@ -41,7 +41,7 @@
 (defn put-bucket
   "Creates a bucket"
   [{{:keys [tenant]} :authorization :keys [bucket] :as request} system]
-  (let [target-acl (perms/initialize tenant (:headers request))]
+  (let [target-acl (perms/header-acl tenant (:headers request))]
     (bucket/create! (system/bucketstore system) tenant bucket
                     {:acl target-acl})
     (-> (response)
@@ -82,8 +82,11 @@
 
 (defn put-bucket-acl
   "Update bucket acl"
-  [{:keys [bucket body] :as request} system]
-  (let [acl (-> (slurp body) (acl/xml->acl) (pr-str))]
+  [{:keys [bucket body headers authorization] :as request} system]
+  (let [header-acl (if (perms/has-header-acl? header)
+                     (perms/header-acl (:tenant authorization) headers))
+        acl        (or header-acl
+                       (-> (slurp body) (acl/xml->acl) (pr-str)))]
     (bucket/update! (system/bucketstore system) bucket {:acl acl})
     (response)))
 
@@ -112,7 +115,7 @@
                                     [:headers "content-type"]
                                     "binary/octet-stream")
         upload-id           (uuid/random)
-        target-acl          (perms/initialize (:bd request)
+        target-acl          (perms/header-acl (:bd request)
                                               (:tenant authorization)
                                               (:headers request))]
     (meta/initiate-upload! (bucket/metastore od) bucket object
@@ -134,8 +137,11 @@
 
 (defn put-object-acl
   "Update object acl"
-  [{:keys [od bucket object body] :as request} system]
-  (let [acl (-> (slurp body) (acl/xml->acl) (pr-str))]
+  [{:keys [od bd headers bucket object body authorization] :as request} system]
+  (let [header-acl (if (perms/has-header-acl? headers)
+                     (perms/header-acl bd headers (:tenant authorization)))
+        acl        (or header-acl
+                       (-> (slurp body) (acl/xml->acl) (pr-str)))]
     (meta/update! (bucket/metastore od) bucket object {:acl acl})
     (response)))
 
@@ -232,7 +238,7 @@
   [{:keys [od body bucket object authorization] :as request} system]
   (let [dst        od
         previous   (desc/init-version dst)
-        target-acl (perms/initialize (:bd request)
+        target-acl (perms/header-acl (:bd request)
                                      (:tenant authorization)
                                      (:headers request))]
 
