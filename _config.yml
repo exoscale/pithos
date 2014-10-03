@@ -48,7 +48,7 @@ features:
   - name: Bucket ACLs
     status: Ok
   - name: Bucket CORS
-    status: In Progress
+    status: Ok
   - name: Bucket Versioning
     status: Incomplete
     notes: Object stored versioned but no way to retrieve previous versions yet.
