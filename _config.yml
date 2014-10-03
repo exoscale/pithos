@@ -59,7 +59,7 @@ features:
     status: "No"
     notes: Makes no sense yet in our case.
   - name: Bucket Lifecycle
-    status: "No"
+    status: "Ok"
     notes: Dummy requests and responses supported for client compatibility
   - name: Bucket Requester Pays
     status: "No"
