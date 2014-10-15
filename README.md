@@ -1,7 +1,8 @@
 pithos: cassandra object storage
 --------------------------------
 
-Pithos is a fully S3 compatible object store developed and used at [exoscale](https://www.exoscale.ch), a public cloud provider.
+Pithos is an S3-compatible object store leveraging cassandra
+to distribute contents horizontally.
 
 The full design documentation and schema layout is available [here](doc/design.org)
 
