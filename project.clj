@@ -18,6 +18,7 @@
                  [org.clojure/tools.cli         "0.3.1"]
                  [org.clojure/tools.logging     "0.3.1"]
                  [org.clojure/core.async        "0.1.346.0-17112a-alpha"]
+                 [org.spootnik/logconfig        "0.7.2"]
                  [clj-yaml                      "0.4.0"]
                  [clout                         "2.0.0"]
                  [ring/ring-codec               "1.0.0"]
