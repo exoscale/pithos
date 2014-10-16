@@ -3,7 +3,6 @@ _site
 node_modules
 /target
 /lib
-/docs
 /classes
 /checkouts
 /pithos-quickstart

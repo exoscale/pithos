@@ -1,0 +1,14 @@
+Client compatibility list
+=========================
+
+s3cmd
+-----
+
+boto
+----
+
+cyberduck
+---------
+
+owncloud
+--------
