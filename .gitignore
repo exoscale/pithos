@@ -1,6 +1,8 @@
 _site
 .sass-cache
 node_modules
+/doc/source
+/doc/Makefile
 /target
 /lib
 /classes
