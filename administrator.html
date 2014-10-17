@@ -1,0 +1,499 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Administrator Guide &mdash; pithos strong-poseidon documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="pithos strong-poseidon documentation" href="index.html"/>
+        <link rel="next" title="S3 API" href="api.html"/>
+        <link rel="prev" title="Design and Concepts" href="concepts.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> pithos</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#obtaining-pithos">Obtaining pithos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#minimal-configuration">Minimal configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#running-pithos">Running pithos</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Design and Concepts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html#s3-concepts">S3 Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html#cassandra-concepts">Cassandra concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html#pithos-architecture">Pithos Architecture</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Administrator Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview-of-configuration">Overview of configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#choosing-your-topology">Choosing your topology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-file">Configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-non-default-stores">Using non-default stores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuring-apache-cassandra">Configuring Apache Cassandra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#enabling-ssl">Enabling SSL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reverse-proxying-pithos">Reverse proxying pithos</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">S3 API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#soap-vs-rest">Soap vs. Rest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#api-feature-matrix">API Feature matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#common-headers">Common Headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#operations-overview">Operations Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#service-operations">Service Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#request-signature">Request Signature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#acl-format">ACL Format</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="developer.html#creating-alternative-store-implementations">Creating alternative store implementations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="clients.html">Client compatibility list</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#s3cmd">s3cmd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#boto">boto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#cyberduck">cyberduck</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#owncloud">owncloud</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">pithos</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Administrator Guide</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/administrator.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="administrator-guide">
+<h1>Administrator Guide<a class="headerlink" href="#administrator-guide" title="Permalink to this headline">¶</a></h1>
+<p>This section describes common operations and deploy strategies for
+<em>pithos</em>.</p>
+<div class="section" id="overview-of-configuration">
+<h2>Overview of configuration<a class="headerlink" href="#overview-of-configuration" title="Permalink to this headline">¶</a></h2>
+<p>Configuring <em>pithos</em> involves configuring the following components:</p>
+<ul class="simple">
+<li>At least one Apache Cassandra cluster</li>
+<li>Pithos itself</li>
+<li>An optional reverse proxy to handle SSL termination</li>
+<li>Client configuration</li>
+</ul>
+</div>
+<div class="section" id="choosing-your-topology">
+<h2>Choosing your topology<a class="headerlink" href="#choosing-your-topology" title="Permalink to this headline">¶</a></h2>
+<p>Since <em>pithos</em> can target different clusters for its <em>bucketstore</em>, <em>metastore</em> and <em>blobstore</em> (cf <a class="reference internal" href="concepts.html#pithos-architecture"><em>Pithos Architecture</em></a>). A simple deployment will most likely
+use the same cluster and keyspace for all data while a multi-region large set-up would
+span several clusters: a multi-DC one holding the <em>bucketstore</em> and DC-local ones
+for the <em>metastores</em> and <em>blobstores</em>.</p>
+<p>A good rule of thumb would be to separate at least the <em>blobstore</em> from other
+stores early on since most of the data actually lies in it and the rest of
+the stores only hold metadata.</p>
+<p>Additionally you will need to choose between using a pithos daemons colocated
+with cassandra daemons or host them on separate machines (in which case you
+will need to make sure inter-node latency is low).</p>
+</div>
+<div class="section" id="configuration-file">
+<h2>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this headline">¶</a></h2>
+<p>The <em>pithos</em> configuration file is split in several sections:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">logging</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">options</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">service</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">keystore</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">bucketstore</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">metastore</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">blobstore</span></tt></li>
+</ul>
+<div class="section" id="logging-configuration">
+<h3>Logging configuration<a class="headerlink" href="#logging-configuration" title="Permalink to this headline">¶</a></h3>
+<p><em>pithos</em> relies on <a class="reference external" href="http://logging.apache.org/log4j/1.2/">log4j</a> for logging. To provide an easier way
+to configure logging than the standard approach of supplying a
+<tt class="docutils literal"><span class="pre">log4j.properties</span></tt> file.</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">logging</span><span class="p-Indicator">:</span>
+  <span class="l-Scalar-Plain">level</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">info</span>
+  <span class="l-Scalar-Plain">console</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+  <span class="l-Scalar-Plain">files</span><span class="p-Indicator">:</span>
+    <span class="p-Indicator">-</span> <span class="s">&quot;/tmp/pithos.log&quot;</span>
+<span class="c1"># overrides:</span>
+<span class="c1">#   io.exo.pithos: debug</span>
+</pre></div>
+</div>
+<p>The following keys are recognized:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">level</span></tt>: logging level, may be one of: <tt class="docutils literal"><span class="pre">debug</span></tt>, <tt class="docutils literal"><span class="pre">info</span></tt>, <tt class="docutils literal"><span class="pre">warn</span></tt>,
+<tt class="docutils literal"><span class="pre">error</span></tt>, <tt class="docutils literal"><span class="pre">all</span></tt>, <tt class="docutils literal"><span class="pre">fatal</span></tt>, <tt class="docutils literal"><span class="pre">trace</span></tt>, <tt class="docutils literal"><span class="pre">off</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">console</span></tt>: whether to output to the console</li>
+<li><tt class="docutils literal"><span class="pre">json</span></tt>: if true, log in a way compatible with logstash on stdout</li>
+<li><tt class="docutils literal"><span class="pre">pattern</span></tt>: a pattern to be used when logging, formatting options are available at <a class="footnote-reference" href="#id3" id="id1">[1]</a>.</li>
+<li><tt class="docutils literal"><span class="pre">files</span></tt>: a list of files to log to. each entry may either be a string, treated as a path or a map containing a <tt class="docutils literal"><span class="pre">path</span></tt> key and a <tt class="docutils literal"><span class="pre">json</span></tt> key, which when true enables logging in a way compatible with logstash.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you wish to configure logging in ways that pithos&#8217; configuration
+file does not support, <tt class="docutils literal"><span class="pre">logging:</span> <span class="pre">{external:</span> <span class="pre">true}</span></tt> in the config
+will prevent <em>pithos</em> from attempting to modify logging and let you
+supply your own <tt class="docutils literal"><span class="pre">`log4j.properties</span></tt> file.</p>
+</div>
+</div>
+<div class="section" id="global-options">
+<h3>Global options<a class="headerlink" href="#global-options" title="Permalink to this headline">¶</a></h3>
+<p>Only two options are currently recognized in the global options map:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">options</span><span class="p-Indicator">:</span>
+  <span class="l-Scalar-Plain">service-uri</span><span class="p-Indicator">:</span> <span class="s">&#39;s3.example.com&#39;</span>
+  <span class="l-Scalar-Plain">default-region</span><span class="p-Indicator">:</span> <span class="s">&#39;CH-GV1&#39;</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">service-uri</span></tt></dt>
+<dd>Determines on which hostname buckets will be hosted. This is necessary
+since when used without the proxy functionality present in some clients,
+buckets will be accessed using bucket-specific hostnames.</dd>
+<dt><tt class="docutils literal"><span class="pre">default-region</span></tt></dt>
+<dd>Determines which region buckets will be created on.</dd>
+</dl>
+</div>
+<div class="section" id="keystore-configuration">
+<h3>Keystore configuration<a class="headerlink" href="#keystore-configuration" title="Permalink to this headline">¶</a></h3>
+<p><em>pithos</em> does not concern itself with handling tenants.
+The <em>keystore</em> associates API keys with</p>
+<p>By default the keystore implementation reads key information
+from its own config, there are no other public implementations but
+writing your own is straightforward (cf <a class="reference internal" href="developer.html#custom-stores"><em>Creating alternative store implementations</em></a> for details).</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">keystore</span><span class="p-Indicator">:</span>
+  <span class="l-Scalar-Plain">keys</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">AKIAIOSFODNN7EXAMPLE</span><span class="p-Indicator">:</span>
+      <span class="l-Scalar-Plain">tenant</span><span class="p-Indicator">:</span> <span class="s">&#39;email@example.com&#39;</span>
+      <span class="l-Scalar-Plain">secret</span><span class="p-Indicator">:</span> <span class="s">&#39;wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY&#39;</span>
+</pre></div>
+</div>
+<p>This configuration, means that a single tenant <tt class="docutils literal"><span class="pre">email&#64;example.com</span></tt> will exist,
+identified by the <tt class="docutils literal"><span class="pre">AKIAIOSFODNN7EXAMPLE</span></tt> access key and the accompanying
+secret key.</p>
+<p>Additionally, a key entry may have a <tt class="docutils literal"><span class="pre">memberof</span></tt> entry in its output which
+designates which groups a tenant is part of, this is useful when building
+ACLs to allow groups of tenant to operate on an object or bucket.</p>
+</div>
+<div class="section" id="bucketstore-configuration">
+<h3>Bucketstore configuration<a class="headerlink" href="#bucketstore-configuration" title="Permalink to this headline">¶</a></h3>
+<p><em>pithos</em> currently only provides a Cassandra-backed bucketstore.</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">bucketstore</span><span class="p-Indicator">:</span>
+  <span class="l-Scalar-Plain">default-region</span><span class="p-Indicator">:</span> <span class="s">&#39;myregion&#39;</span>
+  <span class="l-Scalar-Plain">cluster</span><span class="p-Indicator">:</span> <span class="s">&#39;localhost&#39;</span>
+  <span class="l-Scalar-Plain">keyspace</span><span class="p-Indicator">:</span> <span class="s">&#39;storage&#39;</span>
+</pre></div>
+</div>
+<p>The default region will be used as the destination to create buckets in
+when unspecified in requests.</p>
+</div>
+<div class="section" id="metastore-configuration">
+<h3>Metastore configuration<a class="headerlink" href="#metastore-configuration" title="Permalink to this headline">¶</a></h3>
+<p><em>pithos</em> needs one <em>metastore</em> per available region, to store
+object metadata for that region.</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">regions</span><span class="p-Indicator">:</span>
+  <span class="l-Scalar-Plain">myregion</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">metastore</span><span class="p-Indicator">:</span>
+      <span class="l-Scalar-Plain">cluster</span><span class="p-Indicator">:</span> <span class="s">&#39;localhost&#39;</span>
+      <span class="l-Scalar-Plain">keyspace</span><span class="p-Indicator">:</span> <span class="s">&#39;storage&#39;</span>
+    <span class="l-Scalar-Plain">storage-classes</span><span class="p-Indicator">:</span>
+      <span class="l-Scalar-Plain">standard</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">cluster</span><span class="p-Indicator">:</span> <span class="s">&#39;localhost&#39;</span>
+        <span class="l-Scalar-Plain">keyspace</span><span class="p-Indicator">:</span> <span class="s">&#39;storage&#39;</span>
+        <span class="l-Scalar-Plain">max-chunk</span><span class="p-Indicator">:</span> <span class="s">&#39;128k&#39;</span>
+        <span class="l-Scalar-Plain">max-block-chunks</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1024</span>
+</pre></div>
+</div>
+<p>The bulk of the config is simple and accepts the same option than
+the <em>bucketstore</em> configuration. There may be as many regions as
+necessary.</p>
+<p>The <tt class="docutils literal"><span class="pre">storage-classes</span></tt> key is used to provide a list of <em>blobstore</em>
+clusters for a region, each providing a specific storage class
+(cf <a class="reference internal" href="concepts.html#s3-concepts"><em>S3 Concepts</em></a> for details).</p>
+</div>
+<div class="section" id="blobstore-configuration">
+<h3>Blobstore configuration<a class="headerlink" href="#blobstore-configuration" title="Permalink to this headline">¶</a></h3>
+<p>As shown above, <em>blobstore</em> configuration happens within the storage class
+blocks in regions:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">storage-classes</span><span class="p-Indicator">:</span>
+  <span class="l-Scalar-Plain">standard</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">cluster</span><span class="p-Indicator">:</span> <span class="s">&#39;localhost&#39;</span>
+    <span class="l-Scalar-Plain">keyspace</span><span class="p-Indicator">:</span> <span class="s">&#39;storage&#39;</span>
+    <span class="l-Scalar-Plain">max-chunk</span><span class="p-Indicator">:</span> <span class="s">&#39;128k&#39;</span>
+    <span class="l-Scalar-Plain">max-block-chunks</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1024</span>
+</pre></div>
+</div>
+<p><em>blobstore</em> are named (here, <cite>standard</cite> is used) and have a maximum
+chunk size as well as maximum block chunks.</p>
+</div>
+</div>
+<div class="section" id="using-non-default-stores">
+<h2>Using non-default stores<a class="headerlink" href="#using-non-default-stores" title="Permalink to this headline">¶</a></h2>
+<p>The <em>pithos</em> configuration file format supports a very lightweight
+and unobtrusive dependency injection syntax. What this allows you
+to do is provide your own implementation of stores.</p>
+<p>One of the typical use-cases would be to swap the default <em>keystore</em>
+implementation with one which is able to interface with your infrastructure&#8217;s
+credential store.</p>
+<p>If you have an alternative keystore implementation you will need to fulfill
+these two steps to be able to use it:</p>
+<ul class="simple">
+<li>Make sure the compiled code is available on the JVM&#8217;s <a class="reference external" href="http://docs.oracle.com/javase/tutorial/essential/environment/paths.html">classpath</a></li>
+<li>Instruct <em>pithos</em> to use it instead of the default through the <tt class="docutils literal"><span class="pre">use</span></tt> directive.</li>
+</ul>
+<p>Pretending you have an alternative <em>keystore</em> implementation exposed as the
+<tt class="docutils literal"><span class="pre">com.example.http-keystore/http-keystore</span></tt> namespace, which connects to an
+HTTP url to retrieve credentials,
+living in a <strong>JAR</strong> archive at <tt class="docutils literal"><span class="pre">/usr/lib/pithos-http-keystore.jar</span></tt>
+you would then need to update the configuration file:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">keystore</span><span class="p-Indicator">:</span>
+  <span class="l-Scalar-Plain">use</span><span class="p-Indicator">:</span> <span class="s">&quot;com.example.http-keystore/http-keystore&quot;</span>
+  <span class="l-Scalar-Plain">url</span><span class="p-Indicator">:</span> <span class="s">&quot;http://my-endpoint&quot;</span>
+  <span class="l-Scalar-Plain">user</span><span class="p-Indicator">:</span> <span class="s">&quot;foo&quot;</span>
+  <span class="l-Scalar-Plain">password</span><span class="p-Indicator">:</span> <span class="s">&quot;bar&quot;</span>
+</pre></div>
+</div>
+<p>And start pithos in the following manner:</p>
+<div class="highlight-python"><div class="highlight"><pre>CLASSPATH=/usr/lib/pithos/pithos-http-keystore.jar:/usr/lib/pithos/pithos.jar
+java -cp  $CLASSPATH io.pithos -f pithos.yaml
+</pre></div>
+</div>
+<p>While this example targets the keystore, alternative implementations can be provided
+for <em>bucketstore</em>, <em>metatstore</em>, <em>blobstore</em> and even <em>service</em> or <em>logging</em>.</p>
+<p>An introductory article on the mechanism used can be found at <a class="footnote-reference" href="#id4" id="id2">[2]</a></p>
+</div>
+<div class="section" id="configuring-apache-cassandra">
+<h2>Configuring Apache Cassandra<a class="headerlink" href="#configuring-apache-cassandra" title="Permalink to this headline">¶</a></h2>
+<p>This section is in no way a replacement for Apache Cassandra&#8217;s documentation, but
+a few pointers can be helpful when configuring your clusters for <em>pithos</em>.</p>
+<div class="section" id="bucketstore-and-metastore-clusters">
+<h3>Bucketstore and Metastore Clusters<a class="headerlink" href="#bucketstore-and-metastore-clusters" title="Permalink to this headline">¶</a></h3>
+<p>The <em>bucketstore</em> and <em>metastore</em> clusters can share the same properties, they should:</p>
+<ul class="simple">
+<li>Provide fast access to metadata</li>
+<li>Be as consistent as possible</li>
+</ul>
+<p>As such, the following recommendations can be made:</p>
+<dl class="docutils">
+<dt>Strong replication</dt>
+<dd>Metadata corruption could have a strong impact on your cluster, apart from
+data leakage, it would make it much harder to get back to stored data, as
+such you&#8217;ll need to</dd>
+<dt>Fast access</dt>
+<dd>It would make sense to store <em>pithos</em> metadata on SSD-backed storage, to
+provide fast access to metadata.</dd>
+<dt>Decoupling from <em>blobstore</em></dt>
+<dd>Since the amount of data in the <em>bucketstore</em> and <em>metastore</em> is much
+smaller, decoupling it from the <em>blobstore</em> makes a lot of sense</dd>
+<dt>Levelled compaction strategy</dt>
+<dd>The type of workload a <em>bucketstore</em> and <em>metastore</em> will encounter
+makes it a good candidate for levelled compactions.</dd>
+<dt>Conserve tombstores</dt>
+<dd>While keeping it at the default 10 days might be a lot, <tt class="docutils literal"><span class="pre">gc_grace_seconds</span></tt>
+should not be dropped too low on the <em>bucketstore</em> and <em>metastore</em> column
+families.</dd>
+</dl>
+</div>
+<div class="section" id="blobstore-clusters">
+<h3>Blobstore clusters<a class="headerlink" href="#blobstore-clusters" title="Permalink to this headline">¶</a></h3>
+<p>The <em>blobstore</em> cluster is a different beast. You might not have the means to
+provide a full SSD-backed object-store and thus will need to tweak your Cassandra
+cluster to deal with the heavy workload on slower disks:</p>
+<dl class="docutils">
+<dt>Low replication</dt>
+<dd>While data should most likely not be stored at replication factor one, it might
+not make sense to store above 3.</dd>
+<dt>Size tiered compaction strategy</dt>
+<dd>To avoid huge proliferation of SStables, a size-tiered compaction strategy seems
+like the best approach</dd>
+<dt>Disabling of Row cache and Key cache</dt>
+<dd>There is little gain in caching whole inodes, and it should most likely be
+avoided. Our recommendation would be to add an external layer of caching
+for hot objects.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="enabling-ssl">
+<h2>Enabling SSL<a class="headerlink" href="#enabling-ssl" title="Permalink to this headline">¶</a></h2>
+<p><em>pithos</em> currently does not provide a way to serve SSL buckets by itself,
+the best approach is to rely on a separate web server to handle this, such
+as <a class="reference external" href="http://nginx.org">nginx</a>.</p>
+<p>When using SSL, the certificate used should authenticate requests to the
+chosen <cite>service-uri</cite> in the configuration, as well as sub-domains of the
+<cite>service-uri</cite>. For instance, if you have chosen <tt class="docutils literal"><span class="pre">pithos.example.com</span></tt> as
+your <cite>service-uri</cite>, you will need a certificate for <tt class="docutils literal"><span class="pre">pithos.example.com</span></tt> and
+a wildcard certificate for <tt class="docutils literal"><span class="pre">*.pithos.example.com</span></tt> to be able to authenticate
+requests for <tt class="docutils literal"><span class="pre">my-bucket.pithos.example.com</span></tt>, which is the standard way of
+accessing buckets.</p>
+</div>
+<div class="section" id="reverse-proxying-pithos">
+<h2>Reverse proxying pithos<a class="headerlink" href="#reverse-proxying-pithos" title="Permalink to this headline">¶</a></h2>
+<p>There are a few gotchas when placing a reverse proxy in front of <em>pithos</em></p>
+<dl class="docutils">
+<dt>Large request buffers</dt>
+<dd>Since objects sent might be large, it is important to make sure
+that your webserver accepts large input payloads. When using <a class="reference external" href="http://nginx.org">nginx</a>,
+this is done by setting <tt class="docutils literal"><span class="pre">client_max_body_size</span></tt> to something
+appropriate.</dd>
+<dt>Input Buffering</dt>
+<dd>If your webserver (for instance <a class="reference external" href="http://nginx.org">nginx</a>) does not provide a way to
+proxy input chunks one at a time, objects sent will be buffered by
+the webserver before being handed over to <em>pithos</em> which might
+put a strain on the memory consumed by the webservers.</dd>
+<dt>Disabling output buffering</dt>
+<dd><p class="first">Some responses in <em>pithos</em> explicitly ask for buffering to be disabled.
+You can choose to disable buffering altogether in your reverse proxy
+configuration, or instruct your webserver to carry over headers.</p>
+<p class="last">When using <a class="reference external" href="http://nginx.org">nginx</a>, this is done with <tt class="docutils literal"><span class="pre">proxy_pass_header</span> <span class="pre">X-Accel-Buffering</span></tt>.</p>
+</dd>
+</dl>
+<table class="docutils footnote" frame="void" id="id3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="https://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/EnhancedPatternLayout.html">https://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/EnhancedPatternLayout.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><a class="reference external" href="http://spootnik.org/entries/2014/01/25_poor-mans-dependency-injection-in-clojure.html">http://spootnik.org/entries/2014/01/25_poor-mans-dependency-injection-in-clojure.html</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="api.html" class="btn btn-neutral float-right" title="S3 API"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="concepts.html" class="btn btn-neutral" title="Design and Concepts"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Pierre-Yves Ritschard.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'strong-poseidon',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

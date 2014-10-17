@@ -1,0 +1,436 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Developer Guide &mdash; pithos strong-poseidon documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="pithos strong-poseidon documentation" href="index.html"/>
+        <link rel="next" title="Client compatibility list" href="clients.html"/>
+        <link rel="prev" title="S3 API" href="api.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> pithos</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#obtaining-pithos">Obtaining pithos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#minimal-configuration">Minimal configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#running-pithos">Running pithos</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Design and Concepts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html#s3-concepts">S3 Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html#cassandra-concepts">Cassandra concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html#pithos-architecture">Pithos Architecture</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="administrator.html">Administrator Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#overview-of-configuration">Overview of configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#choosing-your-topology">Choosing your topology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuration-file">Configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#using-non-default-stores">Using non-default stores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuring-apache-cassandra">Configuring Apache Cassandra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#enabling-ssl">Enabling SSL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#reverse-proxying-pithos">Reverse proxying pithos</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">S3 API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#soap-vs-rest">Soap vs. Rest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#api-feature-matrix">API Feature matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#common-headers">Common Headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#operations-overview">Operations Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#get-service">GET Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket">GET Bucket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#head-bucket">HEAD Bucket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket">PUT Bucket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket">DELETE Bucket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-cors">GET Bucket CORS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-cors">PUT Bucket CORS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket-cors">DELETE Bucket CORS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-acl">GET Bucket ACL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-acl">PUT Bucket ACL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket-acl">DELETE Bucket ACL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-lifecycle">GET Bucket lifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-lifecycle">PUT Bucket lifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket-lifecycle">DELETE Bucket lifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-versioning">PUT Bucket versioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-versioning">GET Bucket versioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-location">GET Bucket location</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-policy">GET Bucket policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-uploads">GET Bucket uploads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#get-object">GET Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#head-object">HEAD Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#put-object">PUT Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#delete-object">DELETE Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#get-object-acl">GET Object ACL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#put-object-acl">PUT Object ACL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#post-object-uploads">POST Object uploads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#put-object-upload">PUT Object upload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#delete-object-upload">DELETE Object upload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#post-object-upload">POST Object upload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#specifying-acls">Specifying ACLs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#request-signature">Request Signature</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Developer Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#building-pithos-from-source">Building Pithos from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contributing-to-pithos">Contributing to pithos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-alternative-store-implementations">Creating alternative store implementations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="clients.html">Client compatibility list</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#s3cmd">s3cmd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#boto">boto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#cyberduck">cyberduck</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#owncloud">owncloud</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">pithos</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Developer Guide</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/developer.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="developer-guide">
+<h1>Developer Guide<a class="headerlink" href="#developer-guide" title="Permalink to this headline">¶</a></h1>
+<p><em>pithos</em> is an open source project, available on <a class="reference external" href="https://github.com">github</a>:
+<a class="reference external" href="https://github.com/exoscale/pithos">https://github.com/exoscale/pithos</a>.</p>
+<p><em>pithos</em> is developed in <a class="reference external" href="http://clojure.org">clojure</a>, a functional lisp which
+runs on the <strong>JVM</strong>.</p>
+<div class="section" id="building-pithos-from-source">
+<h2>Building Pithos from source<a class="headerlink" href="#building-pithos-from-source" title="Permalink to this headline">¶</a></h2>
+<p><em>pithos</em> is built with <a class="reference external" href="http://leiningen.org">leiningen</a>, to build the
+standard version of <em>pithos</em> just run:</p>
+<div class="highlight-python"><div class="highlight"><pre>lein test
+lein compile :all
+lein uberjar
+</pre></div>
+</div>
+<p>If you wish to quickly test versions as you develop,
+you can run pithos directly from leiningen. You
+should place your test configuration file in
+the <tt class="docutils literal"><span class="pre">site/</span></tt> subdirectory:</p>
+<div class="highlight-python"><div class="highlight"><pre>lein run -- -f site/pithos.yaml
+</pre></div>
+</div>
+</div>
+<div class="section" id="contributing-to-pithos">
+<h2>Contributing to pithos<a class="headerlink" href="#contributing-to-pithos" title="Permalink to this headline">¶</a></h2>
+<p>Contributions to <em>pithos</em> are heavily encouraged.
+The best way to contribute is to work on a separate
+git branch, branching off of the master branch:</p>
+<div class="highlight-python"><div class="highlight"><pre>git pull origin/master
+git checkout -B feature/new-feature
+</pre></div>
+</div>
+<p>Once work is ready, use the github pull-request
+mechanism for a code review to happen.</p>
+</div>
+<div class="section" id="creating-alternative-store-implementations">
+<span id="custom-stores"></span><h2>Creating alternative store implementations<a class="headerlink" href="#creating-alternative-store-implementations" title="Permalink to this headline">¶</a></h2>
+<p>While pithos primarly targets Apache Cassandra,
+nothing prevents alternative implementation to be
+created for all parts of the service.</p>
+<p><em>pithos</em>, through a simple dependency injection
+mechanism allows custom implementations of stores
+to be plugged.</p>
+<p>In clojure parlance, the only requirement an implementation
+must fulfill is to realize the correct protocol.</p>
+<p>Here is a summary of all current protocols:</p>
+<div class="section" id="keystore">
+<h3>Keystore<a class="headerlink" href="#keystore" title="Permalink to this headline">¶</a></h3>
+<p>The keystore protocol contains a single-method: <tt class="docutils literal"><span class="pre">fetch</span></tt>,
+which given a key ID should return a map containing the
+keys:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">fetch</span></tt></dt>
+<dd><ul class="first last simple">
+<li><tt class="docutils literal"><span class="pre">tenant</span></tt>: the tenant this key belongs to</li>
+<li><tt class="docutils literal"><span class="pre">secret</span></tt>: the associated secret key</li>
+<li><tt class="docutils literal"><span class="pre">memberof</span></tt>: (<em>optional</em>) groups this tenant belongs to</li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-clojure"><div class="highlight"><pre><span class="p">(</span><span class="kd">defprotocol </span><span class="nv">Keystore</span>
+  <span class="p">(</span><span class="nf">fetch</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">id</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="bucketstore">
+<h3>Bucketstore<a class="headerlink" href="#bucketstore" title="Permalink to this headline">¶</a></h3>
+<p>The bucketstore exposes methods to handle buckets:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">converge!</span></tt></dt>
+<dd>Optional method to converge the schema during the <tt class="docutils literal"><span class="pre">install-schema</span></tt> phase.</dd>
+<dt><tt class="docutils literal"><span class="pre">by-tenant</span></tt></dt>
+<dd>Retrieves a list of bucket by tenant</dd>
+<dt><tt class="docutils literal"><span class="pre">by-name</span></tt></dt>
+<dd>Retrieves a bucket by name</dd>
+<dt><tt class="docutils literal"><span class="pre">create!</span></tt></dt>
+<dd>Create a bucket</dd>
+<dt><tt class="docutils literal"><span class="pre">update!</span></tt></dt>
+<dd>Update a bucket</dd>
+<dt><tt class="docutils literal"><span class="pre">delete!</span></tt></dt>
+<dd>Destroys a bucket</dd>
+</dl>
+<div class="highlight-clojure"><div class="highlight"><pre><span class="p">(</span><span class="kd">defprotocol </span><span class="nv">Bucketstore</span>
+  <span class="s">&quot;The bucketstore contains the schema migration function,</span>
+<span class="s">   two bucket lookup functions and CRUD signatures&quot;</span>
+  <span class="p">(</span><span class="nf">converge!</span> <span class="p">[</span><span class="nv">this</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">by-tenant</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">tenant</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">by-name</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">create!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">tenant</span> <span class="nv">bucket</span> <span class="nv">columns</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">update!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">columns</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">delete!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="metastore">
+<h3>Metastore<a class="headerlink" href="#metastore" title="Permalink to this headline">¶</a></h3>
+<p>The metastore exposes methods to handle bucket metadata:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">converge!</span></tt></dt>
+<dd>Optional method to converge the schema during the <tt class="docutils literal"><span class="pre">install-schema</span></tt> phase.</dd>
+<dt><tt class="docutils literal"><span class="pre">fetch</span></tt></dt>
+<dd>Retrieves an object&#8217;s metdata</dd>
+<dt><tt class="docutils literal"><span class="pre">prefixes</span></tt></dt>
+<dd>Lists objects</dd>
+<dt><tt class="docutils literal"><span class="pre">update!</span></tt></dt>
+<dd>Updates an object&#8217;s properties</dd>
+<dt><tt class="docutils literal"><span class="pre">delete!</span></tt></dt>
+<dd>Destroys an object</dd>
+<dt><tt class="docutils literal"><span class="pre">abort-multipart-upload!</span></tt></dt>
+<dd>Aborts a multipart upload</dd>
+<dt><tt class="docutils literal"><span class="pre">update-part!</span></tt></dt>
+<dd>Updates a multipart upload&#8217;s part metadata</dd>
+<dt><tt class="docutils literal"><span class="pre">initiate-upload!</span></tt></dt>
+<dd>Stores metadata for a multipart upload</dd>
+<dt><tt class="docutils literal"><span class="pre">get-upload-details</span></tt></dt>
+<dd>Retrieves metadata on an ongoing upload</dd>
+<dt><tt class="docutils literal"><span class="pre">list-uploads</span></tt></dt>
+<dd>Lists all uploads for a bucket</dd>
+<dt><tt class="docutils literal"><span class="pre">list-object-uploads</span></tt></dt>
+<dd>Lists all uploads for an object</dd>
+<dt><tt class="docutils literal"><span class="pre">list-upload-parts</span></tt></dt>
+<dd>Lists registered upload parts for an upload.</dd>
+</dl>
+<div class="highlight-clojure"><div class="highlight"><pre><span class="p">(</span><span class="kd">defprotocol </span><span class="nv">Metastore</span>
+  <span class="s">&quot;All necessary functions to manipulate bucket metadata&quot;</span>
+  <span class="p">(</span><span class="nf">converge!</span> <span class="p">[</span><span class="nv">this</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">fetch</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span><span class="p">]</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span> <span class="nv">fail?</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">prefixes</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">params</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">update!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span> <span class="nv">columns</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">delete!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">abort-multipart-upload!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span> <span class="nv">upload</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">update-part!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span> <span class="nv">upload</span> <span class="nv">partno</span> <span class="nv">columns</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">initiate-upload!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span> <span class="nv">upload</span> <span class="nv">metadata</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">get-upload-details</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span> <span class="nv">upload</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">list-uploads</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">list-object-uploads</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">list-upload-parts</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span> <span class="nv">upload</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="blobstore">
+<h3>Blobstore<a class="headerlink" href="#blobstore" title="Permalink to this headline">¶</a></h3>
+<p>The blobstore expores methods to store and retrieve data:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">converge!</span></tt></dt>
+<dd>Optional method to converge the schema during the <tt class="docutils literal"><span class="pre">install-schema</span></tt> phase.</dd>
+<dt><tt class="docutils literal"><span class="pre">delete!</span></tt></dt>
+<dd>Destroys an inode</dd>
+<dt><tt class="docutils literal"><span class="pre">blocks</span></tt></dt>
+<dd>Retrieves blocks from an object descriptor</dd>
+<dt><tt class="docutils literal"><span class="pre">max-chunk</span></tt></dt>
+<dd>Maximum chunk-size for this blobstore</dd>
+<dt><tt class="docutils literal"><span class="pre">chunks</span></tt></dt>
+<dd>Retrieve chunks from a starting offset</dd>
+<dt><tt class="docutils literal"><span class="pre">start-block!</span></tt></dt>
+<dd>Mark the start of a block</dd>
+<dt><tt class="docutils literal"><span class="pre">chunk!</span></tt></dt>
+<dd>Store a chunk</dd>
+<dt><tt class="docutils literal"><span class="pre">boundary?</span></tt></dt>
+<dd>Check if a block boundary has been reached</dd>
+</dl>
+<div class="highlight-clojure"><div class="highlight"><pre><span class="p">(</span><span class="kd">defprotocol </span><span class="nv">Blobstore</span>
+  <span class="s">&quot;The blobstore protocol, provides methods to read and write data</span>
+<span class="s">   to inodes, as well as a schema migration function.</span>
+<span class="s">   &quot;</span>
+  <span class="p">(</span><span class="nf">converge!</span> <span class="p">[</span><span class="nv">this</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">delete!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">inode</span> <span class="nv">version</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">blocks</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">od</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">max-chunk</span> <span class="p">[</span><span class="nv">this</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">chunks</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">od</span> <span class="nv">block</span> <span class="nv">offset</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">start-block!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">od</span> <span class="nv">block</span> <span class="nv">offset</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">chunk!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">od</span> <span class="nv">block</span> <span class="nv">offset</span> <span class="nv">chunk</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">boundary?</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">block</span> <span class="nv">offset</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="an-alternative-keystore">
+<h3>An alternative keystore<a class="headerlink" href="#an-alternative-keystore" title="Permalink to this headline">¶</a></h3>
+<p>The simplest example would be to create an alternative keystore.
+Let&#8217;s pretend a simple, non-authenticated API is used to provide
+credential results.</p>
+<div class="highlight-clojure"><div class="highlight"><pre><span class="p">(</span><span class="kd">ns </span><span class="nv">com.example.http-keystore</span>
+  <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">qbits.jet.client.http</span> <span class="ss">:as</span> <span class="nv">http</span><span class="p">]</span>
+            <span class="p">[</span><span class="nv">io.pithos.keystore</span>    <span class="ss">:as</span> <span class="nv">ks</span><span class="p">]</span>
+            <span class="p">[</span><span class="nv">clojure.core.async</span>    <span class="ss">:refer</span> <span class="p">[</span><span class="nv">&lt;!!</span><span class="p">]]))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">http-keystore</span>
+  <span class="p">[{</span><span class="ss">:keys</span> <span class="p">[</span><span class="nv">base-url</span><span class="p">]}]</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">client</span> <span class="p">(</span><span class="nf">http/client</span><span class="p">)]</span>
+    <span class="p">(</span><span class="nf">reify</span> <span class="nv">ks/Keystore</span>
+      <span class="p">(</span><span class="nf">fetch</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">key</span><span class="p">]</span>
+        <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">url</span>  <span class="p">(</span><span class="nb">str </span><span class="nv">base-url</span> <span class="s">&quot;/&quot;</span> <span class="nv">key</span><span class="p">)</span>
+              <span class="nv">opts</span> <span class="p">{</span><span class="ss">:as</span> <span class="ss">:json</span><span class="p">}</span>
+              <span class="nv">resp</span> <span class="p">(</span><span class="nf">&lt;!!</span> <span class="p">(</span><span class="nf">http/get</span> <span class="nv">client</span> <span class="nv">url</span> <span class="nv">opts</span><span class="p">))]</span>
+          <span class="p">(</span><span class="nb">when </span><span class="p">(</span><span class="nb">= </span><span class="p">(</span><span class="ss">:status</span> <span class="nv">resp</span><span class="p">)</span> <span class="mi">200</span><span class="p">)</span>
+            <span class="p">(</span><span class="nf">&lt;!!</span> <span class="p">(</span><span class="ss">:body</span> <span class="nv">resp</span><span class="p">))))))))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="clients.html" class="btn btn-neutral float-right" title="Client compatibility list"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="api.html" class="btn btn-neutral" title="S3 API"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Pierre-Yves Ritschard.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'strong-poseidon',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

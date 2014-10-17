@@ -1,0 +1,1068 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>S3 API &mdash; pithos strong-poseidon documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="pithos strong-poseidon documentation" href="index.html"/>
+        <link rel="next" title="Developer Guide" href="developer.html"/>
+        <link rel="prev" title="Administrator Guide" href="administrator.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> pithos</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#obtaining-pithos">Obtaining pithos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#minimal-configuration">Minimal configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#running-pithos">Running pithos</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Design and Concepts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html#s3-concepts">S3 Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html#cassandra-concepts">Cassandra concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html#pithos-architecture">Pithos Architecture</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="administrator.html">Administrator Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#overview-of-configuration">Overview of configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#choosing-your-topology">Choosing your topology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuration-file">Configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#using-non-default-stores">Using non-default stores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuring-apache-cassandra">Configuring Apache Cassandra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#enabling-ssl">Enabling SSL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#reverse-proxying-pithos">Reverse proxying pithos</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">S3 API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#soap-vs-rest">Soap vs. Rest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-feature-matrix">API Feature matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#common-headers">Common Headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#operations-overview">Operations Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-service">GET Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-bucket">GET Bucket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#head-bucket">HEAD Bucket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#put-bucket">PUT Bucket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#delete-bucket">DELETE Bucket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-bucket-cors">GET Bucket CORS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#put-bucket-cors">PUT Bucket CORS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#delete-bucket-cors">DELETE Bucket CORS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-bucket-acl">GET Bucket ACL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#put-bucket-acl">PUT Bucket ACL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#delete-bucket-acl">DELETE Bucket ACL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-bucket-lifecycle">GET Bucket lifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#put-bucket-lifecycle">PUT Bucket lifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#delete-bucket-lifecycle">DELETE Bucket lifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#put-bucket-versioning">PUT Bucket versioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-bucket-versioning">GET Bucket versioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-bucket-location">GET Bucket location</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-bucket-policy">GET Bucket policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-bucket-uploads">GET Bucket uploads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-object">GET Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#head-object">HEAD Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#put-object">PUT Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#delete-object">DELETE Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-object-acl">GET Object ACL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#put-object-acl">PUT Object ACL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#post-object-uploads">POST Object uploads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#put-object-upload">PUT Object upload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#delete-object-upload">DELETE Object upload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#post-object-upload">POST Object upload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#specifying-acls">Specifying ACLs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#request-signature">Request Signature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="developer.html#building-pithos-from-source">Building Pithos from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer.html#contributing-to-pithos">Contributing to pithos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer.html#creating-alternative-store-implementations">Creating alternative store implementations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="clients.html">Client compatibility list</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#s3cmd">s3cmd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#boto">boto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#cyberduck">cyberduck</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#owncloud">owncloud</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">pithos</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>S3 API</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/api.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="s3-api">
+<h1>S3 API<a class="headerlink" href="#s3-api" title="Permalink to this headline">¶</a></h1>
+<p>This section describe the subset of the S3 API which is
+covered by pithos.</p>
+<p>The original S3 API documentation can be found at:
+<a class="reference external" href="http://docs.aws.amazon.com/AmazonS3/latest/API/Welcome.html">http://docs.aws.amazon.com/AmazonS3/latest/API/Welcome.html</a></p>
+<div class="section" id="soap-vs-rest">
+<h2>Soap vs. Rest<a class="headerlink" href="#soap-vs-rest" title="Permalink to this headline">¶</a></h2>
+<p><em>pithos</em> as it stands only implements the S3 REST facade,
+not the SOAP facade to the API. It should be noted that
+there are no known S3 clients requiring SOAP functionality,
+there are also no other alternative S3 compatible daemons
+providing the SOAP API.</p>
+</div>
+<div class="section" id="api-feature-matrix">
+<h2>API Feature matrix<a class="headerlink" href="#api-feature-matrix" title="Permalink to this headline">¶</a></h2>
+<p>This simple matrix gives an overview of the API coverage
+provided by pithos.</p>
+<table border="1" class="docutils">
+<caption>Feature Matrix</caption>
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Feature</th>
+<th class="head">Status</th>
+<th class="head">Notes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Authorization</td>
+<td>OK</td>
+<td>Identity management is pluggable.</td>
+</tr>
+<tr class="row-odd"><td>Storage classes</td>
+<td>OK</td>
+<td>Configurable per region.</td>
+</tr>
+<tr class="row-even"><td>Bucket listing</td>
+<td>OK</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Bucket Creation</td>
+<td>OK</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Bucket Deletion</td>
+<td>OK</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Bucket Info</td>
+<td>OK</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Bucket ACLs</td>
+<td>OK</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Bucket CORS</td>
+<td>OK</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Bucket Lifecycle</td>
+<td>OK</td>
+<td>No actual action performed.</td>
+</tr>
+<tr class="row-odd"><td>Object creation</td>
+<td>OK</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Object deletion</td>
+<td>OK</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Object multipart uploads</td>
+<td>OK</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Object ACLs</td>
+<td>OK</td>
+<td>Canned ACLs, Header ACLs, Tenant and Group ACLs.</td>
+</tr>
+<tr class="row-odd"><td>Bucket Versioning</td>
+<td>Unfinished</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Object Torrent</td>
+<td>Not implemented</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Bucket Policy</td>
+<td>Not implemented</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Bucket Logging</td>
+<td>Not implemented</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Bucket Website</td>
+<td>Not implemented</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Bucket Requester Pays</td>
+<td>Not implemented</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="common-headers">
+<h2>Common Headers<a class="headerlink" href="#common-headers" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">Authorization</span></tt></dt>
+<dd><p class="first">When provided, signs the request. The expected format is:</p>
+<div class="highlight-python"><div class="highlight"><pre>Authorization: AWS ACCESS_KEY:SIGNATURE
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="#request-signature"><em>Request Signature</em></a> for details on how to generate the signature.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><em>pithos</em> currently supports version 3 of the request signature method.</p>
+</div>
+<p class="last">When the header isn&#8217;t provided, the request will be treated as anonymous.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">Date</span></tt> and <tt class="docutils literal"><span class="pre">x-amz-date</span></tt></dt>
+<dd>Specifies the date at which the date was present, when <tt class="docutils literal"><span class="pre">x-amz-date</span></tt> is
+present it takes precedence over <tt class="docutils literal"><span class="pre">Date</span></tt>, this allows to bypass the
+automatic setting of <tt class="docutils literal"><span class="pre">Date</span></tt> in some HTTP client libraries.</dd>
+<dt><tt class="docutils literal"><span class="pre">Host</span></tt></dt>
+<dd>Used to specify the bucket</dd>
+</dl>
+</div>
+<div class="section" id="operations-overview">
+<h2>Operations Overview<a class="headerlink" href="#operations-overview" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<caption>Feature Matrix</caption>
+<colgroup>
+<col width="9%" />
+<col width="91%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Operation</th>
+<th class="head">Action</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><a class="reference internal" href="#get-service">GET Service</a></td>
+<td>Lists bucket</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#put-bucket">PUT Bucket</a></td>
+<td>Create bucket</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#delete-bucket">DELETE Bucket</a></td>
+<td>Destroy bucket</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#get-bucket">GET Bucket</a></td>
+<td>Lists objects in bucket</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#head-bucket">HEAD Bucket</a></td>
+<td>Bucket information</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#get-bucket-cors">GET Bucket CORS</a></td>
+<td>Bucket CORS configuration</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#put-bucket-cors">PUT Bucket CORS</a></td>
+<td>Update bucket CORS configuration</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#delete-bucket-cors">DELETE Bucket CORS</a></td>
+<td>Destroy bucket CORS configuration</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#get-bucket-acl">GET Bucket ACL</a></td>
+<td>Bucket ACL configuration</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#put-bucket-acl">PUT Bucket ACL</a></td>
+<td>Update bucket ACL configuration</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#delete-bucket-acl">DELETE Bucket ACL</a></td>
+<td>Destroy bucket ACL configuration</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#get-bucket-versioning">GET Bucket versioning</a></td>
+<td>Bucket versioning configuration</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#put-bucket-versioning">PUT Bucket versioning</a></td>
+<td>Update versioning configuration</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#get-bucket-lifecycle">GET Bucket lifecycle</a></td>
+<td>Bucket lifecycle configuration</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#put-bucket-lifecycle">PUT Bucket lifecycle</a></td>
+<td>Update bucket lifecycle configuration</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#delete-bucket-lifecycle">DELETE Bucket lifecycle</a></td>
+<td>Destroy bucket lifecycle configuration</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#get-bucket-location">GET Bucket location</a></td>
+<td>Retrieve bucket location</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#get-bucket-policy">GET Bucket policy</a></td>
+<td>Retrieve bucket policy</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#get-bucket-uploads">GET Bucket uploads</a></td>
+<td>List multipart uploads</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#get-object">GET Object</a></td>
+<td>Retrieve object</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#head-object">HEAD Object</a></td>
+<td>Retrieve object info</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#put-object">PUT Object</a></td>
+<td>Upload object</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#delete-object">DELETE Object</a></td>
+<td>Destroy object</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#get-object-acl">GET Object ACL</a></td>
+<td>Retrieve object ACL</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#put-object-acl">PUT Object ACL</a></td>
+<td>Update object ACL</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#post-object-uploads">POST Object uploads</a></td>
+<td>Initiate multipart upload</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#put-object-upload">PUT Object upload</a></td>
+<td>Upload multipart upload part</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#delete-object-upload">DELETE Object upload</a></td>
+<td>Abort multipart upload</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#post-object-upload">POST Object upload</a></td>
+<td>Complete multipart upload</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="get-service">
+<span id="id1"></span><h2>GET Service<a class="headerlink" href="#get-service" title="Permalink to this headline">¶</a></h2>
+<p>Returns a list of buckets for a specific tenant.
+The request <strong>must</strong> be authenticated.
+This request accepts <strong>no</strong> parameter.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>GET / HTTP/1.1
+Host: service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;ListAllMyBucketsResult</span> <span class="na">xmlns=</span><span class="s">&quot;http://s3.amazonaws.com/doc/2006-03-01/&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Owner&gt;</span>
+    <span class="nt">&lt;ID&gt;</span>test@example.com<span class="nt">&lt;/ID&gt;</span>
+    <span class="nt">&lt;DisplayName&gt;</span>test@example.com<span class="nt">&lt;/DisplayName&gt;</span>
+  <span class="nt">&lt;/Owner&gt;</span>
+  <span class="nt">&lt;Buckets&gt;</span>
+    <span class="nt">&lt;Bucket&gt;</span>
+      <span class="nt">&lt;Name&gt;</span>my-bucket<span class="nt">&lt;/Name&gt;</span>
+      <span class="nt">&lt;CreationDate&gt;</span>2014-01-01T00:00:00.000Z<span class="nt">&lt;/CreationDate&gt;</span>
+    <span class="nt">&lt;/Bucket&gt;</span>
+  <span class="nt">&lt;/Buckets&gt;</span>
+<span class="nt">&lt;/ListAllMyBucketsResult&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-bucket">
+<span id="id2"></span><h2>GET Bucket<a class="headerlink" href="#get-bucket" title="Permalink to this headline">¶</a></h2>
+<p>Lists objects in buckets. Internally, no hierarchy is maintained between objects.
+Their metadata is only sorted lexicographically. The API provides a way to emulate
+a hierachy through the specification of a <cite>prefix</cite>.</p>
+<dl class="docutils">
+<dt>Request parameters:</dt>
+<dd><ul class="first last simple">
+<li><tt class="docutils literal"><span class="pre">prefix</span></tt>: When present, will only return objects which are prefixed with the supplied string.</li>
+<li><tt class="docutils literal"><span class="pre">delimiter</span></tt>: When present, will split entries according to the supplied string. Entries with no
+delimiter present will appear as <cite>Contents</cite> while entries containing the delimiter will be grouped
+and returned in the <cite>CommonPrefixes</cite> part of the reply.</li>
+<li><tt class="docutils literal"><span class="pre">maxkeys</span></tt>: The maximum number of keys to return.</li>
+<li><tt class="docutils literal"><span class="pre">marker</span></tt>: When present, use the provided marker to access paged results.</li>
+</ul>
+</dd>
+</dl>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>GET /?delimiter=/ HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+  <span class="nt">&lt;ListBucketResult</span> <span class="na">xmlns=</span><span class="s">&quot;http://s3.amazonaws.com/doc/2006-03-01/&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Name&gt;</span>batman<span class="nt">&lt;/Name&gt;</span>
+    <span class="nt">&lt;Prefix&gt;&lt;/Prefix&gt;</span>
+    <span class="nt">&lt;MaxKeys&gt;</span>100<span class="nt">&lt;/MaxKeys&gt;</span>
+    <span class="nt">&lt;Delimiter&gt;</span>/<span class="nt">&lt;/Delimiter&gt;</span>
+    <span class="nt">&lt;IsTruncated&gt;</span>false<span class="nt">&lt;/IsTruncated&gt;</span>
+    <span class="nt">&lt;Contents&gt;</span>
+      <span class="nt">&lt;Key&gt;</span>sample.txt<span class="nt">&lt;/Key&gt;</span>
+      <span class="nt">&lt;LastModified&gt;</span>2014-10-17T12:35:10.423Z<span class="nt">&lt;/LastModified&gt;</span>
+      <span class="nt">&lt;ETag&gt;</span>&quot;a4b7923f7b2df9bc96fb263978c8bc40&quot;<span class="nt">&lt;/ETag&gt;</span>
+      <span class="nt">&lt;Size&gt;</span>1603<span class="nt">&lt;/Size&gt;</span>
+      <span class="nt">&lt;Owner&gt;</span>
+        <span class="nt">&lt;ID&gt;</span>test@example.com<span class="nt">&lt;/ID&gt;</span>
+        <span class="nt">&lt;DisplayName&gt;</span>test@example.com<span class="nt">&lt;/DisplayName&gt;</span>
+      <span class="nt">&lt;/Owner&gt;</span>
+      <span class="nt">&lt;StorageClass&gt;</span>Standard<span class="nt">&lt;/StorageClass&gt;</span>
+   <span class="nt">&lt;/Contents&gt;</span>
+<span class="nt">&lt;/ListBucketResult&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="head-bucket">
+<span id="id3"></span><h2>HEAD Bucket<a class="headerlink" href="#head-bucket" title="Permalink to this headline">¶</a></h2>
+<p>Determine whether a bucket exists and you have permission to access it.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>HEAD / HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 200 OK
+</pre></div>
+</div>
+</div>
+<div class="section" id="put-bucket">
+<span id="id4"></span><h2>PUT Bucket<a class="headerlink" href="#put-bucket" title="Permalink to this headline">¶</a></h2>
+<p>Create a new bucket. This request may use the common ACL headers (cf <a class="reference internal" href="#acl-headers">ACL headers</a>).
+The request <strong>must</strong> be authenticated.
+This request accepts <strong>no</strong> parameters.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>PUT / HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 200 OK
+</pre></div>
+</div>
+</div>
+<div class="section" id="delete-bucket">
+<span id="id5"></span><h2>DELETE Bucket<a class="headerlink" href="#delete-bucket" title="Permalink to this headline">¶</a></h2>
+<p>Destroys a bucket.
+This request accepts <strong>no</strong> parameters.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>PUT / HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 204 No Content
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-bucket-cors">
+<span id="id6"></span><h2>GET Bucket CORS<a class="headerlink" href="#get-bucket-cors" title="Permalink to this headline">¶</a></h2>
+<p>Retrieves the stored CORS profile for the bucket.
+A bucket&#8217;s CORS profile determines how pithos will treat
+<em>OPTIONS</em> request made to both buckets and objects.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>GET /?cors HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;CORSConfiguration&gt;</span>
+   <span class="nt">&lt;CORSRule&gt;</span>
+     <span class="nt">&lt;AllowedOrigin&gt;</span>http://client.example.com<span class="nt">&lt;/AllowedOrigin&gt;</span>
+     <span class="nt">&lt;AllowedMethod&gt;</span>GET<span class="nt">&lt;/AllowedMethod&gt;</span>
+     <span class="nt">&lt;MaxAgeSeconds&gt;</span>3000<span class="nt">&lt;/MaxAgeSec&gt;</span>
+   <span class="nt">&lt;/CORSRule&gt;</span>
+<span class="nt">&lt;/CORSConfiguration&gt;</span>
+</pre></div>
+</div>
+<p>The detailed format of the CORSConfiguration payload is described
+in <a class="reference internal" href="#put-bucket-cors">PUT Bucket CORS</a>.</p>
+</div>
+<div class="section" id="put-bucket-cors">
+<span id="id7"></span><h2>PUT Bucket CORS<a class="headerlink" href="#put-bucket-cors" title="Permalink to this headline">¶</a></h2>
+<p>Updates the stored CORS profile for the bucket. If a previous
+CORS profile existed it will be replaced with the provided one.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>PUT /?cors HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+
+&lt;CORSConfiguration&gt;
+   &lt;CORSRule&gt;
+     &lt;AllowedOrigin&gt;http://client.example.com&lt;/AllowedOrigin&gt;
+     &lt;AllowedMethod&gt;GET&lt;/AllowedMethod&gt;
+     &lt;MaxAgeSeconds&gt;3000&lt;/MaxAgeSec&gt;
+   &lt;/CORSRule&gt;
+&lt;/CORSConfiguration&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 200 OK
+</pre></div>
+</div>
+</div>
+<div class="section" id="delete-bucket-cors">
+<span id="id8"></span><h2>DELETE Bucket CORS<a class="headerlink" href="#delete-bucket-cors" title="Permalink to this headline">¶</a></h2>
+<p>Remove the stored CORS profile for the bucket.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>DELETE /?cors HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 204 No Content
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-bucket-acl">
+<span id="id9"></span><h2>GET Bucket ACL<a class="headerlink" href="#get-bucket-acl" title="Permalink to this headline">¶</a></h2>
+<p>Retrieve a bucket&#8217;s ACL.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>GET /?acl HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;AccessControlPolicy&gt;</span>
+  <span class="nt">&lt;Owner&gt;</span>
+    <span class="nt">&lt;ID&gt;</span>test@example.com<span class="nt">&lt;/ID&gt;</span>
+    <span class="nt">&lt;DisplayName&gt;</span>test@example.com<span class="nt">&lt;/DisplayName&gt;</span>
+  <span class="nt">&lt;/Owner&gt;</span>
+  <span class="nt">&lt;AccessControlList&gt;</span>
+    <span class="nt">&lt;Grant&gt;</span>
+      <span class="nt">&lt;Grantee</span> <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+                                 <span class="na">xsi:type=</span><span class="s">&quot;CanonicalUser&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;ID&gt;</span>test@example.com<span class="nt">&lt;/ID&gt;</span>
+        <span class="nt">&lt;DisplayName&gt;</span>test@example.com<span class="nt">&lt;/DisplayName&gt;</span>
+      <span class="nt">&lt;/Grantee&gt;</span>
+      <span class="nt">&lt;Permission&gt;</span>FULL_CONTROL<span class="nt">&lt;/Permission&gt;</span>
+    <span class="nt">&lt;/Grant&gt;</span>
+  <span class="nt">&lt;/AccessControlList&gt;</span>
+<span class="nt">&lt;/AccessControlPolicy&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="put-bucket-acl">
+<span id="id10"></span><h2>PUT Bucket ACL<a class="headerlink" href="#put-bucket-acl" title="Permalink to this headline">¶</a></h2>
+<p>Update a bucket&#8217;s ACL. ACLs may be provided in one of three ways.</p>
+<ul class="simple">
+<li>As a canned ACL in HTTP headers</li>
+<li>As a simple ACL in HTTP headers</li>
+<li>Using an XML body</li>
+</ul>
+<p>ACLs are treated in this order of priority.
+Please refer to <a class="reference internal" href="#acl-headers">ACL Headers</a> for a complete description
+of Canned and Simple Header ACLs, which may also be used
+when initiating multipart uploads or uploading objects.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>PUT /?acl HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+
+&lt;AccessControlPolicy&gt;
+  &lt;Owner&gt;
+    &lt;ID&gt;test@example.com&lt;/ID&gt;
+    &lt;DisplayName&gt;test@example.com&lt;/DisplayName&gt;
+  &lt;/Owner&gt;
+  &lt;AccessControlList&gt;
+    &lt;Grant&gt;
+      &lt;Grantee xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+                                 xsi:type=&quot;CanonicalUser&quot;&gt;
+        &lt;ID&gt;test@example.com&lt;/ID&gt;
+        &lt;DisplayName&gt;test@example.com&lt;/DisplayName&gt;
+      &lt;/Grantee&gt;
+      &lt;Permission&gt;FULL_CONTROL&lt;/Permission&gt;
+    &lt;/Grant&gt;
+  &lt;/AccessControlList&gt;
+&lt;/AccessControlPolicy&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 200 OK
+</pre></div>
+</div>
+</div>
+<div class="section" id="delete-bucket-acl">
+<span id="id11"></span><h2>DELETE Bucket ACL<a class="headerlink" href="#delete-bucket-acl" title="Permalink to this headline">¶</a></h2>
+<p>Deletes the ACL for a bucket, will revert to an ACL yielding
+full control to the bucket owner.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>DELETE /?acl HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 204 No Content
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-bucket-lifecycle">
+<span id="id12"></span><h2>GET Bucket lifecycle<a class="headerlink" href="#get-bucket-lifecycle" title="Permalink to this headline">¶</a></h2>
+<p>Mock API call, provided for compatibility with some clients which
+always returns a 404 Response, with the <strong>NoSuchLifecycleConfiguration</strong>
+message.</p>
+</div>
+<div class="section" id="put-bucket-lifecycle">
+<span id="id13"></span><h2>PUT Bucket lifecycle<a class="headerlink" href="#put-bucket-lifecycle" title="Permalink to this headline">¶</a></h2>
+<p>Mock API call, provided for compatibility with some clients which
+always yields a 200 response but does not take any action.</p>
+</div>
+<div class="section" id="delete-bucket-lifecycle">
+<span id="id14"></span><h2>DELETE Bucket lifecycle<a class="headerlink" href="#delete-bucket-lifecycle" title="Permalink to this headline">¶</a></h2>
+<p>Mock API call, provided for compatibility with some clients which
+always yields a 204 response but does not take any action.</p>
+</div>
+<div class="section" id="put-bucket-versioning">
+<span id="id15"></span><h2>PUT Bucket versioning<a class="headerlink" href="#put-bucket-versioning" title="Permalink to this headline">¶</a></h2>
+<p>Mock API call, provided for compatibility with some clients which
+always yields a 200 response but does not take any action.</p>
+</div>
+<div class="section" id="get-bucket-versioning">
+<span id="id16"></span><h2>GET Bucket versioning<a class="headerlink" href="#get-bucket-versioning" title="Permalink to this headline">¶</a></h2>
+<p>Mock API call, provided for compatibility with some clients which
+always reports a bucket as unversioned.</p>
+</div>
+<div class="section" id="get-bucket-location">
+<span id="id17"></span><h2>GET Bucket location<a class="headerlink" href="#get-bucket-location" title="Permalink to this headline">¶</a></h2>
+<p>Retrieves the region a bucket is stored in.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>GET /?location HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;LocationConstraint&gt;</span>myregion<span class="nt">&lt;/LocationConstraint&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-bucket-policy">
+<span id="id18"></span><h2>GET Bucket policy<a class="headerlink" href="#get-bucket-policy" title="Permalink to this headline">¶</a></h2>
+<p>Mock API call, provided for compatibility with some clients which
+always reports a bucket&#8217;s policy as inexistent.</p>
+</div>
+<div class="section" id="get-bucket-uploads">
+<span id="id19"></span><h2>GET Bucket uploads<a class="headerlink" href="#get-bucket-uploads" title="Permalink to this headline">¶</a></h2>
+<p>Lists multipart uploads for a bucket. This call accepts the same
+arguments than <a class="reference internal" href="#get-bucket">GET Bucket</a> does, to list uploads based on prefixes
+if necessary.</p>
+<dl class="docutils">
+<dt>Request parameters:</dt>
+<dd><ul class="first last simple">
+<li><tt class="docutils literal"><span class="pre">prefix</span></tt>: When present, will only return objects which are prefixed with the supplied string.</li>
+<li><tt class="docutils literal"><span class="pre">delimiter</span></tt>: When present, will split entries according to the supplied string. Entries with no
+delimiter present will appear as <cite>Contents</cite> while entries containing the delimiter will be grouped
+and returned in the <cite>CommonPrefixes</cite> part of the reply.</li>
+<li><tt class="docutils literal"><span class="pre">max-uploads</span></tt>: The maximum number of uploades to return.</li>
+<li><tt class="docutils literal"><span class="pre">marker</span></tt>: When present, use the provided marker to access paged results.</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="get-object">
+<span id="id20"></span><h2>GET Object<a class="headerlink" href="#get-object" title="Permalink to this headline">¶</a></h2>
+<p>Retrieves an object&#8217;s content.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>GET /myfile HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-python"><div class="highlight"><pre>Content-Type: text/plain
+Content-Length: 5
+
+foo\r\n
+</pre></div>
+</div>
+</div>
+<div class="section" id="head-object">
+<span id="id21"></span><h2>HEAD Object<a class="headerlink" href="#head-object" title="Permalink to this headline">¶</a></h2>
+<p>Asserts that an object exists and that permissions to retrieve it are met and returns
+metadata.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>HEAD /myfile HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-python"><div class="highlight"><pre>Content-Type: text/plain
+Content-Length: 5
+</pre></div>
+</div>
+</div>
+<div class="section" id="put-object">
+<span id="id22"></span><h2>PUT Object<a class="headerlink" href="#put-object" title="Permalink to this headline">¶</a></h2>
+<p>Uploads an object.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>PUT /myfile HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+Content-MD5: &lt;md5-checksum&gt;
+Content-Length: 5
+Expect: 100-continue
+
+foo\r\n
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 100 Continue
+
+HTTP/1.1 200 Ok
+</pre></div>
+</div>
+<p>Objects may be uploaded with header ACLs, as described
+in <a class="reference internal" href="#acl-headers">ACL Headers</a></p>
+</div>
+<div class="section" id="delete-object">
+<span id="id23"></span><h2>DELETE Object<a class="headerlink" href="#delete-object" title="Permalink to this headline">¶</a></h2>
+<p>Destroys an object.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>DELETE /myfile HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 204 No Content
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-object-acl">
+<span id="id24"></span><h2>GET Object ACL<a class="headerlink" href="#get-object-acl" title="Permalink to this headline">¶</a></h2>
+<p>Retrieves the ACL of an object.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>GET /myfile?acl HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;AccessControlPolicy&gt;</span>
+  <span class="nt">&lt;Owner&gt;</span>
+    <span class="nt">&lt;ID&gt;</span>test@example.com<span class="nt">&lt;/ID&gt;</span>
+    <span class="nt">&lt;DisplayName&gt;</span>test@example.com<span class="nt">&lt;/DisplayName&gt;</span>
+  <span class="nt">&lt;/Owner&gt;</span>
+  <span class="nt">&lt;AccessControlList&gt;</span>
+    <span class="nt">&lt;Grant&gt;</span>
+      <span class="nt">&lt;Grantee</span> <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+                                 <span class="na">xsi:type=</span><span class="s">&quot;CanonicalUser&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;ID&gt;</span>test@example.com<span class="nt">&lt;/ID&gt;</span>
+        <span class="nt">&lt;DisplayName&gt;</span>test@example.com<span class="nt">&lt;/DisplayName&gt;</span>
+      <span class="nt">&lt;/Grantee&gt;</span>
+      <span class="nt">&lt;Permission&gt;</span>FULL_CONTROL<span class="nt">&lt;/Permission&gt;</span>
+    <span class="nt">&lt;/Grant&gt;</span>
+  <span class="nt">&lt;/AccessControlList&gt;</span>
+<span class="nt">&lt;/AccessControlPolicy&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="put-object-acl">
+<span id="id25"></span><h2>PUT Object ACL<a class="headerlink" href="#put-object-acl" title="Permalink to this headline">¶</a></h2>
+<p>Update an object&#8217;s ACL. ACLs may be provided in one of three ways.</p>
+<ul class="simple">
+<li>As a canned ACL in HTTP headers</li>
+<li>As a simple ACL in HTTP headers</li>
+<li>Using an XML body</li>
+</ul>
+<p>ACLs are treated in this order of priority.
+Please refer to <a class="reference internal" href="#acl-headers">ACL Headers</a> for a complete description
+of Canned and Simple Header ACLs, which may also be used
+when initiating multipart uploads or uploading objects.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>PUT /myfile?acl HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+
+&lt;AccessControlPolicy&gt;
+  &lt;Owner&gt;
+    &lt;ID&gt;test@example.com&lt;/ID&gt;
+    &lt;DisplayName&gt;test@example.com&lt;/DisplayName&gt;
+  &lt;/Owner&gt;
+  &lt;AccessControlList&gt;
+    &lt;Grant&gt;
+      &lt;Grantee xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+                                 xsi:type=&quot;CanonicalUser&quot;&gt;
+        &lt;ID&gt;test@example.com&lt;/ID&gt;
+        &lt;DisplayName&gt;test@example.com&lt;/DisplayName&gt;
+      &lt;/Grantee&gt;
+      &lt;Permission&gt;FULL_CONTROL&lt;/Permission&gt;
+    &lt;/Grant&gt;
+  &lt;/AccessControlList&gt;
+&lt;/AccessControlPolicy&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 200 OK
+</pre></div>
+</div>
+</div>
+<div class="section" id="post-object-uploads">
+<span id="id26"></span><h2>POST Object uploads<a class="headerlink" href="#post-object-uploads" title="Permalink to this headline">¶</a></h2>
+<p>Most big payloads in pithos should be uploaded through the
+multipart upload mechanism.</p>
+<p>Multipart upload provide you with a way to upload (potentially
+simultaneously) chunks of the object you wish to create and
+then to promote these parts into a single object.</p>
+<p>This request initiates a multipart upload, and yields a new
+upload ID.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>POST /myfile?uploads HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-python"><div class="highlight"><pre>.. sourcecode: xml
+</pre></div>
+</div>
+<blockquote>
+<div><p>&lt;?xml version=&#8221;1.0&#8221; encoding=&#8221;UTF-8&#8221;?&gt;
+&lt;InitiateMultipartUploadResult xmlns=&#8221;<a class="reference external" href="http://s3.amazonaws.com/doc/2006-03-01/">http://s3.amazonaws.com/doc/2006-03-01/</a>&#8220;&gt;</p>
+<blockquote>
+<div>&lt;Bucket&gt;mybucket&lt;/Bucket&gt;
+&lt;Key&gt;myfile&lt;/Key&gt;
+&lt;UploadId&gt;1d4bfa70-26f6-4819-97dd-275bf040f03f&lt;/UploadId&gt;</div></blockquote>
+<p>&lt;/InitiateMultipartUploadResult&gt;</p>
+</div></blockquote>
+<p>The ID may then be used in subsequent calls to <a class="reference internal" href="#put-object-upload">PUT Object upload</a>, <a class="reference internal" href="#delete-object-upload">DELETE Object upload</a>
+and <a class="reference internal" href="#post-object-upload">POST Object upload</a>.</p>
+<p>Additionally, header ACLs may be supplied to determine the access control for the
+resulting object. Pleaser refer to <a class="reference internal" href="#acl-headers">ACL Headers</a> for a full description of possible
+headers.</p>
+</div>
+<div class="section" id="put-object-upload">
+<span id="id27"></span><h2>PUT Object upload<a class="headerlink" href="#put-object-upload" title="Permalink to this headline">¶</a></h2>
+<p>Add a part to an ongoing upload. This request works in a similar fashion than
+the <a class="reference internal" href="#put-object">PUT Object</a> call.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>PUT /myfile?uploadId=1d4bfa70-26f6-4819-97dd-275bf040f03f&amp;partNumber=1 HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+Content-MD5: &lt;md5-checksum&gt;
+Content-Length: 5
+Expect: 100-continue
+
+foo\r\n
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 100 Continue
+
+HTTP/1.1 200 Ok
+</pre></div>
+</div>
+</div>
+<div class="section" id="delete-object-upload">
+<span id="id28"></span><h2>DELETE Object upload<a class="headerlink" href="#delete-object-upload" title="Permalink to this headline">¶</a></h2>
+<p>Aborts an ongoing multipart upload.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>DELETE /myfile?uploadId=1d4bfa70-26f6-4819-97dd-275bf040f03f HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 204 No Content
+</pre></div>
+</div>
+</div>
+<div class="section" id="post-object-upload">
+<span id="id29"></span><h2>POST Object upload<a class="headerlink" href="#post-object-upload" title="Permalink to this headline">¶</a></h2>
+<p>Completes a multipart upload. Assembling all parts in a single object.
+At the moment, <em>pithos</em> will stream all parts, regardless of the provided
+request input.</p>
+<p>This process may take a while to finish and will thus emit whitespace at regular
+intervals to make sure the connection stays up.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>POST /myfile?uploadId=1d4bfa70-26f6-4819-97dd-275bf040f03f HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Response:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;CompleteMultipartUpload&gt;</span>
+  <span class="nt">&lt;Part&gt;</span>
+    <span class="nt">&lt;PartNumber&gt;</span>1<span class="nt">&lt;/PartNumber&gt;</span>
+    <span class="nt">&lt;ETag&gt;</span>&quot;acbd18db4cc2f85cedef654fccc4a4d8&quot;<span class="nt">&lt;/ETag&gt;</span>
+  <span class="nt">&lt;/Part&gt;</span>
+  <span class="nt">&lt;Part&gt;</span>
+    <span class="nt">&lt;PartNumber&gt;</span>2<span class="nt">&lt;/PartNumber&gt;</span>
+    <span class="nt">&lt;ETag&gt;</span>&quot;d41d8cd98f00b204e9800998ecf8427e&quot;<span class="nt">&lt;/ETag&gt;</span>
+  <span class="nt">&lt;/Part&gt;</span>
+<span class="nt">&lt;/CompleteMultipartUpload&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="specifying-acls">
+<h2>Specifying ACLs<a class="headerlink" href="#specifying-acls" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="acl-headers">
+<span id="id30"></span><h3>ACL Headers<a class="headerlink" href="#acl-headers" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="request-signature">
+<span id="id31"></span><h2>Request Signature<a class="headerlink" href="#request-signature" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="developer.html" class="btn btn-neutral float-right" title="Developer Guide"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="administrator.html" class="btn btn-neutral" title="Administrator Guide"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Pierre-Yves Ritschard.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'strong-poseidon',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
