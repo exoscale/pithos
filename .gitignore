@@ -1,4 +1,5 @@
 hs_err_pid*
+/doc/build
 /site
 /target
 /lib
