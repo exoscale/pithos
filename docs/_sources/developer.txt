@@ -1,8 +1,0 @@
-Developer Guide
-===============
-
-Project structure
------------------
-
-Creating an alternative keystore
---------------------------------
