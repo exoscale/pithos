@@ -4,11 +4,11 @@
             [clojure.java.io :as io]))
 
 (deftest xml-slurp-test
-  (let [repr {:cors1 [{:origin ["*"]
-                        :methods ["GET"]
-                        :headers ["*"]
-                        :exposed []
-                        :max-age nil}]}]
+  (let [repr {:cors1 [{:origins ["*"]
+                       :methods [:get]
+                       :headers ["*"]
+                       :exposed []
+                       :max-age nil}]}]
 
     (doseq [[src int-repr] repr
             :let [path (format "%s.xml" (name src))
