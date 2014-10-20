@@ -4,7 +4,10 @@ pithos: cassandra object storage
 Pithos is an S3-compatible object store leveraging cassandra
 to distribute contents horizontally.
 
-The full design documentation and schema layout is available [here](doc/design.org)
+The full design documentation and schema layout is available
+[here](doc/design.org)
+
+![Build Status](https://travis-ci.org/exoscale/pithos.svg)
 
 
 # Prerequisites
