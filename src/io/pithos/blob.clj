@@ -266,7 +266,7 @@
       (chunks [this od block offset]
         (let [ino (d/inode od)
               ver (d/version od)]
-          (seq (execute session (get-chunk-q ino ver block offset limit)))))
+          (seq (execute session (get-chunk-q ino ver block offset max-block-chunks)))))
 
 
       ;;
