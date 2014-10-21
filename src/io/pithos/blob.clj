@@ -275,7 +275,7 @@
       ;;
 
       (delete! [this od version]
-        (let [ino (d/inode od)]
+        (let [ino (if (= (class od) java.util.UUID) od (d/inode od))]
           (doseq [{block :block} (execute session (get-block-q ino version :asc))]
             (execute session (delete-block-q ino version block)))
           (execute session (delete-blockref-q ino version))))
