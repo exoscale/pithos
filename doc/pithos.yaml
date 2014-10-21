@@ -6,9 +6,9 @@ logging:
   console: true
   overrides:
     io.pithos: debug
-  options:
-    service-uri: s3.example.com
-    default-region: myregion
+options:
+  service-uri: s3.example.com
+  default-region: myregion
 keystore:
   keys:
     AKIAIOSFODNN7EXAMPLE:
