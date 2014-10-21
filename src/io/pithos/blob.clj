@@ -35,7 +35,7 @@
             [qbits.alia.uuid       :as uuid]
             [qbits.alia            :refer [execute]]
             [qbits.hayt            :refer [select where columns order-by
-                                           insert values limit delete
+                                           insert values limit delete count*
                                            create-table column-definitions]]
             [io.pithos.util        :refer [md5-update md5-sum md5-init]]
             [clojure.tools.logging :refer [debug info error]]))
@@ -168,6 +168,13 @@
                          [= :version version]
                          [= :block block]])))
 
+(defn cleanup-block-q
+  [inode version block]
+  (select :block (columns (count*))
+          (where [[= :inode inode]
+                  [= :version version]
+                  [= :block block]])))
+
 ;; Data manipulation
 
 (defn last-chunk
@@ -277,7 +284,8 @@
       (delete! [this od version]
         (let [ino (if (= (class od) java.util.UUID) od (d/inode od))]
           (doseq [{block :block} (execute session (get-block-q ino version :asc))]
-            (execute session (delete-block-q ino version block)))
+            (execute session (delete-block-q ino version block))
+            (execute session (cleanup-block-q ino version block)))
           (execute session (delete-blockref-q ino version))))
 
       ;; Writing to inodes is split in two functions:
