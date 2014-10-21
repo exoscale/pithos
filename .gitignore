@@ -1,3 +1,4 @@
+.nrepl-port
 hs_err_pid*
 /doc/build
 /site
