@@ -121,8 +121,8 @@
         {:keys [metastore
                 storage-classes]} (bucket/get-region system region)
         meta                      (meta/fetch metastore bucket object false)
-        inode                     (or (:inode meta) (uuid/random))
-        version                   (or (:version meta) (uuid/time-based))
+        inode                     (uuid/random)
+        version                   (uuid/time-based)
         ;; XXX: should support several storage classes
         blobstore                 (get storage-classes :standard)
         cols                      (atom {})
