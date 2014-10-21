@@ -22,7 +22,7 @@
                  [clj-yaml                      "0.4.0"]
                  [clout                         "2.0.0"]
                  [ring/ring-codec               "1.0.0"]
-                 [cc.qbits/alia                 "2.2.2"]
+                 [cc.qbits/alia                 "2.2.3"]
                  [cc.qbits/jet                  "0.5.0-alpha3"]
                  [net.jpountz.lz4/lz4           "1.2.0"]
                  [org.xerial.snappy/snappy-java "1.1.1.3"]])
