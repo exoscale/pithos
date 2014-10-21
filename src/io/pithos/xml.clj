@@ -149,11 +149,13 @@ Will produce an XML AST equivalent to:
     [:Bucket bucket]
     [:KeyMarker]
     [:UploadIdMarker]
-    (apply vector :Uploads
-           (for [{:keys [object upload]} uploads]
-             [:Upload
-              [:Key object]
-              [:UploadId (str upload)]]))]))
+    [:MaxUploads 1000]
+    [:IsTruncated "false"]
+    (for [{:keys [object upload metadata]} uploads]
+      [:Upload
+       [:Key object]
+       [:Initiated (get metadata "initiated")]
+       [:UploadId (str upload)]])]))
 
 (defn list-upload-parts
   "Template for the list multipart upload parts response"

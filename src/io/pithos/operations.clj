@@ -10,6 +10,7 @@
             [clojure.core.async     :refer [go chan >! <! put! close!]]
             [clojure.tools.logging  :refer [debug info warn error]]
             [clojure.string         :refer [split]]
+            [io.pithos.util         :as util]
             [io.pithos.store        :as store]
             [io.pithos.bucket       :as bucket]
             [io.pithos.meta         :as meta]
@@ -169,7 +170,8 @@
                                               (:headers request))]
     (meta/initiate-upload! (bucket/metastore od) bucket object
                            upload-id {"content-type" content-type
-                                      "acl" target-acl})
+                                      "initiated"    (util/iso8601-timestamp)
+                                      "acl"          target-acl})
     (-> (xml/initiate-multipart-upload bucket object upload-id)
         (xml-response))))
 
