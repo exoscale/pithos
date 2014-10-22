@@ -37,9 +37,14 @@
 (defn get-metadata
   "Retrieve metadata from a request's headers"
   [{:keys [headers]}]
-  (->> headers
-       (filter (comp (partial re-find #"^x-amz-meta") key))
-       (reduce merge {})))
+  (let [valid? (fn [x]
+                 (or (#{"content-type" "content-encoding"
+                        "expires" "cache-control"}
+                      x)
+                     (re-find #"^x-amz-meta" x)))]
+    (reduce merge
+            {"content-type" "application/binary"}
+            (filter (comp valid? key) headers))))
 
 
 (defn get-service
@@ -170,10 +175,7 @@
 (defn initiate-upload
   "Start a new upload"
   [{:keys [od bucket object params authorization] :as request} system]
-  (let [content-type        (get-in request
-                                    [:headers "content-type"]
-                                    "binary/octet-stream")
-        metadata            (get-metadata request)
+  (let [metadata            (get-metadata request)
         upload-id           (uuid/random)
         target-acl          (perms/header-acl (:bd request)
                                               (:tenant authorization)
@@ -183,8 +185,7 @@
                            object
                            upload-id
                            (merge metadata
-                                  {"content-type" content-type
-                                   "initiated"    (util/iso8601-timestamp)
+                                  {"initiated"    (util/iso8601-timestamp)
                                    "acl"          target-acl}))
     (-> (xml/initiate-multipart-upload bucket object upload-id)
         (xml-response))))
@@ -352,8 +353,6 @@
     (when previous
       (blob/delete! (desc/blobstore dst) dst previous))
 
-    (when ctype
-      (desc/col! dst "content-type" ctype))
     (doseq [[k v] metadata]
       (desc/col! dst k v))
     (desc/col! dst :acl target-acl)
