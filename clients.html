@@ -129,6 +129,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#boto">boto</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cyberduck">cyberduck</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#owncloud">owncloud</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#s3fs-s3-fuse-support">s3fs - s3 fuse support</a></li>
 </ul>
 </li>
 </ul>
@@ -170,7 +171,30 @@
 <p>This section needs your help</p>
 <div class="section" id="s3cmd">
 <h2>s3cmd<a class="headerlink" href="#s3cmd" title="Permalink to this headline">¶</a></h2>
-<p>Fully tested with the current API coverage.</p>
+<p>Fully tested with the current API coverage. Here is a minimal
+configuration you can put in <tt class="docutils literal"><span class="pre">~/.s3cfg</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre>[default]
+host_base = s3.example.com
+host_bucket = %(bucket)s.s3.example.com
+access_key = YOUR_ACCESS_KEY
+secret_key = YOUR_SECRET_KEY
+use_https = True
+</pre></div>
+</div>
+<p>Adapt with your credentials and replace <tt class="docutils literal"><span class="pre">s3.example.com</span></tt> with the
+value you specified for <tt class="docutils literal"><span class="pre">service-uri</span></tt>.  <tt class="docutils literal"><span class="pre">use_https</span></tt> is needed only
+if Pithos is served over TLS.</p>
+<p>When testing locally, the following configuration can be used:</p>
+<div class="highlight-python"><div class="highlight"><pre>[default]
+host_base = s3.example.com
+host_bucket = %(bucket)s.s3.example.com
+access_key = YOUR_ACCESS_KEY
+secret_key = YOUR_SECRET_KEY
+use_https = False
+proxy_host = localhost
+proxy_port = 8080
+</pre></div>
+</div>
 </div>
 <div class="section" id="boto">
 <h2>boto<a class="headerlink" href="#boto" title="Permalink to this headline">¶</a></h2>
@@ -182,6 +206,10 @@
 </div>
 <div class="section" id="owncloud">
 <h2>owncloud<a class="headerlink" href="#owncloud" title="Permalink to this headline">¶</a></h2>
+<p>Working support</p>
+</div>
+<div class="section" id="s3fs-s3-fuse-support">
+<h2>s3fs - s3 fuse support<a class="headerlink" href="#s3fs-s3-fuse-support" title="Permalink to this headline">¶</a></h2>
 <p>Working support</p>
 </div>
 </div>
