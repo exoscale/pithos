@@ -39,6 +39,7 @@
   [{:keys [headers]}]
   (let [valid? (fn [x]
                  (or (#{"content-type" "content-encoding"
+                        "content-disposition" "content-language"
                         "expires" "cache-control"}
                       x)
                      (re-find #"^x-amz-meta" x)))]
