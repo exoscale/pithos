@@ -22,3 +22,8 @@ owncloud
 --------
 
 Working support
+
+s3fs - s3 fuse support
+----------------------
+
+Working support
