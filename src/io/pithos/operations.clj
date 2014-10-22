@@ -261,7 +261,7 @@
                                    :bucket bucket
                                    :key object})))
   (-> (response)
-      (content-type "application/binary")
+      (content-type (desc/content-type od))
       (header "ETag" (str "\"" (desc/checksum od) "\""))
       (header "Last-Modified" (str (:atime od)))
       (header "Content-Length" (str (desc/size od)))
