@@ -315,6 +315,7 @@
   [{:keys [od body bucket object authorization] :as request} system]
   (let [dst        od
         previous   (desc/init-version dst)
+        ctype      (get (:headers request) "content-type")
         metadata   (get-metadata request)
         target-acl (perms/header-acl (:bd request)
                                      (:tenant authorization)
@@ -351,6 +352,8 @@
     (when previous
       (blob/delete! (desc/blobstore dst) dst previous))
 
+    (when ctype
+      (desc/col! dst "content-type" ctype))
     (doseq [[k v] metadata]
       (desc/col! dst k v))
     (desc/col! dst :acl target-acl)
@@ -412,8 +415,7 @@
         etag      (promise)
         details   (meta/get-upload-details (bucket/metastore od)
                                            bucket object upload-id)
-        metadata  (-> (:metadata details)
-                      (dissoc "acl" "content-type" "initiated"))]
+        metadata  (-> (:metadata details) (dissoc "acl" "initiated"))]
     (future
       (try
         (when previous
