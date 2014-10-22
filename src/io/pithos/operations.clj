@@ -33,6 +33,15 @@
               :od (desc/object-descriptor system bucket object)
               :upload-id (parse-uuid uploadid))
     req))
+
+(defn get-metadata
+  "Retrieve metadata from a request's headers"
+  [{:keys [headers]}]
+  (->> headers
+       (filter (comp (partial re-find #"^x-amz-meta") key))
+       (reduce merge {})))
+
+
 (defn get-service
   "Lists all buckets for  tenant"
   [{{:keys [tenant]} :authorization :as request} system]
@@ -164,14 +173,19 @@
   (let [content-type        (get-in request
                                     [:headers "content-type"]
                                     "binary/octet-stream")
+        metadata            (get-metadata request)
         upload-id           (uuid/random)
         target-acl          (perms/header-acl (:bd request)
                                               (:tenant authorization)
                                               (:headers request))]
-    (meta/initiate-upload! (bucket/metastore od) bucket object
-                           upload-id {"content-type" content-type
-                                      "initiated"    (util/iso8601-timestamp)
-                                      "acl"          target-acl})
+    (meta/initiate-upload! (bucket/metastore od)
+                           bucket
+                           object
+                           upload-id
+                           (merge metadata
+                                  {"content-type" content-type
+                                   "initiated"    (util/iso8601-timestamp)
+                                   "acl"          target-acl}))
     (-> (xml/initiate-multipart-upload bucket object upload-id)
         (xml-response))))
 
@@ -250,7 +264,8 @@
       (content-type "application/binary")
       (header "ETag" (str "\"" (desc/checksum od) "\""))
       (header "Last-Modified" (str (:atime od)))
-      (header "Content-Length" (str (desc/size od)))))
+      (header "Content-Length" (str (desc/size od)))
+      (update-in [:headers] (partial merge (:metadata od)))))
 
 (defn delete-object
   "Delete current revision of objects."
@@ -270,7 +285,8 @@
                                    :bucket bucket
                                    :key object})))
 
-  (let [[is os]                   (piped-input-stream)]
+  (let [[is os]                   (piped-input-stream)
+        add-headers #(doseq [[k v] (:metadata od)] (header % k v))]
 
     (debug "will stream " (desc/inode od) (desc/version od))
     (future ;; XXX: set up a dedicated threadpool
@@ -281,7 +297,8 @@
     (-> (response is)
         (content-type (desc/content-type od))
         (header "Content-Length" (desc/size od))
-        (header "ETag" (str "\"" (desc/checksum od) "\"")))))
+        (header "ETag" (str "\"" (desc/checksum od) "\""))
+        (update-in [:headers] (partial merge (:metadata od))))))
 
 (defn put-object
   "Accept data for storage. The body of this function is a bit messy and
@@ -298,6 +315,7 @@
   [{:keys [od body bucket object authorization] :as request} system]
   (let [dst        od
         previous   (desc/init-version dst)
+        metadata   (get-metadata request)
         target-acl (perms/header-acl (:bd request)
                                      (:tenant authorization)
                                      (:headers request))]
@@ -333,6 +351,8 @@
     (when previous
       (blob/delete! (desc/blobstore dst) dst previous))
 
+    (doseq [[k v] metadata]
+      (desc/col! dst k v))
     (desc/col! dst :acl target-acl)
     (desc/save! dst)
 
@@ -391,7 +411,9 @@
                     (put! ch (case type :block "\n" :chunk " " type)))
         etag      (promise)
         details   (meta/get-upload-details (bucket/metastore od)
-                                           bucket object upload-id)]
+                                           bucket object upload-id)
+        metadata  (-> (:metadata details)
+                      (dissoc "acl" "content-type" "initiated"))]
     (future
       (try
         (when previous
@@ -401,6 +423,8 @@
 
           (desc/col! od :acl (get-in details [:metadata "acl"]))
           (desc/col! od :content-type (get-in details [:metadata "content-type"]))
+          (doseq [[k v] metadata]
+            (desc/col! od k v))
           (desc/save! od)
 
           (doseq [part parts]
