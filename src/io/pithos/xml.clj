@@ -273,7 +273,7 @@ Will produce an XML AST equivalent to:
         [:Code "InvalidArgument"]
         [:Message "Invalid Argument"]
         [:ArgumentName (:arg payload)]
-        [:ArgumentValue (:arg payload)]
+        [:ArgumentValue (:val payload)]
         [:HostId reqid]
         [:RequestId reqid]]
        :invalid-acl-xml
