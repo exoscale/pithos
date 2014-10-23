@@ -391,7 +391,7 @@
 
 (defn put-object-part
   "Insert a new part in a multi-part upload"
-  [{:keys [od upload-id body bucket object] :as request} system]
+  [{:keys [od upload-id body bucket object authorization] :as request} system]
   (let [{:keys [partnumber]} (:params request)
         pd                   (desc/part-descriptor system bucket object
                                                    upload-id partnumber)]
