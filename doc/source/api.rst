@@ -227,7 +227,7 @@ Request parameters:
   - ``delimiter``: When present, will split entries according to the supplied string. Entries with no
     delimiter present will appear as `Contents` while entries containing the delimiter will be grouped
     and returned in the `CommonPrefixes` part of the reply.
-  - ``maxkeys``: The maximum number of keys to return.
+  - ``max-keys``: The maximum number of keys to return.
   - ``marker``: When present, use the provided marker to access paged results.
 
 Sample Request::
