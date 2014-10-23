@@ -274,7 +274,8 @@
   [{:keys [od bucket object] :as request} system]
   (meta/delete! (bucket/metastore od) bucket object)
   (blob/delete! (desc/blobstore od) od (desc/version od))
-  (response))
+  (-> (response)
+      (status 204)))
 
 (defn get-object
   "Retrieve object. A response is sent immediately, whose body
