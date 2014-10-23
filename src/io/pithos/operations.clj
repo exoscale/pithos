@@ -395,7 +395,29 @@
   (let [{:keys [partnumber]} (:params request)
         pd                   (desc/part-descriptor system bucket object
                                                    upload-id partnumber)]
-    (stream/stream-from body pd)
+    (if-let [source (get-in request [:headers "x-amz-copy-source"])]
+      ;; we're dealing with a copy object request
+      (if-let [[prefix s-bucket s-object] (split (if (.startsWith source "/")
+                                                   source
+                                                   (str "/" source))
+                                                 #"/"
+                                                 3)]
+        (if (seq prefix)
+          (throw (ex-info "invalid" {:type :invalid-request :status-code 400}))
+          (when (perms/authorize {:bucket s-bucket
+                                  :object s-object
+                                  :authorization authorization}
+                                 [[:bucket :READ]]
+                                 system)
+            (let [src (desc/object-descriptor system s-bucket s-object)]
+              (when-not (desc/init-version src)
+                (throw (ex-info "no such key" {:type :no-such-key :key s-object})))
+              (stream/stream-copy src pd))))
+        (throw (ex-info "invalid" {:type :invalid-request :status-code 400})))
+
+      ;; we're dealing with a standard object part creation
+      (stream/stream-from body pd))
+
     (desc/save! pd)
     (-> (response)
         (header "ETag" (str "\"" (desc/checksum pd) "\"")))))
