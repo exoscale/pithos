@@ -221,7 +221,7 @@
                                           :key object})))))
       (fetch [this bucket object]
         (fetch this bucket object true))
-      (prefixes [this bucket {:keys [prefix delimiter max-keys]}]
+      (prefixes [this bucket {:keys [prefix delimiter]}]
         (let [objects  (execute session (fetch-object-q bucket prefix))
               prefixes (if delimiter
                          (filter-prefixes objects prefix delimiter)

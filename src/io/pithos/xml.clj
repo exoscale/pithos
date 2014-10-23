@@ -109,28 +109,34 @@ Will produce an XML AST equivalent to:
 
 (defn list-bucket
   "Template for the list-bucket operation response"
-  [[files prefixes] {:keys [tenant bucket]} {:keys [prefix delimiter]}]
+  [[all-files all-prefixes] {:keys [tenant bucket]} {:keys [prefix delimiter max-keys]}]
   (seq->xmlstr
-   (apply vector
-          :ListBucketResult xml-ns
-          [:Name bucket]
-          [:Prefix prefix]
-          [:MaxKeys (str 100)]
-          [:Delimiter delimiter]
-          [:IsTruncated "false"]
-          (when (seq prefixes)
-            (vec
-             (for [prefix prefixes] [:CommonPrefixes [:Prefix prefix]])))
-          (for [{:keys [atime object size checksum] :or {size 0}} files]
-            [:Contents
-             [:Key object]
-             [:LastModified atime]
-             [:ETag (str "\"" checksum "\"") ]
-             [:Size (str size)]
-             [:Owner
-              [:ID tenant]
-              [:DisplayName tenant]]
-             [:StorageClass "Standard"]]))))
+   (let [prefixes (if (nil? max-keys) all-prefixes (take max-keys all-prefixes))
+         files (if (nil? max-keys) all-files (take (- max-keys (count prefixes)) all-files))
+         total (+ (count files) (count prefixes))
+         all-total (+ (count all-files) (count all-prefixes))
+         advertised-max (if (nil? max-keys) (* (inc (quot all-total 100)) 100) max-keys)
+         truncated (< total all-total)]
+     (apply vector
+            :ListBucketResult xml-ns
+            [:Name bucket]
+            [:Prefix prefix]
+            [:MaxKeys (str advertised-max)]
+            [:Delimiter delimiter]
+            [:IsTruncated (if truncated "true" "false")]
+            (when (seq prefixes)
+              (vec
+               (for [prefix prefixes] [:CommonPrefixes [:Prefix prefix]])))
+            (for [{:keys [atime object size checksum] :or {size 0}} files]
+              [:Contents
+               [:Key object]
+               [:LastModified atime]
+               [:ETag (str "\"" checksum "\"") ]
+               [:Size (str size)]
+               [:Owner
+                [:ID tenant]
+                [:DisplayName tenant]]
+               [:StorageClass "Standard"]])))))
 
 (defn initiate-multipart-upload
   "Tempalte for the initiate-multipart-upload response"
