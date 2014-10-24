@@ -49,14 +49,15 @@
 
 (defn parse-int
   [nickname val]
-  (try
-    (Long/parseLong val)
-    (catch NumberFormatException e
-      (throw (ex-info (str  "invalid value for " (name nickname))
-                      {:type :invalid-argument
-                       :arg (name nickname)
-                       :val val
-                       :status-code 400})))))
+  (when val
+    (try
+      (Long/parseLong val)
+      (catch NumberFormatException e
+        (throw (ex-info (str  "invalid value for " (name nickname))
+                        {:type :invalid-argument
+                         :arg (name nickname)
+                         :val val
+                         :status-code 400}))))))
 
 
 (defn get-service
