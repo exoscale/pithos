@@ -47,6 +47,17 @@
             {"content-type" "application/binary"}
             (filter (comp valid? key) headers))))
 
+(defn parse-int
+  [nickname val]
+  (try
+    (Long/parseLong val)
+    (catch NumberFormatException e
+      (throw (ex-info (str  "invalid value for " (name nickname))
+                      {:type :invalid-argument
+                       :arg "max-keys"
+                       :val val
+                       :status-code 400})))))
+
 
 (defn get-service
   "Lists all buckets for  tenant"
@@ -83,16 +94,7 @@
    directories, instead, a delimiter can be supplied, in which case results will
    be split between contents and prefixes"
   [{:keys [bd params bucket] :as request} system]
-  (let [params (select-keys params [:delimiter :prefix :max-keys])
-        max-keys (and (:max-keys params)
-                      (try (Integer/parseInt (:max-keys params))
-                           (catch NumberFormatException e
-                             (throw (ex-info "invalid value for max-keys"
-                                             {:type :invalid-argument
-                                              :arg "max-keys"
-                                              :val (:max-keys params)
-                                              :status-code 400})))))
-        params (assoc params :max-keys max-keys)
+  (let [params   (update-in params [:max-keys] (partial parse-int "max-keys"))
         prefixes (meta/prefixes (bucket/metastore bd) bucket params)]
     (-> (xml/list-bucket prefixes bd params)
         (xml-response))))
