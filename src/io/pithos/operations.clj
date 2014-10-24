@@ -54,7 +54,7 @@
     (catch NumberFormatException e
       (throw (ex-info (str  "invalid value for " (name nickname))
                       {:type :invalid-argument
-                       :arg "max-keys"
+                       :arg (name nickname)
                        :val val
                        :status-code 400})))))
 
