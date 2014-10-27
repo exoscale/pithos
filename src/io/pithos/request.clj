@@ -214,4 +214,5 @@
   [req system]
   (try (prepare req system)
        (catch Exception e
-         {:operation :error :exception e})))
+         (insert-id
+          {:operation :error :exception e}))))
