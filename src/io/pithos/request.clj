@@ -64,6 +64,7 @@
   "known subresources, used when signing"
   {:acl "acl"
    :cors "cors"
+   :delete "delete"
    :lifecycle "lifecycle"
    :location "location"
    :logging "logging"
