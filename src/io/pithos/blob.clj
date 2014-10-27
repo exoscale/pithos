@@ -111,20 +111,13 @@
 
 (defn get-chunk-q
   "Fetch a specific chunk in a block."
-  ([inode version block offset]
-     (select :block
-             (where [[= :inode inode]
-                     [= :version version]
-                     [= :block block]
-                     [>= :offset offset]])
-             (order-by [:offset :asc])))
-  ([inode version block offset max]
-     (select :block
-             (where [[= :inode inode]
-                     [= :version version]
-                     [= :block block]
-                     [>= :offset offset]])
-             (limit max))))
+  [inode version block offset max]
+  (select :block
+          (where [[= :inode inode]
+                  [= :version version]
+                  [= :block block]
+                  [>= :offset offset]])
+          (limit max)))
 
 (defn set-chunk-q
   "Set a chunk in a block."
