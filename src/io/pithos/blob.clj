@@ -73,11 +73,8 @@
 
 (def block-table
   "A block is keyed by inode version and first offset in the block.
-   This means that the next block is always:
 
-        last-block[block] + last-block[size]
-
-   blocks contain a list of offset, chunksize and payload (a byte-buffer)
+   Blocks contain a list of offset, chunksize and payload (a byte-buffer)
    which contain the actual data being stored. chunksize is set in the
    configuration."
  (create-table
@@ -164,12 +161,8 @@
     (reify Blobstore
 
       (converge! [this]
-
-        ;;
-        ;; execute creation querie
         (execute session inode_blocks-table)
         (execute session block-table))
-
 
       (blocks [this od]
         (let [ino (d/inode od)
@@ -183,12 +176,6 @@
         (let [ino (d/inode od)
               ver (d/version od)]
           (seq (execute session (get-chunk-q ino ver block offset max-block-chunks)))))
-
-
-      ;;
-      ;; Delete an inode.
-      ;; Rather straightforward, deletes all blocks then all inodes_blocks
-      ;;
 
       (delete! [this od version]
         (let [ino (if (= (class od) java.util.UUID) od (d/inode od))]
