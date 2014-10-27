@@ -47,7 +47,6 @@
             {"content-type" "application/binary"}
             (filter (comp valid? key) headers))))
 
-
 (defn get-service
   "Lists all buckets for  tenant"
   [{{:keys [tenant]} :authorization :as request} system]
@@ -268,6 +267,17 @@
       (header "Last-Modified" (str (:atime od)))
       (header "Content-Length" (str (desc/size od)))
       (update-in [:headers] (partial merge (:metadata od)))))
+
+(defn post-bucket-delete
+  "Delete multiple objects based on input"
+  [{:keys [bucket object body] :as request} system]
+  (let [paths (-> (slurp body) (xml/xml->delete))]
+    (doseq [path paths
+            :let [od (desc/object-descriptor system bucket path)]]
+      (meta/delete! (bucket/metastore od) bucket path)
+      (blob/delete! (desc/blobstore od) od (desc/version od)))
+    (-> (response)
+        (status 204))))
 
 (defn delete-object
   "Delete current revision of objects."
@@ -549,6 +559,9 @@
    :options-object         {:handler options-bucket
                             :target  :bucket
                             :perms   [[:object :READ]]}
+   :post-bucket-delete     {:handler post-bucket-delete
+                            :target  :bucket
+                            :perms   [[:bucket :WRITE]]}
    :get-object             {:handler get-object
                             :target  :object
                             :perms   [[:object :READ]]}
