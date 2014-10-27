@@ -144,6 +144,7 @@
                          [= :block block]])))
 
 (defn cleanup-block-q
+  "Try to make sure tombstones are seen."
   [inode version block]
   (select :block (columns (count*))
           (where [[= :inode inode]
