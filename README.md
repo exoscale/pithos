@@ -62,22 +62,14 @@ To install the schema, run:
 
 ## Test using the s3cmd command line client
 
-configure your client:
-
-    s3cmd --configure
-
-and provide the key and secret defined in the config file
-
-If running locally, also specify protocol, proxy and port options as follow (or adjust to your running config):
-
-* Use HTTPS protocol: False
-* HTTP Proxy server name: localhost
-* HTTP Proxy server port: 8080
+Have a look at the minimal configuration file provided in
+`doc/s3cmd.cfg`. If not running locally, remove the last lines, as
+explained in the configuration file.
 
 Create a bucket:
 
-    s3cmd mb S3://<bucket>
+    s3cmd -c doc/s3cmd.cfg mb S3://<bucket>
 
 List your buckets:
 
-    s3cmd la
+    s3cmd -c doc/s3cmd.cfg la

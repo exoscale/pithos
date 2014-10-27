@@ -30,3 +30,8 @@ regions:
         keyspace: storage
         max-chunk: "128k"
         max-block-chunk: 1024
+cassandra:
+   saved_caches_directory: "target/db/saved_caches"
+   data_file_directories:
+     - "target/db/data"
+   commitlog_directory: "target/db/commitlog"
