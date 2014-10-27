@@ -47,6 +47,11 @@
 ;; All storage protocols expose functions to produce side-effects
 ;; and a `converge!` function whose role is to apply the schema
 
+(def absolute-chunk-limit
+  "max block per chunk can be exceeded when small chunks are uploaded.
+  set a large limit of chunks to retrieve from a block."
+  8192)
+
 
 (defprotocol Blobstore
   "The blobstore protocol, provides methods to read and write data
@@ -175,7 +180,8 @@
       (chunks [this od block offset]
         (let [ino (d/inode od)
               ver (d/version od)]
-          (seq (execute session (get-chunk-q ino ver block offset max-block-chunks)))))
+          (seq (execute session (get-chunk-q ino ver block offset
+                                             absolute-chunk-limit)))))
 
       (delete! [this od version]
         (let [ino (if (= (class od) java.util.UUID) od (d/inode od))]
