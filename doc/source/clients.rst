@@ -50,7 +50,15 @@ Working support
 s3fs - s3 fuse support
 ----------------------
 
-Working support
+Working support. If you specified ``s3.example.com`` as
+``service-uri``, you can mount the bucket ``bucket`` with the
+following command::
+
+    s3fs bucket /mnt/bucket -o url=https://s3.example.com
+
+The credentials have to be specified in ``~/.passwd-s3fs``::
+
+    YOUR_ACCESS_KEY:YOUR_SECRET_KEY
 
 WAL-E - continuous archiving for Postgres
 -----------------------------------------
