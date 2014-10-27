@@ -4,10 +4,28 @@
   instead, data structures should be emitted by other subsystems, this
   namespace will then take care of making them suitable for sending out
   on the wire."
-  (:require [clojure.data.xml :refer [->Element emit-str]]
-            [clojure.pprint   :refer [pprint]]
-            [clojure.string   :as s]
-            [io.pithos.sig    :as sig]))
+  (:require [clojure.data.xml     :refer [->Element emit-str parse-str]]
+            [clojure.zip          :refer [xml-zip]]
+            [clojure.data.zip.xml :refer [xml-> text]]
+            [clojure.pprint       :refer [pprint]]
+            [clojure.string       :as s]
+            [io.pithos.sig        :as sig]))
+
+(defn xml->delete
+  [src]
+  (try
+    (let [xml-tree (xml-zip (parse-str src))
+          paths    (xml-> xml-tree
+                          :Object
+                          :Key
+                          text)]
+      (vec (flatten paths)))
+    (catch clojure.lang.ExceptionInfo e
+      (throw e))
+    (catch Exception e
+      (throw (ex-info "invalid XML in body"
+                      {:type :invalid-delete-xml
+                       :status-code 400})))))
 
 (defn seq->xml
   "A small [hiccup](https://github.com/weavejester/hiccup) like sequence to
