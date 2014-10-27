@@ -57,7 +57,7 @@
   (blocks [this od])
   (max-chunk [this])
   (chunks [this od block offset])
-  (start-block! [this od block offset])
+  (start-block! [this od block])
   (chunk! [this od block offset chunk])
   (boundary? [this block offset]))
 
@@ -69,7 +69,6 @@
   (column-definitions {:inode       :uuid
                        :version     :timeuuid
                        :block       :bigint
-                       :size        :bigint
                        :primary-key [[:inode :version] :block]})))
 
 (def block-table
@@ -106,10 +105,9 @@
 
 (defn set-block-q
   "Add a block to an inode."
-  [inode version block size]
+  [inode version block]
   (insert :inode_blocks
-          (values {:inode inode :version version
-                   :block block :size size})))
+          (values {:inode inode :version version :block block})))
 
 (defn get-chunk-q
   "Fetch a specific chunk in a block."
@@ -208,9 +206,9 @@
       (boundary? [this block offset]
         (>= offset (+ block bs)))
 
-      (start-block! [this od block offset]
+      (start-block! [this od block]
         (execute session
-                 (set-block-q (d/inode od) (d/version od) block offset)))
+                 (set-block-q (d/inode od) (d/version od) block)))
 
       (chunk! [this od block offset chunk]
         (let [size (- (.limit chunk) (.position chunk))]
