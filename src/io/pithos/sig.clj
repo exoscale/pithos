@@ -2,7 +2,7 @@
   "Compute request signatures as described in
    http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html"
   (:require [clojure.string            :as s]
-            [clojure.tools.logging     :refer [info]]
+            [clojure.tools.logging     :refer [info debug]]
             [clojure.data.codec.base64 :as base64]
             [io.pithos.keystore        :as ks])
   (:import  javax.crypto.Mac javax.crypto.spec.SecretKeySpec))
@@ -53,6 +53,7 @@
                         {:failed true :exception e}))]
       (when-not (= sig signed)
         (info "will throw because of failed signature!")
+        (debug "string-to-sign: " (string-to-sign request))
         (throw (ex-info "invalid request signature"
                         {:type :signature-does-not-match
                          :status-code 403
