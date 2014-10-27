@@ -130,6 +130,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#cyberduck">cyberduck</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#owncloud">owncloud</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#s3fs-s3-fuse-support">s3fs - s3 fuse support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wal-e-continuous-archiving-for-postgres">WAL-E - continuous archiving for Postgres</a></li>
 </ul>
 </li>
 </ul>
@@ -210,7 +211,66 @@ proxy_port = 8080
 </div>
 <div class="section" id="s3fs-s3-fuse-support">
 <h2>s3fs - s3 fuse support<a class="headerlink" href="#s3fs-s3-fuse-support" title="Permalink to this headline">¶</a></h2>
-<p>Working support</p>
+<p>Working support. If you specified <tt class="docutils literal"><span class="pre">s3.example.com</span></tt> as
+<tt class="docutils literal"><span class="pre">service-uri</span></tt>, you can mount the bucket <tt class="docutils literal"><span class="pre">bucket</span></tt> with the
+following command:</p>
+<div class="highlight-python"><div class="highlight"><pre>s3fs bucket /mnt/bucket -o url=https://s3.example.com
+</pre></div>
+</div>
+<p>The credentials have to be specified in <tt class="docutils literal"><span class="pre">~/.passwd-s3fs</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre>YOUR_ACCESS_KEY:YOUR_SECRET_KEY
+</pre></div>
+</div>
+</div>
+<div class="section" id="wal-e-continuous-archiving-for-postgres">
+<h2>WAL-E - continuous archiving for Postgres<a class="headerlink" href="#wal-e-continuous-archiving-for-postgres" title="Permalink to this headline">¶</a></h2>
+<p>Support for S3-compatible object stores was added in version 0.8 of WAL-E.
+Configure WAL-E with the following environment variables:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="43%" />
+<col width="57%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>AWS_ACCESS_KEY_ID</td>
+<td>YOUR_ACCESS_KEY</td>
+</tr>
+<tr class="row-even"><td>AWS_SECRET_ACCESS_KEY</td>
+<td>YOUR_SECRET_KEY</td>
+</tr>
+<tr class="row-odd"><td>WALE_S3_ENDPOINT</td>
+<td>https+path://s3.example.com</td>
+</tr>
+<tr class="row-even"><td>WALE_S3_PREFIX</td>
+<td>s3://your-bucket/your-prefix</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="archiving-wal-files">
+<h3>Archiving WAL files<a class="headerlink" href="#archiving-wal-files" title="Permalink to this headline">¶</a></h3>
+<p>Postgresql needs the following settings in <tt class="docutils literal"><span class="pre">postresql.conf</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre>wal_level = archive
+archive_mode = on
+archive_command = &#39;envdir /etc/wal-e.d/env /path/to/wal-e wal-push %p&#39;
+archive_timeout = 60
+</pre></div>
+</div>
+<p>Once postgres is setup to send WAL files, make a base backup with <tt class="docutils literal"><span class="pre">envdir</span>
+<span class="pre">/etc/wal-e.d/env</span> <span class="pre">/path/to/wal-e</span> <span class="pre">backup-push</span> <span class="pre">/path/to/postgres/data</span></tt></p>
+</div>
+<div class="section" id="restoring-from-archived-wal-files">
+<h3>Restoring from archived WAL files<a class="headerlink" href="#restoring-from-archived-wal-files" title="Permalink to this headline">¶</a></h3>
+<p>Pull a base backup:</p>
+<div class="highlight-python"><div class="highlight"><pre>envdir /etc/wal-e.d/env /path/to/wal-e backup-fetch /path/to/postgres/data LATEST
+</pre></div>
+</div>
+<p>Create a <tt class="docutils literal"><span class="pre">recovery.conf</span></tt> file in the postgres data dir with the following
+content:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">restore_command</span> <span class="o">=</span> <span class="s">&#39;envdir /etc/wal-e.d/env /path/to/wal-e wal-fetch &quot;</span><span class="si">%f</span><span class="s">&quot; &quot;%p&quot;&#39;</span>
+</pre></div>
+</div>
+<p>Start postgresql and check the logs to see its restore status.</p>
+</div>
 </div>
 </div>
 
