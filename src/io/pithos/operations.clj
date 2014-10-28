@@ -6,7 +6,7 @@
                                             content-type exception-status]]
             [io.pithos.util         :refer [piped-input-stream
                                             parse-uuid
-                                            iso8601-rfc822
+                                            iso8601->rfc822
                                             ->channel-buffer]]
             [clojure.core.async     :refer [go chan >! <! put! close!]]
             [clojure.tools.logging  :refer [debug info warn error]]
