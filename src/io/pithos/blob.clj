@@ -145,14 +145,6 @@
                          [= :version version]
                          [= :block block]])))
 
-(defn cleanup-block-q
-  "Try to make sure tombstones are seen."
-  [inode version block]
-  (select :block (columns (count*))
-          (where [[= :inode inode]
-                  [= :version version]
-                  [= :block block]])))
-
 (defn cassandra-blob-store
   "cassandra-blob-store, given a maximum chunk size and maximum
    number of chunks per block and cluster configuration details,
@@ -186,8 +178,7 @@
       (delete! [this od version]
         (let [ino (if (= (class od) java.util.UUID) od (d/inode od))]
           (doseq [{block :block} (execute session (get-block-q ino version :asc))]
-            (execute session (delete-block-q ino version block))
-            (execute session (cleanup-block-q ino version block)))
+            (execute session (delete-block-q ino version block)))
           (execute session (delete-blockref-q ino version))))
 
       (boundary? [this block offset]
