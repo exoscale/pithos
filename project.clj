@@ -21,6 +21,7 @@
                  [org.spootnik/logconfig        "0.7.3"]
                  [clj-yaml                      "0.4.0"]
                  [clout                         "2.0.0"]
+                 [clj-time                      "0.8.0"]
                  [ring/ring-codec               "1.0.0"]
                  [cc.qbits/alia                 "2.2.3"]
                  [cc.qbits/jet                  "0.5.0-alpha3"]

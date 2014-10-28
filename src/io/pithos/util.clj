@@ -4,7 +4,8 @@
            [java.util              TimeZone Calendar]
            [java.lang              Math]
            [org.jboss.netty.buffer ChannelBuffers])
-  (:require [clojure.string :refer [lower-case]]))
+  (:require [clojure.string  :refer [lower-case]]
+            [clj-time.format :refer [formatters parse unparse]]))
 
 (defn md5-init
   "Yield an MD5 MessageDigest instance"
@@ -82,3 +83,10 @@
   "String representation of the current timestamp in UTC"
   []
   (javax.xml.bind.DatatypeConverter/printDateTime (Calendar/getInstance @utc)))
+
+(defn iso8601->rfc822
+  "RFC822 representation based on an iso8601 timestamp"
+  [isodate]
+  (->> isodate
+       (parse (:date-time-parser formatters))
+       (unparse (:rfc822 formatters))))

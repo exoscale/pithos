@@ -6,6 +6,7 @@
                                             content-type exception-status]]
             [io.pithos.util         :refer [piped-input-stream
                                             parse-uuid
+                                            iso8601-rfc822
                                             ->channel-buffer]]
             [clojure.core.async     :refer [go chan >! <! put! close!]]
             [clojure.tools.logging  :refer [debug info warn error]]
@@ -264,7 +265,7 @@
   (-> (response)
       (content-type (desc/content-type od))
       (header "ETag" (str "\"" (desc/checksum od) "\""))
-      (header "Last-Modified" (str (:atime od)))
+      (header "Last-Modified" (iso8601->rfc822 (str (:atime od))))
       (header "Content-Length" (str (desc/size od)))
       (update-in [:headers] (partial merge (:metadata od)))))
 
