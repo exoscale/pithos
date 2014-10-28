@@ -5,7 +5,7 @@
            [java.lang              Math]
            [org.jboss.netty.buffer ChannelBuffers])
   (:require [clojure.string  :refer [lower-case]]
-            [clj-time.format :refer [formatters parse unparse]]))
+            [clj-time.format :refer [formatters parse unparse formatter]]))
 
 (defn md5-init
   "Yield an MD5 MessageDigest instance"
@@ -89,4 +89,4 @@
   [isodate]
   (->> isodate
        (parse (:date-time-parser formatters))
-       (unparse (:rfc822 formatters))))
+       (unparse (formatter "EEE, dd MMM yyyy HH:mm:ss z"))))
