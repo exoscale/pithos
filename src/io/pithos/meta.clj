@@ -191,17 +191,22 @@
 (defn filter-content
   "Keep only contents in a list of objects"
   [objects prefix delimiter]
-  (let [pat (re-pattern (str "^" prefix "[^\\" delimiter "]*$"))]
-    (filter (comp (partial re-find pat) :object) objects)))
+  (if delimiter
+    (let [prefix    (or prefix "")
+          pat       (str "^" prefix "[^\\" delimiter "]*$")
+          keep?     (partial re-find (re-pattern pat))]
+      (filter (comp keep? :object) objects))
+    objects))
 
 (defn filter-prefixes
   "Keep only prefixes from a list of objects"
   [objects prefix delimiter]
-  (let [pat (re-pattern
-             (str "^(" prefix "[^\\" delimiter "]*\\" delimiter ").*$"))]
-    (->> (map (comp second (partial re-find pat) :object) objects)
-         (remove nil?)
-         (set))))
+  (set
+   (when delimiter
+     (let [prefix (or prefix "")
+           pat    (str "^(" prefix "[^\\" delimiter "]*\\" delimiter ").*$")
+           path   (partial re-find (re-pattern pat))]
+       (remove nil? (map (comp second path :object) objects))))))
 
 (defn cassandra-meta-store
   "Given a cluster configuration, reify an instance of Metastore"
