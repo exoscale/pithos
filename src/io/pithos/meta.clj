@@ -156,13 +156,17 @@
 
 (defn fetch-object-q
   "List objects"
-  [bucket prefix]
+  [bucket prefix marker max]
   (let [object-def  [[= :bucket bucket]]
-        next-prefix (inc-prefix prefix)
-        prefix-def  [[>= :object prefix]
-                     [< :object next-prefix]]]
-    (select :object (where (cond-> object-def
-                                   (seq prefix) (concat prefix-def))))))
+        next-prefix (when (seq prefix) (inc-prefix prefix))]
+    (select :object
+            (if (seq prefix)
+              (where [[= :bucket bucket]
+                      [> :object marker]
+                      [< :object next-prefix]])
+              (where [[= :bucket bucket]
+                      [> :object (or marker "")]]))
+            (limit max))))
 
 (defn get-object-q
   "Fetch object properties"
@@ -228,15 +232,37 @@
                                           :key object})))))
       (fetch [this bucket object]
         (fetch this bucket object true))
-      (prefixes [this bucket {:keys [prefix delimiter max-keys marker]}]
-        (let [objects  (execute session (fetch-object-q bucket prefix))
-              prefixes (if delimiter
-                         (filter-prefixes objects prefix delimiter)
-                         #{})
-              contents (if delimiter
-                         (filter-content objects prefix delimiter)
-                         objects)]
-         [(remove prefixes contents) prefixes]))
+      (prefixes [this bucket {:keys [prefix delimiter max-keys marker]
+                              :or {prefix ""}}]
+        (loop [objects    (execute session
+                                   (fetch-object-q
+                                    bucket
+                                    prefix
+                                    (or marker prefix)
+                                    max-keys))
+               prefixes   #{}
+               keys       []]
+          (let [prefixes  (if delimiter
+                            (union prefixes
+                                   (filter-prefixes objects prefix delimiter))
+                            #{})
+                keys        (concat keys
+                                   (remove prefixes
+                                           (filter-content objects prefix
+                                                           delimiter)))
+                found       (count (concat keys prefixes))
+                next-marker (:object (last objects))
+                truncated?  (boolean (seq next-marker))]
+
+            (if (or (>= found max-keys) (not truncated?))
+              {:keys       keys
+               :prefixes   prefixes
+               :truncated? truncated?}
+              (recur (execute session
+                              (fetch-object-q bucket prefix
+                                              next-marker max-keys))
+                     prefixes
+                     keys)))))
       (initiate-upload! [this bucket object upload metadata]
         (execute session (initiate-upload-q bucket object upload metadata)))
       (abort-multipart-upload! [this bucket object upload]
