@@ -195,7 +195,7 @@
 (defn filter-content
   "Keep only contents in a list of objects"
   [objects prefix delimiter]
-  (if delimiter
+  (if (seq delimiter)
     (let [prefix    (or prefix "")
           pat       (str "^" prefix "[^\\" delimiter "]*$")
           keep?     (partial re-find (re-pattern pat))]
@@ -206,7 +206,7 @@
   "Keep only prefixes from a list of objects"
   [objects prefix delimiter]
   (set
-   (when delimiter
+   (when (seq delimiter)
      (let [prefix (or prefix "")
            pat    (str "^(" prefix "[^\\" delimiter "]*\\" delimiter ").*$")
            path   (partial re-find (re-pattern pat))]
