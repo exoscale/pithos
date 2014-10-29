@@ -139,7 +139,7 @@ Will produce an XML AST equivalent to:
           (when marker
             [:Marker marker])
           (when truncated?
-            [:NextMarker next-marker])
+            [:NextMarker (:object (last keys))])
           (when (seq prefixes)
             (vec
              (for [prefix prefixes] [:CommonPrefixes [:Prefix prefix]])))
