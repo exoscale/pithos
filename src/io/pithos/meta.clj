@@ -7,6 +7,7 @@
                                      delete update limit map-type
                                      create-table column-definitions
                                      create-index index-name]]
+
             [clojure.tools.logging :refer [debug]]
             [clojure.set     :refer [union]]
             [io.pithos.util  :refer [inc-prefix]]
@@ -195,22 +196,25 @@
 (defn filter-keys
   "Keep only contents in a list of objects"
   [objects prefix delimiter]
-  (if (seq delimiter)
+  (if (and (seq delimiter) (seq objects))
     (let [prefix    (or prefix "")
           pat       (str "^" prefix "[^\\" delimiter "]*$")
-          keep?     (partial re-find (re-pattern pat))]
-      (filter (comp keep? :object) objects))
+          keep?     (comp (partial re-find (re-pattern pat)) :object)]
+      (filter keep? objects))
     objects))
 
 (defn filter-prefixes
   "Keep only prefixes from a list of objects"
-  [objects prefix delimiter]
+  [objects prefix delim]
   (set
-   (when (seq delimiter)
-     (let [prefix (or prefix "")
-           pat    (str "^(" prefix "[^\\" delimiter "]*\\" delimiter ").*$")
-           path   (partial re-find (re-pattern pat))]
-       (remove nil? (map (comp second path :object) objects))))))
+   (when (and (seq delim) (seq objects))
+     (let [prefix   (or prefix "")
+           regex    (re-pattern
+                     (str "^(" prefix "[^\\" delim "]*\\" delim ").*$"))
+           ->prefix (comp second
+                          (partial re-find regex)
+                          :object)]
+       (remove nil? (map ->prefix objects))))))
 
 (defn get-prefixes
   "Paging logic for keys"
