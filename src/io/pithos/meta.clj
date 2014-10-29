@@ -192,7 +192,7 @@
 
 ;; ### Utility functions
 
-(defn filter-content
+(defn filter-keys
   "Keep only contents in a list of objects"
   [objects prefix delimiter]
   (if (seq delimiter)

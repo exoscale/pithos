@@ -1,6 +1,6 @@
 (ns io.pithos.meta-test
   (:require [clojure.test    :refer :all]
-            [io.pithos.meta  :refer [filter-content filter-prefixes]]))
+            [io.pithos.meta  :refer [filter-keys filter-prefixes]]))
 
 (deftest prefixes-and-contents-test
 
@@ -36,4 +36,4 @@
         (let [found-prefixes (filter-prefixes objects prefix delimiter)]
           (is (= prefixes found-prefixes))
           (is (= keys (remove found-prefixes
-                              (filter-content objects prefix delimiter)))))))))
+                              (filter-keys objects prefix delimiter)))))))))
