@@ -49,7 +49,7 @@
             (filter (comp valid? key) headers))))
 
 (defn parse-int
-  [nickname val]
+  [nickname default val]
   (if val
     (try
       (Long/parseLong val)
@@ -59,7 +59,7 @@
                          :arg (name nickname)
                          :val val
                          :status-code 400}))))
-    100))
+    default))
 
 (defn get-service
   "Lists all buckets for  tenant"
@@ -96,7 +96,8 @@
    directories, instead, a delimiter can be supplied, in which case results will
    be split between contents and prefixes"
   [{:keys [bd params bucket] :as request} system]
-  (let [params   (update-in params [:max-keys] (partial parse-int "max-keys"))
+  (let [params   (update-in params [:max-keys]
+                            (partial parse-int "max-keys" 1000))
         prefixes (meta/prefixes (bucket/metastore bd) bucket params)]
     (-> (xml/list-bucket prefixes bd params)
         (xml-response))))
