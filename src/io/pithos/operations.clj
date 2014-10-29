@@ -82,8 +82,8 @@
   "Deletes a bucket, only possible if the bucket isn't empty. The bucket
    should also be checked for in-progress uploads."
   [{:keys [bd bucket] :as request} system]
-  (let [[nodes _] (meta/prefixes (bucket/metastore bd) bucket {})]
-    (when (pos? (count nodes))
+  (let [{:keys [keys]} (meta/prefixes (bucket/metastore bd) bucket {:max-keys 1})]
+    (when (pos? (count keys))
       (throw (ex-info "bucket not empty" {:type :bucket-not-empty
                                           :bucket bucket
                                           :status-code 409})))
@@ -204,6 +204,7 @@
                                    "acl"          target-acl}))
     (-> (xml/initiate-multipart-upload bucket object upload-id)
         (xml-response))))
+
 
 (defn get-object-acl
   "Retrieve and format object acl"
