@@ -1,6 +1,8 @@
 (ns io.pithos.meta-test
   (:require [clojure.test    :refer :all]
-            [io.pithos.meta  :refer [filter-keys filter-prefixes]]))
+            [io.pithos.util  :refer [inc-prefix]]
+            [io.pithos.meta  :refer [filter-keys filter-prefixes get-prefixes]]))
+
 
 (deftest prefixes-and-contents-test
 
@@ -37,3 +39,30 @@
           (is (= prefixes found-prefixes))
           (is (= keys (remove found-prefixes
                               (filter-keys objects prefix delimiter)))))))))
+
+(defn make-fetcher
+  [init]
+  (let [payload (atom (sort-by :object init))]
+    (fn [prefix marker limit]
+      (locking payload
+        (let [pred    #(not (.startsWith (or (:object %) "")
+                                         (or marker prefix "")))
+              input   @payload
+              skipped (count (take-while pred input))
+              res     (->> input (drop-while pred) (take limit))]
+          (reset! payload (drop (+ skipped (count res)) input))
+          res)))))
+
+(deftest get-prefixes-test
+
+  (let [in-and-outs ["simple list"
+                     {:max-keys 10
+                      :delimiter "/"}
+                     [{:object "foo/bar.txt"}
+                      {:object "foo/baz.txt"}]
+                     {:keys []
+                      :prefixes #{"foo/"}}]]
+    (doseq [[nickname params objects output] (partition 4 in-and-outs)]
+      (testing (str "valid get-prefixes output for " nickname)
+        (let [res (get-prefixes (make-fetcher objects) params)]
+          (is (= (select-keys res [:keys :prefixes]) output )))))))
