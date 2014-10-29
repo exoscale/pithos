@@ -7,6 +7,8 @@
                                      delete update limit map-type
                                      create-table column-definitions
                                      create-index index-name]]
+            [clojure.tools.logging :refer [debug]]
+            [clojure.set     :refer [union]]
             [io.pithos.util  :refer [inc-prefix]]
             [io.pithos.store :as store]))
 
