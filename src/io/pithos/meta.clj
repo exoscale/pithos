@@ -212,6 +212,27 @@
            path   (partial re-find (re-pattern pat))]
        (remove nil? (map (comp second path :object) objects))))))
 
+(defn get-prefixes
+  "Paging logic for keys"
+  [fetcher {:keys [prefix delimiter max-keys marker]}]
+  (loop [objects    (fetcher prefix (or marker prefix) max-keys)
+         prefixes   #{}
+         keys       []]
+    (let [prefixes (if delimiter
+                     (union prefixes (filter-prefixes objects prefix delimiter))
+                     #{})
+          new-keys  (remove prefixes (filter-keys objects prefix delimiter))
+          keys      (concat keys new-keys)
+          found     (count (concat keys prefixes))
+          next      (:object (last objects))
+          trunc?    (boolean (seq next))]
+
+      (if (or (>= found max-keys) (not trunc?))
+        {:keys       keys
+         :prefixes   prefixes
+         :truncated? trunc?}
+        (recur (fetcher prefix next max-keys) prefixes keys)))))
+
 (defn cassandra-meta-store
   "Given a cluster configuration, reify an instance of Metastore"
   [config]
@@ -232,37 +253,11 @@
                                           :key object})))))
       (fetch [this bucket object]
         (fetch this bucket object true))
-      (prefixes [this bucket {:keys [prefix delimiter max-keys marker]
-                              :or {prefix ""}}]
-        (loop [objects    (execute session
-                                   (fetch-object-q
-                                    bucket
-                                    prefix
-                                    (or marker prefix)
-                                    max-keys))
-               prefixes   #{}
-               keys       []]
-          (let [prefixes  (if delimiter
-                            (union prefixes
-                                   (filter-prefixes objects prefix delimiter))
-                            #{})
-                keys        (concat keys
-                                   (remove prefixes
-                                           (filter-content objects prefix
-                                                           delimiter)))
-                found       (count (concat keys prefixes))
-                next-marker (:object (last objects))
-                truncated?  (boolean (seq next-marker))]
-
-            (if (or (>= found max-keys) (not truncated?))
-              {:keys       keys
-               :prefixes   prefixes
-               :truncated? truncated?}
-              (recur (execute session
-                              (fetch-object-q bucket prefix
-                                              next-marker max-keys))
-                     prefixes
-                     keys)))))
+      (prefixes [this bucket params]
+        (get-prefixes
+         (fn [prefix marker limit]
+           (execute session (fetch-object-q bucket prefix marker limit)))
+         params))
       (initiate-upload! [this bucket object upload metadata]
         (execute session (initiate-upload-q bucket object upload metadata)))
       (abort-multipart-upload! [this bucket object upload]
