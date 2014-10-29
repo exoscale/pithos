@@ -47,23 +47,22 @@
 ;; All storage protocols expose functions to produce side-effects
 ;; and a `converge!` function whose role is to apply the schema
 
+(def absolute-chunk-limit
+  "max block per chunk can be exceeded when small chunks are uploaded.
+  set a large limit of chunks to retrieve from a block."
+  8192)
+
 
 (defprotocol Blobstore
   "The blobstore protocol, provides methods to read and write data
    to inodes, as well as a schema migration function.
    "
   (converge! [this])
-  (append-stream! [this opaque bb] [this inode version stream finalize!])
-  (start-stream! [this inode version finalize!])
-  (stop-stream! [this opaque])
-  (write-chunk! [this ino version hash buf block offset])
-  (stream-block! [this ino version block handler])
-  (stream! [this inode version handler])
   (delete! [this inode version])
   (blocks [this od])
   (max-chunk [this])
   (chunks [this od block offset])
-  (start-block! [this od block offset])
+  (start-block! [this od block])
   (chunk! [this od block offset chunk])
   (boundary? [this block offset]))
 
@@ -75,16 +74,12 @@
   (column-definitions {:inode       :uuid
                        :version     :timeuuid
                        :block       :bigint
-                       :size        :bigint
                        :primary-key [[:inode :version] :block]})))
 
 (def block-table
   "A block is keyed by inode version and first offset in the block.
-   This means that the next block is always:
 
-        last-block[block] + last-block[size]
-
-   blocks contain a list of offset, chunksize and payload (a byte-buffer)
+   Blocks contain a list of offset, chunksize and payload (a byte-buffer)
    which contain the actual data being stored. chunksize is set in the
    configuration."
  (create-table
@@ -112,37 +107,19 @@
 
 (defn set-block-q
   "Add a block to an inode."
-  [inode version block size]
-  (insert :inode_blocks
-          (values {:inode inode :version version
-                   :block block :size size})))
-
-(defn last-chunk-q
-  "Fetch the last chunk in a block."
   [inode version block]
-  (select :block
-          (where [[= :inode inode]
-                  [= :version version]
-                  [= :block block]])
-          (order-by [:offset :desc])
-          (limit 1)))
+  (insert :inode_blocks
+          (values {:inode inode :version version :block block})))
 
 (defn get-chunk-q
   "Fetch a specific chunk in a block."
-  ([inode version block offset]
-     (select :block
-             (where [[= :inode inode]
-                     [= :version version]
-                     [= :block block]
-                     [>= :offset offset]])
-             (order-by [:offset :asc])))
-  ([inode version block offset max]
-     (select :block
-             (where [[= :inode inode]
-                     [= :version version]
-                     [= :block block]
-                     [>= :offset offset]])
-             (limit max))))
+  [inode version block offset max]
+  (select :block
+          (where [[= :inode inode]
+                  [= :version version]
+                  [= :block block]
+                  [>= :offset offset]])
+          (limit max)))
 
 (defn set-chunk-q
   "Set a chunk in a block."
@@ -168,40 +145,6 @@
                          [= :version version]
                          [= :block block]])))
 
-(defn cleanup-block-q
-  [inode version block]
-  (select :block (columns (count*))
-          (where [[= :inode inode]
-                  [= :version version]
-                  [= :block block]])))
-
-;; Data manipulation
-
-(defn last-chunk
-  "Fetch a block's last chunk"
-  [session inode version block]
-  (first (execute session (last-chunk-q inode version block))))
-
-(defn put-chunk!
-  "Insert a chunk in a block."
-  [chunk session inode version block offset]
-  (let [size (- (.limit chunk) (.position chunk))]
-    (execute session (set-chunk-q inode version block offset size chunk))
-    size))
-
-(defn last-block
-  "Fetch last block from an inode"
-  [session inode version]
-  (first
-   (execute session
-    (get-block-q inode version :desc))))
-
-(defn set-block!
-  "Register a new block with a specific size"
-  [session inode version block size]
-  (execute session
-   (set-block-q inode version block size)))
-
 (defn cassandra-blob-store
   "cassandra-blob-store, given a maximum chunk size and maximum
    number of chunks per block and cluster configuration details,
@@ -215,52 +158,8 @@
     (reify Blobstore
 
       (converge! [this]
-
-        ;;
-        ;; execute creation querie
         (execute session inode_blocks-table)
         (execute session block-table))
-
-
-      ;;
-      ;; The inclusion of stream-block! in the protocol is debatable
-      ;; there could be an external yield-block-streamer closure
-      ;;
-      ;; stream-block! loops for each chunk in a block and calls
-      ;; a local stream-chunks! function which calls a supplied
-      ;; handler on chunks and yields the position of the next chunk
-      ;;
-      ;; chunks are fetched in batches of 100 at a time
-
-      (stream-block! [this ino version block handler]
-        (let [stream-chunks!
-              (fn [offset]
-                (when-let [chunks (seq
-                                   (execute session
-                                            (get-chunk-q ino version block offset limit)))]
-                  (handler chunks)
-                  (last chunks)))]
-          (try
-            (loop [offset block]
-              (when-let [{:keys [offset chunksize]} (stream-chunks! offset)]
-                (recur (+ offset chunksize))))
-            (catch Exception e
-              (error e "something went wrong during recur loop"))
-            )))
-
-
-      ;;
-      ;; Successively call stream-block! on all blocks, once all blocks
-      ;; have been gone through, call the handler with a nil argument to
-      ;; indicate EOF
-      ;;
-
-      (stream! [this ino version handler]
-        (let [blocks (execute session (get-block-q ino version :asc))]
-          (doseq [{:keys [block]} blocks]
-            (stream-block! this ino version block handler)))
-        (handler nil))
-
 
       (blocks [this od]
         (let [ino (d/inode od)
@@ -273,104 +172,24 @@
       (chunks [this od block offset]
         (let [ino (d/inode od)
               ver (d/version od)]
-          (seq (execute session (get-chunk-q ino ver block offset max-block-chunks)))))
-
-
-      ;;
-      ;; Delete an inode.
-      ;; Rather straightforward, deletes all blocks then all inodes_blocks
-      ;;
+          (seq (execute session (get-chunk-q ino ver block offset
+                                             absolute-chunk-limit)))))
 
       (delete! [this od version]
         (let [ino (if (= (class od) java.util.UUID) od (d/inode od))]
           (doseq [{block :block} (execute session (get-block-q ino version :asc))]
-            (execute session (delete-block-q ino version block))
-            (execute session (cleanup-block-q ino version block)))
+            (execute session (delete-block-q ino version block)))
           (execute session (delete-blockref-q ino version))))
-
-      ;; Writing to inodes is split in two functions:
-      ;;
-      ;; append-stream! expects an inode and version, a lamina channel
-      ;; containing data and a function to be called once the channel's
-      ;; data has been successfuly written out.
-      ;;
-      ;; write-chunk! does the actual writing out.
-      ;;
-      ;; The workflow might be a bit confusing, so here's a bit of a walk-through:
-      ;;
-      ;; - if the input stream is not a channel, just write out to chunks the
-      ;;   input payload by calling write chunks
-      ;;
-      ;; - write-chunks! expects an inode, version, a md5-hash instance, a block
-      ;;   and offset and the actual data buffer to write out:
-      ;;
-      ;;   - convert the input buffer to data ingestible by cassandra and update md5
-      ;;   - write out the data
-      ;;   - when on a block boundary (next offset is larger than block size) write out block
-      ;;
-      ;; - append-stream! writes chunks as they come in on a channel and call
-      ;;   the finalizing function when all chunks have been written
-
-      (write-chunk! [this ino version hash buf block offset]
-
-        (md5-update hash (.array buf) 0 (- (.limit buf) (.position buf)))
-
-        (let [sz        (put-chunk! buf session ino version block offset)
-              offset    (+ sz offset)
-              boundary? (>= offset (+ block bs))]
-
-          (if boundary?
-            [offset offset]
-            [block offset])))
-
-      (start-stream! [this ino version tell!]
-        (let [hash (md5-init)
-              f!   #(when tell! (tell! ino version % (md5-sum hash)))]
-
-          {:block 0
-           :offset 0
-           :ino ino
-           :version version
-           :hash hash
-           :finalize f!}))
-
-      (stop-stream! [this opaque]
-        (let [{:keys [finalize offset]} opaque]
-          (debug "finalizing with offset: " offset)
-          (finalize offset)))
 
       (boundary? [this block offset]
         (>= offset (+ block bs)))
 
-      (start-block! [this od block offset]
-        (set-block! session (d/inode od) (d/version od) block offset))
+      (start-block! [this od block]
+        (execute session
+                 (set-block-q (d/inode od) (d/version od) block)))
 
       (chunk! [this od block offset chunk]
         (let [size (- (.limit chunk) (.position chunk))]
           (execute session (set-chunk-q (d/inode od) (d/version od)
                                         block offset size chunk))
-          size))
-
-      (append-stream! [this opaque bb]
-        (let [{:keys [block offset hash ino version]} opaque]
-          (when (>= block offset)
-            (set-block! session ino version block offset))
-          (let [[block offset] (write-chunk! this ino version hash bb
-                                             block offset)]
-            (debug "new offset: " offset)
-            (assoc opaque :block block :offset offset))))
-      (append-stream! [this ino version stream tell!]
-        (let [hash (md5-init)]
-
-          ;; Assume HttpInputOverHttp
-          (loop [block 0 offset 0]
-            (when (>= block offset)
-              (set-block! session ino version block offset))
-            (if (not (zero? (.available stream)))
-              (let [chunk-size (min (.available stream) max-chunk)
-                    ba (byte-array chunk-size)
-                    br (.read stream ba)
-                    bb (ByteBuffer/wrap ba)
-                    [block offset] (write-chunk! this ino version hash bb block offset)]
-                (recur block offset))
-              (tell! ino version offset (md5-sum hash)))))))))
+          size)))))

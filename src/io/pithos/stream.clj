@@ -54,7 +54,7 @@
                 offset 0]
            (when (>= block offset)
              (debug "marking new block")
-             (b/start-block! blob od block offset))
+             (b/start-block! blob od block))
 
            (let [chunk-size (b/max-chunk blob)
                  ba         (byte-array chunk-size)
@@ -85,7 +85,7 @@
         dblob  (d/blobstore dst)
         blocks (b/blocks sblob src)]
     (doseq [{:keys [block]} blocks]
-      (b/start-block! dblob dst block block)
+      (b/start-block! dblob dst block)
       (debug "found block " block)
       (loop [offset block]
         (when-let [chunks (b/chunks sblob src block offset)]
@@ -99,15 +99,15 @@
     dst))
 
 (defn stream-copy-part-block
-  [notifier dst hash part g-offset block]
+  [notifier dst hash part g-offset {:keys [block]}]
   (let [dblob      (d/blobstore dst)
         sblob      (d/blobstore part)
-        real-block (+ g-offset (:block block))]
-    (debug "streaming block: " (:inode block) (:block block))
-    (b/start-block! dblob dst (+ g-offset (:block block)) (:size block))
+        real-block (+ g-offset block)]
+    (debug "streaming block: " block)
+    (b/start-block! dblob dst real-block)
     (notifier :block)
     (last
-     (for [chunk (b/chunks sblob part (:block block) (:block block))
+     (for [chunk (b/chunks sblob part block block)
            :let [offset      (:offset chunk)
                  payload     (:payload chunk)
                  real-offset (+ g-offset offset)]]

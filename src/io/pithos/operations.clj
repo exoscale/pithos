@@ -6,6 +6,7 @@
                                             content-type exception-status]]
             [io.pithos.util         :refer [piped-input-stream
                                             parse-uuid
+                                            iso8601->rfc822
                                             ->channel-buffer]]
             [clojure.core.async     :refer [go chan >! <! put! close!]]
             [clojure.tools.logging  :refer [debug info warn error]]
@@ -59,7 +60,6 @@
                          :val val
                          :status-code 400}))))
     100))
-
 
 (defn get-service
   "Lists all buckets for  tenant"
@@ -278,16 +278,28 @@
   (-> (response)
       (content-type (desc/content-type od))
       (header "ETag" (str "\"" (desc/checksum od) "\""))
-      (header "Last-Modified" (str (:atime od)))
+      (header "Last-Modified" (iso8601->rfc822 (str (:atime od))))
       (header "Content-Length" (str (desc/size od)))
       (update-in [:headers] (partial merge (:metadata od)))))
+
+(defn post-bucket-delete
+  "Delete multiple objects based on input"
+  [{:keys [bucket object body] :as request} system]
+  (let [paths (-> (slurp body) (xml/xml->delete))]
+    (doseq [path paths
+            :let [od (desc/object-descriptor system bucket path)]]
+      (meta/delete! (bucket/metastore od) bucket path)
+      (blob/delete! (desc/blobstore od) od (desc/version od)))
+    (-> (response)
+        (status 204))))
 
 (defn delete-object
   "Delete current revision of objects."
   [{:keys [od bucket object] :as request} system]
   (meta/delete! (bucket/metastore od) bucket object)
   (blob/delete! (desc/blobstore od) od (desc/version od))
-  (response))
+  (-> (response)
+      (status 204)))
 
 (defn get-object
   "Retrieve object. A response is sent immediately, whose body
@@ -403,11 +415,33 @@
 
 (defn put-object-part
   "Insert a new part in a multi-part upload"
-  [{:keys [od upload-id body bucket object] :as request} system]
+  [{:keys [od upload-id body bucket object authorization] :as request} system]
   (let [{:keys [partnumber]} (:params request)
         pd                   (desc/part-descriptor system bucket object
                                                    upload-id partnumber)]
-    (stream/stream-from body pd)
+    (if-let [source (get-in request [:headers "x-amz-copy-source"])]
+      ;; we're dealing with a copy object request
+      (if-let [[prefix s-bucket s-object] (split (if (.startsWith source "/")
+                                                   source
+                                                   (str "/" source))
+                                                 #"/"
+                                                 3)]
+        (if (seq prefix)
+          (throw (ex-info "invalid" {:type :invalid-request :status-code 400}))
+          (when (perms/authorize {:bucket s-bucket
+                                  :object s-object
+                                  :authorization authorization}
+                                 [[:bucket :READ]]
+                                 system)
+            (let [src (desc/object-descriptor system s-bucket s-object)]
+              (when-not (desc/init-version src)
+                (throw (ex-info "no such key" {:type :no-such-key :key s-object})))
+              (stream/stream-copy src pd))))
+        (throw (ex-info "invalid" {:type :invalid-request :status-code 400})))
+
+      ;; we're dealing with a standard object part creation
+      (stream/stream-from body pd))
+
     (desc/save! pd)
     (-> (response)
         (header "ETag" (str "\"" (desc/checksum pd) "\"")))))
@@ -539,6 +573,9 @@
    :options-object         {:handler options-bucket
                             :target  :bucket
                             :perms   [[:object :READ]]}
+   :post-bucket-delete     {:handler post-bucket-delete
+                            :target  :bucket
+                            :perms   [[:bucket :WRITE]]}
    :get-object             {:handler get-object
                             :target  :object
                             :perms   [[:object :READ]]}

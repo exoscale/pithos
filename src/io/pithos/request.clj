@@ -64,6 +64,7 @@
   "known subresources, used when signing"
   {:acl "acl"
    :cors "cors"
+   :delete "delete"
    :lifecycle "lifecycle"
    :location "location"
    :logging "logging"
@@ -117,15 +118,15 @@
     into account, when found, it will be part of the operation name."
   [suffixes]
   (fn [{:keys [uri request-method action-params target params] :as request}]
-    (let [suffix (some suffixes action-params)
+    (let [suffix  (some suffixes action-params)
           getpair (fn [[k v]] (if v (str k "=" v) k))
-          append (some->> (filter (comp subresources key) params)
-                          (map (juxt (comp subresources first) second))
-                          (sort-by first)
-                          (map getpair)
-                          (seq)
-                          (join "&")
-                          ((partial str "?")))]
+          append  (some->> (filter (comp subresources key) params)
+                           (map (juxt (comp subresources first) second))
+                           (sort-by first)
+                           (map getpair)
+                           (seq)
+                           (join "&")
+                           ((partial str "?")))]
       (assoc request
         :sign-uri  (str uri append)
         :action    (when suffix (name suffix))
@@ -159,7 +160,8 @@
                                (cond (map? params)    params
                                      (string? params) {params nil}
                                      :else            {})))
-           (assoc req :action-params (set (filter actions (-> req :params keys))))))
+           (assoc req :action-params
+                  (set (filter actions (-> req :params keys))))))
    (assoc req :params {} :action-params #{})))
 
 (defn rewrite-host
@@ -212,4 +214,5 @@
   [req system]
   (try (prepare req system)
        (catch Exception e
-         {:operation :error :exception e})))
+         (insert-id
+          {:operation :error :exception e}))))

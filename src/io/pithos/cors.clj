@@ -109,5 +109,7 @@
     (if-let [matching-rules (seq (filter (partial origins-match?
                                                   origin method req-headers)
                                          cors))]
-      (rule->headers origin (reduce merge-with merge-rules {} matching-rules))
+      (rule->headers
+       origin method req-headers
+       (reduce (partial merge-with merge-rules) {} matching-rules))
       {})))

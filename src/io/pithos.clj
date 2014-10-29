@@ -17,6 +17,9 @@ up the appropriate action."
             [io.pithos.system  :as system]
             [clojure.tools.cli :refer [cli]]))
 
+;; ensure jetty does not modify our headers
+(System/setProperty "org.eclipse.jetty.http.HttpParser.STRICT" "true")
+
 (defn get-action
   "Figure out what the expected action is from the command-line."
   [action]
