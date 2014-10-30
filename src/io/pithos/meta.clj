@@ -230,11 +230,13 @@
           found     (count (concat keys prefixes))
           next      (:object (last objects))
           trunc?    (boolean (seq next))]
-
       (if (or (>= found max-keys) (not trunc?))
-        {:keys       keys
-         :prefixes   prefixes
-         :truncated? trunc?}
+        (-> {:keys       keys
+             :prefixes   prefixes
+             :truncated? trunc?}
+            (cond-> (and delimiter trunc?)
+                    (assoc :next-marker next
+                           :marker (or marker ""))))
         (recur (fetcher prefix next max-keys) prefixes keys)))))
 
 (defn cassandra-meta-store
