@@ -42,6 +42,7 @@ The *pithos* configuration file is split in several sections:
 - ``bucketstore``
 - ``metastore``
 - ``blobstore``
+- ``reporters``
 
 Logging configuration
 ~~~~~~~~~~~~~~~~~~~~~
@@ -187,6 +188,33 @@ blocks in regions:
 *blobstore* are named (here, `standard` is used) and have a maximum
 chunk size as well as maximum block chunks.
 
+Reporter Configuration
+----------------------
+
+Reporters provide a way to ship events out of pithos. As it stands pithos
+only ships with a log4j reporter, but adding more is trivial and covered
+in :ref:`Alternative Reporter`
+
+Two types of events may be shipped:
+
+- ``put`` events, when either a standard put or a complete multipart upload operation succeeds.
+- ``delete`` events, when objects are deleted
+
+Additional events may be added in the future.
+
+Reporters is expected to be a list of reporter configurations. The default ``log4j`` reporter
+only takes a ``level`` key, to indicate at which level messages should be logged.
+
+Here we showcase a sample configuration with the default reporter logging at info and
+a third-party one:
+
+.. sourcecode:: yaml
+
+  reporters:
+    - level: info
+    - use: some.namespace/alternative-reporter
+      config-key: config-val
+
 
 Using non-default stores
 ------------------------
@@ -329,7 +357,10 @@ Disabling output buffering
 
   When using nginx_, this is done with ``proxy_pass_header X-Accel-Buffering``.
 
+
 .. _nginx: http://nginx.org
 
 .. [#] https://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/EnhancedPatternLayout.html
 .. [#] http://spootnik.org/entries/2014/01/25_poor-mans-dependency-injection-in-clojure.html
+
+       
