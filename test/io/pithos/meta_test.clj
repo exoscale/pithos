@@ -40,18 +40,23 @@
           (is (= keys (remove found-prefixes
                               (filter-keys objects prefix delimiter)))))))))
 
+
 (defn make-fetcher
-  [init]
-  (let [payload (atom (sort-by :object init))]
-    (fn [prefix marker limit]
-      (locking payload
-        (let [pred    #(not (.startsWith (or (:object %) "")
-                                         (or marker prefix "")))
-              input   @payload
-              skipped (count (take-while pred input))
-              res     (->> input (drop-while pred) (take limit))]
-          (reset! payload (drop (+ skipped (count res)) input))
-          res)))))
+  "Provide a simulation of cassandra's wide row storage for testing
+   Alternate store implementations will need to provide the same properties"
+  [input]
+  (fn [prefix marker limit]
+    (let [>pred   #(or (= (:object %) (or marker prefix))
+                       (not (.startsWith (or (:object %) "")
+                                         (or marker prefix ""))))
+          <pred   #(or (empty? prefix)
+                       (neg? (compare (:object %) (inc-prefix prefix))))]
+      (->> input
+           (sort-by :object)
+           (drop-while >pred)
+           (take-while <pred)
+           (take limit)))))
+
 
 (deftest get-prefixes-test
 
