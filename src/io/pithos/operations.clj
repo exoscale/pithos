@@ -392,7 +392,12 @@
         (stream/stream-from body od)))
 
     ;; if a previous copy existed, kill it
-    (when previous
+    (when-not (= previous (desc/version dst))
+      (reporter/report-all! (system/reporters system)
+                            {:type   :delete
+                             :bucket bucket
+                             :object object
+                             :size   (desc/init-size dst)})
       (blob/delete! (desc/blobstore dst) dst previous))
 
     (doseq [[k v] metadata]
@@ -510,8 +515,13 @@
             (push-str :block)
             (blob/delete! (desc/blobstore part) part (desc/version part)))
 
-          (when previous
+          (when-not (= previous (desc/version od))
             (push-str :block)
+            (reporter/report-all! (system/reporters system)
+                                  {:type   :delete
+                                   :bucket bucket
+                                   :object object
+                                   :size   (desc/init-size dst)})
             (blob/delete! (desc/blobstore od) od previous))
 
           (debug "all streams now flushed")
