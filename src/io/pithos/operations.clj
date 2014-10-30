@@ -378,7 +378,11 @@
             (let [src (desc/object-descriptor system s-bucket s-object)]
               (when-not (desc/init-version src)
                 (throw (ex-info "no such key" {:type :no-such-key :key s-object})))
-              (stream/stream-copy src dst))))
+
+              ;; avoid copies when source and dest are the same
+              (when (or (not= (desc/inode src) (desc/inode dst))
+                        (not= (desc/version src) previous))
+                (stream/stream-copy src dst)))))
         (throw (ex-info "invalid" {:type :invalid-request :status-code 400})))
 
       ;; we're dealing with a standard object creation
