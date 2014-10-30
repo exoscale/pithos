@@ -75,6 +75,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#overview-of-configuration">Overview of configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#choosing-your-topology">Choosing your topology</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configuration-file">Configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reporter-configuration">Reporter Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#using-non-default-stores">Using non-default stores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configuring-apache-cassandra">Configuring Apache Cassandra</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#enabling-ssl">Enabling SSL</a></li>
@@ -206,6 +207,7 @@ will need to make sure inter-node latency is low).</p>
 <li><tt class="docutils literal"><span class="pre">bucketstore</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">metastore</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">blobstore</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">reporters</span></tt></li>
 </ul>
 <div class="section" id="logging-configuration">
 <h3>Logging configuration<a class="headerlink" href="#logging-configuration" title="Permalink to this headline">¶</a></h3>
@@ -326,6 +328,28 @@ blocks in regions:</p>
 </div>
 <p><em>blobstore</em> are named (here, <cite>standard</cite> is used) and have a maximum
 chunk size as well as maximum block chunks.</p>
+</div>
+</div>
+<div class="section" id="reporter-configuration">
+<h2>Reporter Configuration<a class="headerlink" href="#reporter-configuration" title="Permalink to this headline">¶</a></h2>
+<p>Reporters provide a way to ship events out of pithos. As it stands pithos
+only ships with a log4j reporter, but adding more is trivial and covered
+in <a class="reference internal" href="developer.html#alternative-reporter"><em>An alternative reporter</em></a></p>
+<p>Two types of events may be shipped:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">put</span></tt> events, when either a standard put or a complete multipart upload operation succeeds.</li>
+<li><tt class="docutils literal"><span class="pre">delete</span></tt> events, when objects are deleted</li>
+</ul>
+<p>Additional events may be added in the future.</p>
+<p>Reporters is expected to be a list of reporter configurations. The default <tt class="docutils literal"><span class="pre">log4j</span></tt> reporter
+only takes a <tt class="docutils literal"><span class="pre">level</span></tt> key, to indicate at which level messages should be logged.</p>
+<p>Here we showcase a sample configuration with the default reporter logging at info and
+a third-party one:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">reporters</span><span class="p-Indicator">:</span>
+  <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">level</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">info</span>
+  <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">use</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">some.namespace/alternative-reporter</span>
+    <span class="l-Scalar-Plain">config-key</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">config-val</span>
+</pre></div>
 </div>
 </div>
 <div class="section" id="using-non-default-stores">

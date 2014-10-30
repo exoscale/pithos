@@ -75,6 +75,7 @@
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#overview-of-configuration">Overview of configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#choosing-your-topology">Choosing your topology</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#configuration-file">Configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#reporter-configuration">Reporter Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#using-non-default-stores">Using non-default stores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#configuring-apache-cassandra">Configuring Apache Cassandra</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#enabling-ssl">Enabling SSL</a></li>
@@ -364,6 +365,21 @@ credential results.</p>
               <span class="nv">resp</span> <span class="p">(</span><span class="nf">&lt;!!</span> <span class="p">(</span><span class="nf">http/get</span> <span class="nv">client</span> <span class="nv">url</span> <span class="nv">opts</span><span class="p">))]</span>
           <span class="p">(</span><span class="nb">when </span><span class="p">(</span><span class="nb">= </span><span class="p">(</span><span class="ss">:status</span> <span class="nv">resp</span><span class="p">)</span> <span class="mi">200</span><span class="p">)</span>
             <span class="p">(</span><span class="nf">&lt;!!</span> <span class="p">(</span><span class="ss">:body</span> <span class="nv">resp</span><span class="p">))))))))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="an-alternative-reporter">
+<span id="alternative-reporter"></span><h3>An alternative reporter<a class="headerlink" href="#an-alternative-reporter" title="Permalink to this headline">¶</a></h3>
+<p>Likewise, creating alternative reporters is trivial, here
+is a sample cassandra reporter:</p>
+<div class="highlight-clojure"><div class="highlight"><pre><span class="p">(</span><span class="kd">defn </span><span class="nv">cassandra-reporter</span>
+  <span class="p">[</span><span class="nv">config</span><span class="p">]</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">session</span> <span class="p">(</span><span class="nf">store/cassandra-store</span> <span class="nv">config</span><span class="p">)]</span>
+    <span class="p">(</span><span class="nf">reify</span> <span class="nv">Reporter</span>
+      <span class="p">(</span><span class="nf">report!</span> <span class="p">[</span><span class="nv">_</span> <span class="nv">event</span><span class="p">]</span>
+        <span class="p">(</span><span class="nf">execute</span> <span class="nv">session</span>
+                 <span class="p">(</span><span class="nf">update</span> <span class="ss">:events</span>
+                         <span class="p">(</span><span class="nf">colums</span> <span class="p">(</span><span class="nb">assoc </span><span class="nv">event</span> <span class="ss">:id</span> <span class="p">(</span><span class="nf">UUID/randomUUID</span><span class="p">)))))))))</span>
 </pre></div>
 </div>
 </div>
