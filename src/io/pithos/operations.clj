@@ -387,7 +387,6 @@
 
       ;; we're dealing with a standard object creation
       (do
-        (debug "got headers: " (:headers request))
         (when previous
           (desc/increment! dst))
         (stream/stream-from body od)))
