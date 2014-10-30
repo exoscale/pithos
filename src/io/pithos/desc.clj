@@ -16,6 +16,7 @@
 
 (defprotocol ObjectDescriptor
   (init-version [this])
+  (init-size [this])
   (metadata [this] [this key] [this key def])
   (content-type [this])
   (col! [this field val])
@@ -81,6 +82,7 @@
       (blobstore [this] blobstore)
       ObjectDescriptor
       (init-version [this] (:version meta))
+      (init-size [this] (:size meta))
       (metadata [this] (:metadata meta))
       (metadata [this key] (metadata this key nil))
       (metadata [this key def]
