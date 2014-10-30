@@ -23,6 +23,7 @@
             [io.pithos.perms        :as perms]
             [io.pithos.acl          :as acl]
             [io.pithos.cors         :as cors]
+            [io.pithos.reporter     :as reporter]
             [qbits.alia.uuid        :as uuid]))
 
 (defn assoc-targets
@@ -290,6 +291,11 @@
   (let [paths (-> (slurp body) (xml/xml->delete))]
     (doseq [path paths
             :let [od (desc/object-descriptor system bucket path)]]
+      (reporter/report-all! (system/reporters system)
+                            {:type   :delete
+                             :bucket bucket
+                             :object path
+                             :size   (desc/size od)})
       (meta/delete! (bucket/metastore od) bucket path)
       (blob/delete! (desc/blobstore od) od (desc/version od)))
     (-> (response)
@@ -298,6 +304,11 @@
 (defn delete-object
   "Delete current revision of objects."
   [{:keys [od bucket object] :as request} system]
+  (reporter/report-all! (system/reporters system)
+                        {:type  :delete
+                         :bucket bucket
+                         :object object
+                         :size   (desc/size od)})
   (meta/delete! (bucket/metastore od) bucket object)
   (blob/delete! (desc/blobstore od) od (desc/version od))
   (-> (response)
@@ -385,6 +396,11 @@
       (desc/col! dst k v))
     (desc/col! dst :acl target-acl)
     (desc/save! dst)
+    (reporter/report-all! (system/reporters system)
+                          {:type   :put
+                           :bucket bucket
+                           :object object
+                           :size   (desc/size dst)})
 
     (-> (response)
         (header "ETag" (str "\"" (desc/checksum dst) "\"")))))
@@ -477,7 +493,11 @@
           (doseq [[k v] metadata]
             (desc/col! od k v))
           (desc/save! od)
-
+          (reporter/report-all! (system/reporters system)
+                                {:type   :put
+                                 :bucket bucket
+                                 :object object
+                                 :size   (desc/size od)})
           (doseq [part parts]
             (push-str :block)
             (meta/abort-multipart-upload! (bucket/metastore part)
