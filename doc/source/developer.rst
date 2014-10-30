@@ -237,6 +237,25 @@ credential results.
             (when (= (:status resp) 200)
               (<!! (:body resp))))))))
 
+.. _Alternative Reporter:
+
+An alternative reporter
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Likewise, creating alternative reporters is trivial, here
+is a sample cassandra reporter:
+
+.. sourcecode:: clojure
+
+  (defn cassandra-reporter
+    [config]
+    (let [session (store/cassandra-store config)]
+      (reify Reporter
+        (report! [_ event]
+          (execute session
+                   (update :events
+                           (colums (assoc event :id (UUID/randomUUID)))))))))                
+  
 .. _github: https://github.com
 .. _clojure: http://clojure.org
 .. _leiningen: http://leiningen.org

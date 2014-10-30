@@ -40,6 +40,10 @@
    :max-chunk        "512k"
    :max-block-chunks 2048})
 
+(def default-reporter
+  "reporters default to log4j"
+  {:use "io.pithos.reporter/log4j-reporter"})
+
 (def default-service
   "The http service is exposed on localhost port 8080 by default"
   {:host "127.0.0.1"
@@ -110,6 +114,12 @@
            :storage-classes (get-storage-classes storage-classes)}])
        (reduce merge {})))
 
+(defn get-reporters
+  [reporters]
+  (for [reporter reporters
+        :let [reporter (merge default-reporter reporter)]]
+    (get-instance reporter :reporter)))
+
 (defn init
   "Parse YAML file, merge in defaults and then create instances
    where applicable"
@@ -126,6 +136,7 @@
         (update-in [:keystore] get-instance :keystore)
         (update-in [:bucketstore] (partial merge default-bucketstore))
         (update-in [:bucketstore] get-instance :bucketstore)
+        (update-in [:reporters] get-reporters)
         (update-in [:regions] get-region-stores))
     (catch Exception e
       (when-not quiet?
