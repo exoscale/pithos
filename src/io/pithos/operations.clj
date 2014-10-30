@@ -392,7 +392,7 @@
         (stream/stream-from body od)))
 
     ;; if a previous copy existed, kill it
-    (when-not (= previous (desc/version dst))
+    (when (and previous (not= previous (desc/version dst)))
       (reporter/report-all! (system/reporters system)
                             {:type   :delete
                              :bucket bucket
@@ -515,7 +515,7 @@
             (push-str :block)
             (blob/delete! (desc/blobstore part) part (desc/version part)))
 
-          (when-not (= previous (desc/version od))
+          (when (and previous (not= previous (desc/version od)))
             (push-str :block)
             (reporter/report-all! (system/reporters system)
                                   {:type   :delete
