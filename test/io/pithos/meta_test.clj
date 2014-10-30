@@ -61,8 +61,17 @@
                      [{:object "foo/bar.txt"}
                       {:object "foo/baz.txt"}]
                      {:keys []
-                      :prefixes #{"foo/"}}]]
+                      :prefixes #{"foo/"}
+                      :truncated? false}
+
+                     "truncated list"
+                     {:max-keys 1}
+                     [{:object "foo/bar.txt"}
+                      {:object "foo/baz.txt"}]
+                     {:keys [{:object "foo/bar.txt"}]
+                      :prefixes #{}
+                      :truncated? true}]]
     (doseq [[nickname params objects output] (partition 4 in-and-outs)]
       (testing (str "valid get-prefixes output for " nickname)
-        (let [res (get-prefixes (make-fetcher objects) params)]
-          (is (= (select-keys res [:keys :prefixes]) output )))))))
+        (let [fetcher (make-fetcher objects)]
+          (is (= (get-prefixes fetcher params) output )))))))
