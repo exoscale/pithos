@@ -7,6 +7,9 @@
                                      delete update limit map-type
                                      create-table column-definitions
                                      create-index index-name]]
+
+            [clojure.tools.logging :refer [debug]]
+            [clojure.set     :refer [union]]
             [io.pithos.util  :refer [inc-prefix]]
             [io.pithos.store :as store]))
 
@@ -154,13 +157,17 @@
 
 (defn fetch-object-q
   "List objects"
-  [bucket prefix]
+  [bucket prefix marker max]
   (let [object-def  [[= :bucket bucket]]
-        next-prefix (inc-prefix prefix)
-        prefix-def  [[>= :object prefix]
-                     [< :object next-prefix]]]
-    (select :object (where (cond-> object-def
-                                   (seq prefix) (concat prefix-def))))))
+        next-prefix (when (seq prefix) (inc-prefix prefix))]
+    (select :object
+            (if (seq prefix)
+              (where [[= :bucket bucket]
+                      [> :object marker]
+                      [< :object next-prefix]])
+              (where [[= :bucket bucket]
+                      [> :object (or marker "")]]))
+            (limit max))))
 
 (defn get-object-q
   "Fetch object properties"
@@ -186,20 +193,51 @@
 
 ;; ### Utility functions
 
-(defn filter-content
+(defn filter-keys
   "Keep only contents in a list of objects"
   [objects prefix delimiter]
-  (let [pat (re-pattern (str "^" prefix "[^\\" delimiter "]*$"))]
-    (filter (comp (partial re-find pat) :object) objects)))
+  (if (and (seq delimiter) (seq objects))
+    (let [prefix    (or prefix "")
+          pat       (str "^" prefix "[^\\" delimiter "]*$")
+          keep?     (comp (partial re-find (re-pattern pat)) :object)]
+      (filter keep? objects))
+    objects))
 
 (defn filter-prefixes
   "Keep only prefixes from a list of objects"
-  [objects prefix delimiter]
-  (let [pat (re-pattern
-             (str "^(" prefix "[^\\" delimiter "]*\\" delimiter ").*$"))]
-    (->> (map (comp second (partial re-find pat) :object) objects)
-         (remove nil?)
-         (set))))
+  [objects prefix delim]
+  (set
+   (when (and (seq delim) (seq objects))
+     (let [prefix   (or prefix "")
+           regex    (re-pattern
+                     (str "^(" prefix "[^\\" delim "]*\\" delim ").*$"))
+           ->prefix (comp second
+                          (partial re-find regex)
+                          :object)]
+       (remove nil? (map ->prefix objects))))))
+
+(defn get-prefixes
+  "Paging logic for keys"
+  [fetcher {:keys [prefix delimiter max-keys marker]}]
+  (loop [objects    (fetcher prefix (or marker prefix) max-keys)
+         prefixes   #{}
+         keys       []]
+    (let [prefixes (if delimiter
+                     (union prefixes (filter-prefixes objects prefix delimiter))
+                     #{})
+          new-keys  (remove prefixes (filter-keys objects prefix delimiter))
+          keys      (concat keys new-keys)
+          found     (count (concat keys prefixes))
+          next      (:object (last objects))
+          trunc?    (boolean (seq next))]
+      (if (or (>= found max-keys) (not trunc?))
+        (-> {:keys       keys
+             :prefixes   prefixes
+             :truncated? trunc?}
+            (cond-> (and delimiter trunc?)
+                    (assoc :next-marker next
+                           :marker (or marker ""))))
+        (recur (fetcher prefix next max-keys) prefixes keys)))))
 
 (defn cassandra-meta-store
   "Given a cluster configuration, reify an instance of Metastore"
@@ -221,15 +259,11 @@
                                           :key object})))))
       (fetch [this bucket object]
         (fetch this bucket object true))
-      (prefixes [this bucket {:keys [prefix delimiter max-keys]}]
-        (let [objects  (execute session (fetch-object-q bucket prefix))
-              prefixes (if delimiter
-                         (filter-prefixes objects prefix delimiter)
-                         #{})
-              contents (if delimiter
-                         (filter-content objects prefix delimiter)
-                         objects)]
-         [(remove prefixes contents) prefixes]))
+      (prefixes [this bucket params]
+        (get-prefixes
+         (fn [prefix marker limit]
+           (execute session (fetch-object-q bucket prefix marker limit)))
+         params))
       (initiate-upload! [this bucket object upload metadata]
         (execute session (initiate-upload-q bucket object upload metadata)))
       (abort-multipart-upload! [this bucket object upload]

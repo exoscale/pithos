@@ -127,19 +127,23 @@ Will produce an XML AST equivalent to:
 
 (defn list-bucket
   "Template for the list-bucket operation response"
-  [[files prefixes] {:keys [tenant bucket]} {:keys [prefix delimiter]}]
+  [{:keys [marker truncated? next-marker keys prefixes]} {:keys [tenant bucket]} {:keys [prefix delimiter max-keys]}]
   (seq->xmlstr
    (apply vector
           :ListBucketResult xml-ns
           [:Name bucket]
           [:Prefix prefix]
-          [:MaxKeys (str 100)]
+          [:MaxKeys (str max-keys)]
           [:Delimiter delimiter]
-          [:IsTruncated "false"]
+          [:IsTruncated (str truncated?)]
+          (when marker
+            [:Marker marker])
+          (when truncated?
+            [:NextMarker (:object (last keys))])
           (when (seq prefixes)
             (vec
              (for [prefix prefixes] [:CommonPrefixes [:Prefix prefix]])))
-          (for [{:keys [atime object size checksum] :or {size 0}} files]
+          (for [{:keys [atime object size checksum] :or {size 0}} keys]
             [:Contents
              [:Key object]
              [:LastModified atime]
@@ -291,7 +295,7 @@ Will produce an XML AST equivalent to:
         [:Code "InvalidArgument"]
         [:Message "Invalid Argument"]
         [:ArgumentName (:arg payload)]
-        [:ArgumentValue (:arg payload)]
+        [:ArgumentValue (:val payload)]
         [:HostId reqid]
         [:RequestId reqid]]
        :invalid-acl-xml

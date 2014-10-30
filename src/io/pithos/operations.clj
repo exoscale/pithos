@@ -48,6 +48,19 @@
             {"content-type" "application/binary"}
             (filter (comp valid? key) headers))))
 
+(defn parse-int
+  [nickname default val]
+  (if val
+    (try
+      (Long/parseLong val)
+      (catch NumberFormatException e
+        (throw (ex-info (str  "invalid value for " (name nickname))
+                        {:type :invalid-argument
+                         :arg (name nickname)
+                         :val val
+                         :status-code 400}))))
+    default))
+
 (defn get-service
   "Lists all buckets for  tenant"
   [{{:keys [tenant]} :authorization :as request} system]
@@ -69,8 +82,8 @@
   "Deletes a bucket, only possible if the bucket isn't empty. The bucket
    should also be checked for in-progress uploads."
   [{:keys [bd bucket] :as request} system]
-  (let [[nodes _] (meta/prefixes (bucket/metastore bd) bucket {})]
-    (when (pos? (count nodes))
+  (let [{:keys [keys]} (meta/prefixes (bucket/metastore bd) bucket {:max-keys 1})]
+    (when (pos? (count keys))
       (throw (ex-info "bucket not empty" {:type :bucket-not-empty
                                           :bucket bucket
                                           :status-code 409})))
@@ -83,7 +96,8 @@
    directories, instead, a delimiter can be supplied, in which case results will
    be split between contents and prefixes"
   [{:keys [bd params bucket] :as request} system]
-  (let [params (select-keys params [:delimiter :prefix])
+  (let [params   (update-in params [:max-keys]
+                            (partial parse-int "max-keys" 1000))
         prefixes (meta/prefixes (bucket/metastore bd) bucket params)]
     (-> (xml/list-bucket prefixes bd params)
         (xml-response))))
@@ -190,6 +204,7 @@
                                    "acl"          target-acl}))
     (-> (xml/initiate-multipart-upload bucket object upload-id)
         (xml-response))))
+
 
 (defn get-object-acl
   "Retrieve and format object acl"
