@@ -521,7 +521,7 @@
                                   {:type   :delete
                                    :bucket bucket
                                    :object object
-                                   :size   (desc/init-size dst)})
+                                   :size   (desc/init-size od)})
             (blob/delete! (desc/blobstore od) od previous))
 
           (debug "all streams now flushed")
