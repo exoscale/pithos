@@ -18,29 +18,37 @@
     [array off len]))
 
 (defn stream-to
-  ([od ^OutputStream stream]
-     (stream-to od stream true))
-  ([od ^OutputStream stream close?]
+  ([od ^OutputStream stream [start end]]
+     (debug "got range: " start end)
      (let [blob   (d/blobstore od)
            blocks (b/blocks blob od)]
        (debug "got " (count blocks) "blocks")
        (try
-         (doseq [{:keys [block]} blocks]
+         (doseq [{:keys [block]} blocks
+                 :while (<= block end)]
            (debug "found block " block)
            (loop [offset block]
              (when-let [chunks (b/chunks (d/blobstore od) od block offset)]
                (debug "got " (count chunks) " chunks")
-               (doseq [[array off len] (map chunk->ba chunks)]
-                 (.write stream array off len))
+               (doseq [{:keys [offset chunksize] :as chunk}  chunks
+                       :let [[array off len] (chunk->ba chunk)]
+                       :while (<= offset end)]
+                 (let [start-at (if (<= offset start chunksize)
+                                        (- start offset)
+                                        0)
+                       end-at   (if (<= offset end chunksize)
+                                  (- end offset)
+                                  0)
+                       cropped  (- len start-at(- len end-at))]
+                   (.write stream array (+ off start-at) cropped)))
                (let [{:keys [offset chunksize]} (last chunks)]
                  (recur (+ offset chunksize))))))
          (catch Exception e
            (error e "error during read"))
          (finally
            (debug "closing after read")
-           (when close?
-             (.flush stream)
-             (.close stream))))
+           (.flush stream)
+           (.close stream)))
        od)))
 
 (defn stream-from

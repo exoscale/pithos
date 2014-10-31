@@ -212,6 +212,7 @@
 (defn safe-prepare
   "Wrap prepare in a try-catch block"
   [req system]
+  (debug "request: " (pr-str req))
   (try (prepare req system)
        (catch Exception e
          (insert-id

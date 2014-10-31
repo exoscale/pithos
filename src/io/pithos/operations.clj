@@ -69,13 +69,14 @@
   (if-let [range-def (or (get headers "range")
                          (get headers "content-range"))]
     (->> range-def
-         (re-find #"^bytes[ =](\d+)-(\d+)")
+         (re-find #"^bytes[ =](\d+)-(\d+)?")
          (#(or % (throw (ex-info "invalid range"
                                  {:type :invalid-argument
                                   :arg "range"
                                   :val range-def
                                   :status-code 400}))))
          (drop 1)
+         (mapv #(or % (str (desc/size od))))
          (mapv (partial parse-int "range")))
     [0 (desc/size od)]))
 
@@ -349,12 +350,12 @@
     (debug "will stream " (desc/inode od) (desc/version od))
     (future ;; XXX: set up a dedicated threadpool
       (try
-        (stream/stream-to od os)
+        (stream/stream-to od os range)
         (catch Exception e
           (error e "could not completely write out: "))))
     (-> (response is)
         (content-type (desc/content-type od))
-        (header "Content-Length" (desc/size od))
+        (header "Content-Length" (- (last range) (first range)))
         (header "ETag" (str "\"" (desc/checksum od) "\""))
         (update-in [:headers] (partial merge (:metadata od))))))
 
