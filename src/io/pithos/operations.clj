@@ -50,17 +50,34 @@
             (filter (comp valid? key) headers))))
 
 (defn parse-int
-  [nickname default val]
-  (if val
-    (try
-      (Long/parseLong val)
-      (catch NumberFormatException e
-        (throw (ex-info (str  "invalid value for " (name nickname))
-                        {:type :invalid-argument
-                         :arg (name nickname)
-                         :val val
-                         :status-code 400}))))
-    default))
+  ([nickname default val]
+     (if val
+       (try
+         (Long/parseLong val)
+         (catch NumberFormatException e
+           (throw (ex-info (str  "invalid value for " (name nickname))
+                           {:type :invalid-argument
+                            :arg (name nickname)
+                            :val val
+                            :status-code 400}))))
+       default))
+    ([nickname val]
+     (parse-int nickname nil val)))
+
+(defn get-range
+  [od headers]
+  (if-let [range-def (or (get headers "range")
+                         (get headers "content-range"))]
+    (->> range-def
+         (re-find #"^bytes[ =](\d+)-(\d+)")
+         (#(or % (throw (ex-info "invalid range"
+                                 {:type :invalid-argument
+                                  :arg "range"
+                                  :val range-def
+                                  :status-code 400}))))
+         (drop 1)
+         (mapv (partial parse-int "range")))
+    [0 (desc/size od)]))
 
 (defn get-service
   "Lists all buckets for  tenant"
@@ -318,15 +335,16 @@
   "Retrieve object. A response is sent immediately, whose body
   is a piped input stream. The connected outputstream will be fed data
   on a different thread."
-  [{:keys [od bucket object] :as request} system]
+  [{:keys [od bucket object headers] :as request} system]
   (when-not (desc/init-version od)
     (throw (ex-info "no such key" {:type :no-such-key
                                    :status-code 404
                                    :bucket bucket
                                    :key object})))
 
-  (let [[is os]                   (piped-input-stream)
-        add-headers #(doseq [[k v] (:metadata od)] (header % k v))]
+  (let [[is os]     (piped-input-stream)
+        add-headers #(doseq [[k v] (:metadata od)] (header % k v))
+        range       (get-range od headers)]
 
     (debug "will stream " (desc/inode od) (desc/version od))
     (future ;; XXX: set up a dedicated threadpool
