@@ -46,7 +46,7 @@
    when applicable (requests may be unauthenticated)"
   [keystore request]
   (if-let [auth-str (get-in request [:headers "authorization"])]
-    (let [[_ access-key sig] (re-matches #"^AWS (.*):(.*)$" auth-str)
+    (let [[_ access-key sig] (re-matches #"^[Aa][Ww][Ss] (.*):(.*)$" auth-str)
           {:keys [secret] :as authorization} (ks/fetch keystore access-key)
           signed (try (sign-request request access-key secret)
                       (catch Exception e
