@@ -4,7 +4,6 @@
             [io.pithos.operations :refer [get-range]]))
 
 (deftest range-test
-
   (let [desc   (reify desc/BlobDescriptor (size [this] 1024))
         in-out ["no headers"    {}                                  [0  1024]
                 "range"         {"range" "bytes=10-90"}             [10 90]
@@ -16,3 +15,13 @@
     (doseq [[nickname headers output] (partition 3 in-out)]
       (testing (str "valid output for " nickname)
         (is (= output (get-range desc headers)))))))
+
+(deftest range-exception-test
+  (let [d (reify desc/BlobDescriptor (size [this] :none))]
+    (testing "malformed ranges"
+      (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                            #"invalid range"
+                            (get-range d {"range" "blah"})))
+      (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                            #"invalid value"
+                            (get-range d {"range" "bytes=500-bla"}))))))
