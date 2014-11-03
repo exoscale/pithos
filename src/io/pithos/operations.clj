@@ -13,7 +13,7 @@
                                             ->channel-buffer]]
             [clojure.core.async     :refer [go chan >! <! put! close!]]
             [clojure.tools.logging  :refer [debug info warn error]]
-            [clojure.string         :refer [split]]
+            [clojure.string         :refer [split lower-case]]
             [io.pithos.util         :as util]
             [io.pithos.store        :as store]
             [io.pithos.bucket       :as bucket]
@@ -53,6 +53,37 @@
     (reduce merge
             {"content-type" "application/binary"}
             (filter (comp valid? key) headers))))
+
+(defn get-source
+  "The AWS API provides a way to specify an object's source in
+   headers. This function isolates the handling of extracting
+   the source when provided and validating that it is suitable."
+  [{:keys [headers authorization]} system]
+  (let [update-metadata? (some->> (get headers "x-amz-metadata-directive" "")
+                                  (lower-case)
+                                  ((partial = "replace")))]
+    (if-let [source (get headers "x-amz-copy-source")]
+      ;; we're dealing with a copy object request
+      (if-let [[prefix s-bucket s-object] (split (if (.startsWith source "/")
+                                                   source
+                                                   (str "/" source))
+                                                 #"/"
+                                                 3)]
+        (if (seq prefix)
+          (throw (ex-info "invalid" {:type :invalid-request :status-code 400}))
+          (when (perms/authorize {:bucket s-bucket
+                                  :object s-object
+                                  :authorization authorization}
+                                 [[:bucket :READ]]
+                                 system)
+            (let [src (desc/object-descriptor system s-bucket s-object)]
+              (when-not (desc/init-version src)
+                (throw (ex-info "no such key" {:type :no-such-key :key s-object})))
+              [src (if update-metadata?
+                     (get-metadata headers)
+                     (:metadata src))])))
+        (throw (ex-info "invalid" {:type :invalid-request :status-code 400})))
+      [nil (get-metadata headers)])))
 
 (defn parse-int
   "When integers are supplied as arguments, parse them or
@@ -387,39 +418,19 @@
 
    Otherwise, data is streamed in."
   [{:keys [od body bucket object authorization] :as request} system]
-  (let [dst        od
-        previous   (desc/init-version dst)
-        ctype      (get (:headers request) "content-type")
-        metadata   (get-metadata request)
-        target-acl (perms/header-acl (:bd request)
-                                     (:tenant authorization)
-                                     (:headers request))]
+  (let [dst         od
+        previous    (desc/init-version dst)
+        ctype       (get (:headers request) "content-type")
+        target-acl  (perms/header-acl (:bd request)
+                                      (:tenant authorization)
+                                      (:headers request))
+        [src meta]  (get-source request system)]
 
-    (if-let [source (get-in request [:headers "x-amz-copy-source"])]
-      ;; we're dealing with a copy object request
-      (if-let [[prefix s-bucket s-object] (split (if (.startsWith source "/")
-                                                   source
-                                                   (str "/" source))
-                                                 #"/"
-                                                 3)]
-        (if (seq prefix)
-          (throw (ex-info "invalid" {:type :invalid-request :status-code 400}))
-          (when (perms/authorize {:bucket s-bucket
-                                  :object s-object
-                                  :authorization authorization}
-                                 [[:bucket :READ]]
-                                 system)
-            (let [src (desc/object-descriptor system s-bucket s-object)]
-              (when-not (desc/init-version src)
-                (throw (ex-info "no such key" {:type :no-such-key :key s-object})))
-
-              ;; avoid copies when source and dest are the same
-              (when (or (not= (desc/inode src) (desc/inode dst))
-                        (not= (desc/version src) previous))
-                (stream/stream-copy src dst)))))
-        (throw (ex-info "invalid" {:type :invalid-request :status-code 400})))
-
-      ;; we're dealing with a standard object creation
+    (if src
+      ;; avoid copies when source and dest are the same
+      (when (or (not= (desc/inode src) (desc/inode dst))
+                (not= (desc/version src) previous))
+        (stream/stream-copy src dst))
       (do
         (when previous
           (desc/increment! dst))
@@ -434,7 +445,7 @@
                              :size   (desc/init-size dst)})
       (blob/delete! (desc/blobstore dst) dst previous))
 
-    (doseq [[k v] metadata]
+    (doseq [[k v] meta]
       (desc/col! dst k v))
     (desc/col! dst :acl target-acl)
     (desc/save! dst)
@@ -478,28 +489,11 @@
   [{:keys [od upload-id body bucket object authorization] :as request} system]
   (let [{:keys [partnumber]} (:params request)
         pd                   (desc/part-descriptor system bucket object
-                                                   upload-id partnumber)]
-    (if-let [source (get-in request [:headers "x-amz-copy-source"])]
-      ;; we're dealing with a copy object request
-      (if-let [[prefix s-bucket s-object] (split (if (.startsWith source "/")
-                                                   source
-                                                   (str "/" source))
-                                                 #"/"
-                                                 3)]
-        (if (seq prefix)
-          (throw (ex-info "invalid" {:type :invalid-request :status-code 400}))
-          (when (perms/authorize {:bucket s-bucket
-                                  :object s-object
-                                  :authorization authorization}
-                                 [[:bucket :READ]]
-                                 system)
-            (let [src (desc/object-descriptor system s-bucket s-object)]
-              (when-not (desc/init-version src)
-                (throw (ex-info "no such key" {:type :no-such-key :key s-object})))
-              (stream/stream-copy src pd))))
-        (throw (ex-info "invalid" {:type :invalid-request :status-code 400})))
+                                                   upload-id partnumber)
+        [src _]              (get-source request system)]
 
-      ;; we're dealing with a standard object part creation
+    (if src
+      (stream/stream-copy src pd)
       (stream/stream-from body pd))
 
     (desc/save! pd)
