@@ -1,6 +1,9 @@
 (ns io.pithos.operations
   "The operations namespace maps an operation as figured out when
-   preparing a request and tries to service it"
+   preparing a request and tries to service it.
+
+   This namespace is where most of the actual work in exposing S3
+   functionality happens."
   (:require [io.pithos.response     :refer [header response status
                                             xml-response request-id
                                             content-type exception-status]]
