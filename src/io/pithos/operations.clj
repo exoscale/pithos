@@ -511,7 +511,7 @@
    while the parts are streamed. Once all parts have been streamed a final
    XML payload is pushed out, described the results of the operation.
 "
-  [{:keys [bucket object upload-id od] :as request} system]
+  [{:keys [bucket object upload-id od body] :as request} system]
   (let [ch        (chan)
         previous  (desc/init-version od)
         push-str  (fn [type]
@@ -519,13 +519,22 @@
         etag      (promise)
         details   (meta/get-upload-details (bucket/metastore od)
                                            bucket object upload-id)
-        metadata  (-> (:metadata details) (dissoc "acl" "initiated"))]
+        metadata  (-> (:metadata details) (dissoc "acl" "initiated"))
+        inparts   (xml/xml->multipart (slurp body))]
     (future
       (try
         (when previous
           (desc/increment! od))
-        (let [parts (desc/part-descriptors system bucket object upload-id)
-              od    (stream/stream-copy-parts parts od push-str)]
+        (let [allparts (desc/part-descriptors system bucket object upload-id)
+              parts    (for [{:keys [part etag]} inparts
+                             :let [finder #(and (= (desc/part %) part) %)
+                                   part   (some finder allparts)]]
+                         (if (and part (= (desc/checksum part) etag))
+                           part
+                           (throw (ex-info "invalid part definition"
+                                           {:type :invalid-part
+                                            :status-code 400}))))
+              od       (stream/stream-copy-parts (vec parts) od push-str)]
 
           (desc/col! od :acl (get-in details [:metadata "acl"]))
           (desc/col! od :content-type (get-in details [:metadata "content-type"]))
@@ -537,7 +546,7 @@
                                  :bucket bucket
                                  :object object
                                  :size   (desc/size od)})
-          (doseq [part parts]
+          (doseq [part allparts]
             (push-str :block)
             (meta/abort-multipart-upload! (bucket/metastore part)
                                           bucket
