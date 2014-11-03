@@ -31,8 +31,10 @@
   [src]
   (try
     (let [xml-tree   (xml-zip (parse-str src))
-          node->part #(hash-map :part (xml1-> % :PartNumber text)
-                                :etag (xml1-> % :ETag text))]
+          unquote    #(s/replace % "\"" "")
+          node->part #(hash-map :part (Long/parseLong
+                                       (xml1-> % :PartNumber text))
+                                :etag (unquote (xml1-> % :ETag text)))]
 
       (xml-> xml-tree :Part node->part))
     (catch clojure.lang.ExceptionInfo e
