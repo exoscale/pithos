@@ -6,7 +6,7 @@
   on the wire."
   (:require [clojure.data.xml     :refer [->Element emit-str parse-str]]
             [clojure.zip          :refer [xml-zip]]
-            [clojure.data.zip.xml :refer [xml-> text]]
+            [clojure.data.zip.xml :refer [xml-> xml1-> text]]
             [clojure.pprint       :refer [pprint]]
             [clojure.string       :as s]
             [io.pithos.sig        :as sig]))
@@ -25,6 +25,22 @@
     (catch Exception e
       (throw (ex-info "invalid XML in body"
                       {:type :invalid-delete-xml
+                       :status-code 400})))))
+
+(defn xml->multipart
+  [src]
+  (try
+    (let [xml-tree   (xml-zip (parse-str src))
+          node->part #(hash-map :part (xml1-> % :PartNumber text)
+                                :etag (xml1-> % :ETag text))]
+
+      (xml-> xml-tree :Part node->part))
+    (catch clojure.lang.ExceptionInfo e
+      (throw e))
+    (catch Exception e
+      (throw (ex-info "invalid XML in body"
+                      {:type :invalid-multipart-xml
+                       :original e
                        :status-code 400})))))
 
 (defn seq->xml
