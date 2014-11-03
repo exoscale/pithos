@@ -83,9 +83,16 @@
   []
   (javax.xml.bind.DatatypeConverter/printDateTime (Calendar/getInstance @utc)))
 
+(def rfc822-format
+  (formatter "EEE, dd MMM yyyy HH:mm:ss z"))
+
+(defn rfc822->date
+  [s]
+  (parse rfc822-format s))
+
 (defn iso8601->rfc822
   "RFC822 representation based on an iso8601 timestamp"
   [isodate]
   (->> isodate
        (parse (:date-time-parser formatters))
-       (unparse (formatter "EEE, dd MMM yyyy HH:mm:ss z"))))
+       (unparse rfc822-format)))
