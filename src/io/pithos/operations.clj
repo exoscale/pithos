@@ -46,7 +46,7 @@
                         "content-disposition" "content-language"
                         "expires" "cache-control"}
                       x)
-                     (re-find #"^x-amz-meta" x)))]
+                     (re-find #"^x-amz-meta-" x)))]
     (reduce merge
             {"content-type" "application/binary"}
             (filter (comp valid? key) headers))))
