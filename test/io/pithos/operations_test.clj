@@ -1,7 +1,12 @@
 (ns io.pithos.operations-test
   (:require [clojure.test         :refer :all]
             [io.pithos.desc       :as desc]
-            [io.pithos.operations :refer [get-range]]))
+            [io.pithos.bucket     :as bucket]
+            [io.pithos.meta       :as meta]
+            [io.pithos.blob       :as blob]
+            [io.pithos.store      :as store]
+            [io.pithos.operations :refer [get-range]]
+            [io.pithos.util       :refer [inc-prefix]]))
 
 (deftest range-test
   (let [desc   (reify desc/BlobDescriptor (size [this] 1024))
@@ -25,3 +30,101 @@
       (is (thrown-with-msg? clojure.lang.ExceptionInfo
                             #"invalid value"
                             (get-range d {"range" "bytes=500-bla"}))))))
+(defn atom-bucket-store
+  [state]
+  (reify
+    store/Convergeable
+    (converge! [this])
+    store/Crudable
+    (create! [this tenant bucket columns]
+      (swap! state assoc-in [:buckets bucket]
+             (assoc columns :tenant tenant :bucket bucket)))
+    (delete! [this bucket]
+      (swap! state update-in [:buckets] dissoc bucket))
+    (update! [this bucket columns]
+      (swap! state update-in [:buckets] merge columns))
+    bucket/Bucketstore
+    (by-tenant [this tenant]
+      (filter (comp (partial = tenant) :tenant) (:buckets @state)))
+    (by-name [this bucket]
+      (get-in @state [:buckets bucket]))))
+
+(defn atom-meta-store
+  [state]
+  (reify
+    store/Convergeable
+    (converge! [this])
+    store/Crudable
+    (fetch [this bucket object fail?]
+      (or
+       (get-in @state [:objects bucket object])
+       (and fail? (throw (ex-info "no such object" {})))))
+    (fetch [this bucket object]
+      (store/fetch this bucket object false))
+    (update! [this bucket object columns]
+      (swap! state update-in [:objects bucket object] merge columns))
+    (delete! [this bucket object]
+      (swap! state update-in [:objects bucket] dissoc object))
+
+    meta/Metastore
+    (prefixes [this bucket params]
+      (meta/get-prefixes
+       (fn [prefix marker limit]
+         (let [>pred   #(or (= (:object %) (or marker prefix))
+                            (not (.startsWith (or (:object %) "")
+                                              (or marker prefix ""))))
+               <pred   #(or (empty? prefix)
+                            (neg? (compare (:object %) (inc-prefix prefix))))]
+           (->> (get-in @state [:objects bucket])
+                (sort-by :object)
+                (drop-while >pred)
+                (take-while <pred)
+                (take limit))))
+       params))
+
+    (abort-multipart-upload! [this bucket object upload]
+      (swap! state update-in [:uploads bucket object] dissoc upload))
+    (update-part! [this bucket object upload partno columns]
+      (swap! state update-in [:uploads bucket object upload :parts partno]
+             merge columns))
+    (initiate-upload! [this bucket object upload metadata]
+      (swap! state assoc-in [:uploads bucket object upload :meta] metadata))
+    (get-upload-details [this bucket object upload]
+      (get-in @state [:uploads bucket object upload]))
+    (list-uploads [this bucket]
+      (get-in @state [:uploads bucket]))
+    (list-object-uploads [this bucket object]
+      (get-in @state [:uploads bucket object]))
+    (list-upload-parts [this bucket object upload]
+      (get-in @state [:uploads bucket object upload :parts]))))
+
+(defn atom-blob-store
+  [state max-chunk-size max-block-chunks]
+  (reify
+    store/Convergeable
+    (converge! [this])
+    store/Crudable
+    (delete! [this inode version]
+      (swap! state update-in [:inodes] (dissoc [inode version])))
+    blob/Blobstore
+
+    (blocks [this od]
+      (sort (get-in @state [:inodes [(desc/inode od) (desc/version od)]
+                            :blocks])))
+    (max-chunk [this] max-chunk-size)
+    (chunks [this od block offset]
+      (drop-while
+       (comp #(< % offset) :offset)
+       (sort-by :offset
+                (get-in @state [:inodes [(desc/inode od) (desc/version od)]
+                                :chunks block]))))
+    (boundary? [this block offset]
+      (>= offset (+ block (max-chunk-size max-block-chunks))))
+    (start-block! [this od block]
+      (swap! state update-in
+             [:inodes [(desc/inode od) (desc/version od)] :blocks]
+             conj block))
+    (chunk! [this od block offset chunk]
+      (swap! @state [:inodes [(desc/inode od) (desc/version od)] :chunks block]
+             conj {:offset offset :chunk chunk :chunksize
+                   (- (.limit chunk) (.position chunk))}))))
