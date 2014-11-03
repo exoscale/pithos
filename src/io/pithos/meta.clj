@@ -18,7 +18,6 @@
   (converge! [this])
   (fetch [this bucket object] [this bucket object fail?])
   (prefixes [this bucket params])
-  (finalize! [this bucket key version size checksum])
   (update! [this bucket object columns])
   (delete! [this bucket object])
   (abort-multipart-upload! [this bucket object upload])
