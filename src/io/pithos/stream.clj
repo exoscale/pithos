@@ -23,38 +23,38 @@
 (defn stream-to
   "Given an outputstream and a range, stream from
    an object descriptor to that outputstream."
-  ([od ^OutputStream stream [start end]]
-     (debug "got range: " start end)
-     (let [blob   (d/blobstore od)
-           blocks (b/blocks blob od)]
-       (debug "got " (count blocks) "blocks")
-       (try
-         (doseq [{:keys [block]} blocks
-                 :while (<= block end)]
-           (debug "found block " block)
-           (loop [offset block]
-             (when-let [chunks (b/chunks (d/blobstore od) od block offset)]
-               (debug "got " (count chunks) " chunks")
-               (doseq [{:keys [offset chunksize] :as chunk}  chunks
-                       :let [[array off len] (chunk->ba chunk)]
-                       :while (<= offset end)]
-                 (let [start-at (if (<= offset start chunksize)
-                                        (- start offset)
-                                        0)
-                       end-at   (if (<= offset end chunksize)
-                                  (- end offset)
-                                  0)
-                       cropped  (- len start-at(- len end-at))]
-                   (.write stream array (+ off start-at) cropped)))
-               (let [{:keys [offset chunksize]} (last chunks)]
-                 (recur (+ offset chunksize))))))
-         (catch Exception e
-           (error e "error during read"))
-         (finally
-           (debug "closing after read")
-           (.flush stream)
-           (.close stream)))
-       od)))
+  [od ^OutputStream stream [start end]]
+  (debug "got range: " start end)
+  (let [blob   (d/blobstore od)
+        blocks (b/blocks blob od)]
+    (debug "got " (count blocks) "blocks")
+    (try
+      (doseq [{:keys [block]} blocks
+              :while (<= block end)]
+        (debug "found block " block)
+        (loop [offset block]
+          (when-let [chunks (b/chunks (d/blobstore od) od block offset)]
+            (debug "got " (count chunks) " chunks")
+            (doseq [{:keys [offset chunksize] :as chunk}  chunks
+                    :let [[array off len] (chunk->ba chunk)]
+                    :while (<= offset end)]
+              (let [start-at (if (<= offset start chunksize)
+                               (- start offset)
+                               0)
+                    end-at   (if (<= offset end chunksize)
+                               (- end offset)
+                               0)
+                    cropped  (- len start-at(- len end-at))]
+                (.write stream array (+ off start-at) cropped)))
+            (let [{:keys [offset chunksize]} (last chunks)]
+              (recur (+ offset chunksize))))))
+      (catch Exception e
+        (error e "error during read"))
+      (finally
+        (debug "closing after read")
+        (.flush stream)
+        (.close stream)))
+    od))
 
 (defn stream-from
   "Given an input stream and an object descriptor, stream data from the
@@ -63,40 +63,37 @@
    Our current approach has the drawback of not enforcing blocksize
    requirements since we have no way of being notified when reaching a
    threshold."
-  ([^InputStream stream od]
-     (stream-from stream od true))
-  ([^InputStream stream od close?]
-     (let [blob   (d/blobstore od)
-           hash   (u/md5-init)]
-       (try
-         (loop [block  0
-                offset 0]
-           (when (>= block offset)
-             (debug "marking new block")
-             (b/start-block! blob od block))
+  [^InputStream stream od]
+  (let [blob   (d/blobstore od)
+        hash   (u/md5-init)]
+    (try
+      (loop [block  0
+             offset 0]
+        (when (>= block offset)
+          (debug "marking new block")
+          (b/start-block! blob od block))
 
-           (let [chunk-size (b/max-chunk blob)
-                 ba         (byte-array chunk-size)
-                 br         (.read stream ba)]
-             (if (neg? br)
-               (do
-                 (debug "negative write, read whole stream")
-                 (d/col! od :size offset)
-                 (d/col! od :checksum (u/md5-sum hash))
-                 od)
-               (let [chunk  (ByteBuffer/wrap ba 0 br)
-                     sz     (b/chunk! blob od block offset chunk)
-                     offset (+ sz offset)]
-                 (u/md5-update hash ba 0 br)
-                 (if (b/boundary? blob block offset)
-                   (recur offset offset)
-                   (recur block offset))))))
-         (catch Exception e
-           (error e "error during write"))
-         (finally
-           (debug "closing after write")
-           (when close?
-             (.close stream)))))))
+        (let [chunk-size (b/max-chunk blob)
+              ba         (byte-array chunk-size)
+              br         (.read stream ba)]
+          (if (neg? br)
+            (do
+              (debug "negative write, read whole stream")
+              (d/col! od :size offset)
+              (d/col! od :checksum (u/md5-sum hash))
+              od)
+            (let [chunk  (ByteBuffer/wrap ba 0 br)
+                  sz     (b/chunk! blob od block offset chunk)
+                  offset (+ sz offset)]
+              (u/md5-update hash ba 0 br)
+              (if (b/boundary? blob block offset)
+                (recur offset offset)
+                (recur block offset))))))
+      (catch Exception e
+        (error e "error during write"))
+      (finally
+        (debug "closing after write")
+        (.close stream)))))
 
 (defn stream-copy
   "Copy from one object descriptor to another."
