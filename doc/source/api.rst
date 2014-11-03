@@ -55,6 +55,9 @@ provided by pithos.
    * - Bucket Lifecycle
      - OK
      - No actual action performed.
+   * - Bucket Policy
+     - OK
+     - No actual action performed
    * - Object creation
      - OK
      - 
@@ -71,9 +74,6 @@ provided by pithos.
      - Unfinished
      - 
    * - Object Torrent
-     - Not implemented
-     - 
-   * - Bucket Policy
      - Not implemented
      - 
    * - Bucket Logging
