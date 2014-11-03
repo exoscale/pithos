@@ -588,111 +588,111 @@
 (def opmap
   "Map requests to handler with associated necessary
    permissions"
-  {:get-service            {:handler get-service
-                            :target  :service
-                            :perms   [[:memberof "authenticated-users"]]}
-   :put-bucket             {:handler put-bucket
-                            :perms   [[:memberof "authenticated-users"]]}
-   :put-bucket-versioning  {:handler put-bucket-versioning
-                            :target  :bucket
-                            :perms   [[:bucket :WRITE]]}
-   :get-bucket-versioning  {:handler get-bucket-versioning
-                            :target  :bucket
-                            :perms   [[:bucket :WRITE]]}
-   :delete-bucket          {:handler delete-bucket
-                            :target  :bucket
-                            :perms   [[:memberof "authenticated-users"]
-                                      [:bucket   :owner]]}
+  {:get-service             {:handler get-service
+                             :target  :service
+                             :perms   [[:memberof "authenticated-users"]]}
+   :put-bucket              {:handler put-bucket
+                             :perms   [[:memberof "authenticated-users"]]}
+   :put-bucket-versioning   {:handler put-bucket-versioning
+                             :target  :bucket
+                             :perms   [[:bucket :WRITE]]}
+   :get-bucket-versioning   {:handler get-bucket-versioning
+                             :target  :bucket
+                             :perms   [[:bucket :WRITE]]}
+   :delete-bucket           {:handler delete-bucket
+                             :target  :bucket
+                             :perms   [[:memberof "authenticated-users"]
+                                       [:bucket   :owner]]}
    :delete-bucket-lifecycle {:handler delete-bucket-lifecycle
                              :target  :bucket
                              :perms  [[:memberof "authenticated-users"]
                                       [:bucket   :owner]]}
-   :put-bucket-lifecycle {:handler put-bucket-lifecycle
-                          :target  :bucket
-                          :perms  [[:memberof "authenticated-users"]
-                                   [:bucket   :owner]]}
-   :get-bucket-lifecycle {:handler get-bucket-lifecycle
-                          :target  :bucket
-                          :perms  [[:memberof "authenticated-users"]
-                                   [:bucket   :owner]]}
-   :head-bucket            {:handler head-bucket
-                            :target  :bucket
-                            :perms [[:bucket :READ]]}
-   :get-bucket             {:handler get-bucket
-                            :target  :bucket
-                            :perms   [[:bucket :READ]]}
-   :get-bucket-cors        {:handler get-bucket-cors
-                            :target  :bucket
-                            :perms   [[:bucket :READ]]}
-   :delete-bucket-cors     {:handler delete-bucket-cors
-                            :target  :bucket
-                            :perms   [[:bucket :WRITE]]}
-   :put-bucket-cors        {:handler put-bucket-cors
-                            :target  :bucket
-                            :perms   [[:bucket :WRITE]]}
-   :get-bucket-acl         {:handler get-bucket-acl
-                            :target  :bucket
-                            :perms   [[:bucket :READ_ACP]]}
-   :put-bucket-acl         {:handler put-bucket-acl
-                            :target  :bucket
-                            :perms   [[:bucket :WRITE_ACP]]}
-   :get-bucket-location    {:handler get-bucket-location
-                            :target  :bucket
-                            :perms   [[:bucket :READ]]}
-   :put-bucket-policy      {:handler put-or-delete-bucket-policy
-                            :target  :bucket
-                            :perms   [[:bucket :WRITE]]}
-   :delete-bucket-policy   {:handler put-or-delete-bucket-policy
-                            :target  :bucket
-                            :perms   [[:bucket :WRITE]]}
-   :get-bucket-policy      {:handler get-bucket-policy
-                            :target  :bucket
-                            :perms   [[:bucket :READ_ACP]]}
-   :get-bucket-uploads     {:handler get-bucket-uploads
-                            :perms   [[:bucket :READ]]
-                            :target  :bucket}
-   :options-bucket         {:handler options-bucket
-                            :target  :bucket
-                            :perms   [[:object :READ]]}
-   :options-object         {:handler options-bucket
-                            :target  :bucket
-                            :perms   [[:object :READ]]}
-   :post-bucket-delete     {:handler post-bucket-delete
-                            :target  :bucket
-                            :perms   [[:bucket :WRITE]]}
-   :get-object             {:handler get-object
-                            :target  :object
-                            :perms   [[:object :READ]]}
-   :head-object            {:handler head-object
-                            :target  :object
-                            :perms   [[:object :READ]]}
-   :put-object             {:handler put-object
-                            :target  :object
-                            :perms   [[:bucket :WRITE]]}
-   :delete-object          {:handler delete-object
-                            :target  :object
-                            :perms   [[:bucket :WRITE]]}
-   :get-object-acl         {:handler get-object-acl
-                            :target  :object
-                            :perms   [[:object :READ_ACP]]}
-   :put-object-acl         {:handler put-object-acl
-                            :target  :object
-                            :perms   [[:object :WRITE_ACP]]}
-   :post-object-uploads    {:handler initiate-upload
-                            :target  :object
-                            :perms   [[:bucket :WRITE]]}
-   :put-object-uploadid    {:handler put-object-part
-                            :target  :upload
-                            :perms   [[:bucket :WRITE]]}
-   :delete-object-uploadid {:handler abort-upload
-                            :target  :upload
-                            :perms   [[:bucket :WRITE]]}
-   :post-object-uploadid   {:handler complete-upload
-                            :target  :upload
-                            :perms   [[:bucket :WRITE]]}
-   :get-object-uploadid    {:handler get-upload-parts
-                            :target  :upload
-                            :perms   [[:bucket :WRITE]]}})
+   :put-bucket-lifecycle    {:handler put-bucket-lifecycle
+                             :target  :bucket
+                             :perms  [[:memberof "authenticated-users"];
+                                      [:bucket   :owner]]}
+   :get-bucket-lifecycle    {:handler get-bucket-lifecycle
+                             :target  :bucket
+                             :perms  [[:memberof "authenticated-users"]
+                                      [:bucket   :owner]]}
+   :head-bucket             {:handler head-bucket
+                             :target  :bucket
+                             :perms [[:bucket :READ]]}
+   :get-bucket              {:handler get-bucket
+                             :target  :bucket
+                             :perms   [[:bucket :READ]]}
+   :get-bucket-cors         {:handler get-bucket-cors
+                             :target  :bucket
+                             :perms   [[:bucket :READ]]}
+   :delete-bucket-cors      {:handler delete-bucket-cors
+                             :target  :bucket
+                             :perms   [[:bucket :WRITE]]}
+   :put-bucket-cors         {:handler put-bucket-cors
+                             :target  :bucket
+                             :perms   [[:bucket :WRITE]]}
+   :get-bucket-acl          {:handler get-bucket-acl
+                             :target  :bucket
+                             :perms   [[:bucket :READ_ACP]]}
+   :put-bucket-acl          {:handler put-bucket-acl
+                             :target  :bucket
+                             :perms   [[:bucket :WRITE_ACP]]}
+   :get-bucket-location     {:handler get-bucket-location
+                             :target  :bucket
+                             :perms   [[:bucket :READ]]}
+   :put-bucket-policy       {:handler put-or-delete-bucket-policy
+                             :target  :bucket
+                             :perms   [[:bucket :WRITE]]}
+   :delete-bucket-policy    {:handler put-or-delete-bucket-policy
+                             :target  :bucket
+                             :perms   [[:bucket :WRITE]]}
+   :get-bucket-policy       {:handler get-bucket-policy
+                             :target  :bucket
+                             :perms   [[:bucket :READ_ACP]]}
+   :get-bucket-uploads      {:handler get-bucket-uploads
+                             :perms   [[:bucket :READ]]
+                             :target  :bucket}
+   :options-bucket          {:handler options-bucket
+                             :target  :bucket
+                             :perms   [[:object :READ]]}
+   :options-object          {:handler options-bucket
+                             :target  :bucket
+                             :perms   [[:object :READ]]}
+   :post-bucket-delete      {:handler post-bucket-delete
+                             :target  :bucket
+                             :perms   [[:bucket :WRITE]]}
+   :get-object              {:handler get-object
+                             :target  :object
+                             :perms   [[:object :READ]]}
+   :head-object             {:handler head-object
+                             :target  :object
+                             :perms   [[:object :READ]]}
+   :put-object              {:handler put-object
+                             :target  :object
+                             :perms   [[:bucket :WRITE]]}
+   :delete-object           {:handler delete-object
+                             :target  :object
+                             :perms   [[:bucket :WRITE]]}
+   :get-object-acl          {:handler get-object-acl
+                             :target  :object
+                             :perms   [[:object :READ_ACP]]}
+   :put-object-acl          {:handler put-object-acl
+                             :target  :object
+                             :perms   [[:object :WRITE_ACP]]}
+   :post-object-uploads     {:handler initiate-upload
+                             :target  :object
+                             :perms   [[:bucket :WRITE]]}
+   :put-object-uploadid     {:handler put-object-part
+                             :target  :upload
+                             :perms   [[:bucket :WRITE]]}
+   :delete-object-uploadid  {:handler abort-upload
+                             :target  :upload
+                             :perms   [[:bucket :WRITE]]}
+   :post-object-uploadid    {:handler complete-upload
+                             :target  :upload
+                             :perms   [[:bucket :WRITE]]}
+   :get-object-uploadid     {:handler get-upload-parts
+                             :target  :upload
+                             :perms   [[:bucket :WRITE]]}})
 
 (defn ex-handler
   "Wrap exceptions and report them correctly"
