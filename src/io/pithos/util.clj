@@ -48,12 +48,11 @@
   [input & [param]]
   (when input
     (if-let [[_ amount _ factor] (re-find byte-pattern (str input))]
-      (do
-        (long
-         (* (Long/parseLong amount)
-            (if factor
-              (Math/pow 1024 (get byte-factors (lower-case factor)))
-              1))))
+      (long
+       (* (Long/parseLong amount)
+          (if factor
+            (Math/pow 1024 (get byte-factors (lower-case factor)))
+            1)))
       (throw (ex-info (format "invalid byte amount [%s]: %s"
                               (or param "") input) {})))))
 
