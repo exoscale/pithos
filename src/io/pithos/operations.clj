@@ -262,6 +262,11 @@
     (meta/update! (bucket/metastore od) bucket object {:acl acl})
     (response)))
 
+(defn put-or-delete-bucket-policy
+  "Dummy handler for bucket policy updates."
+  [request system]
+  (status (response) 204))
+
 (defn get-bucket-policy
   "Retrieve object policy: always fails for now"
   [request system]
@@ -622,6 +627,12 @@
    :get-bucket-location    {:handler get-bucket-location
                             :target  :bucket
                             :perms   [[:bucket :READ]]}
+   :put-bucket-policy      {:handler put-or-delete-bucket-policy
+                            :target  :bucket
+                            :perms   [[:bucket :WRITE]]}
+   :delete-bucket-policy   {:handler put-or-delete-bucket-policy
+                            :target  :bucket
+                            :perms   [[:bucket :WRITE]]}
    :get-bucket-policy      {:handler get-bucket-policy
                             :target  :bucket
                             :perms   [[:bucket :READ_ACP]]}
