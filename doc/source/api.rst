@@ -580,6 +580,33 @@ Request parameters:
   - ``max-uploads``: The maximum number of uploades to return.
   - ``marker``: When present, use the provided marker to access paged results.
 
+POST Bucket delete
+------------------
+
+Provide a list of objects to delete from a bucket.
+The list is given as an XML payload.
+
+Sample Request::
+
+  POST /?delete HTTP/1.1
+  Host: mybucket.service.uri
+  Date: <date>
+  Authorization: AWS <key>:<signature>
+
+Sample Request Body:
+
+.. sourcecode:: xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<Delete>
+    <Object>
+         <Key>Key1</Key>
+    </Object>
+    <Object>
+         <Key>Key2</Key>
+    </Object>
+</Delete>	                
+
 
 .. _GET Object:
 
