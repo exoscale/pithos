@@ -132,8 +132,8 @@
   "Creates a bucket"
   [{{:keys [tenant]} :authorization :keys [bucket] :as request} system]
   (let [target-acl (perms/header-acl tenant (:headers request))]
-    (bucket/create! (system/bucketstore system) tenant bucket
-                    {:acl target-acl})
+    (store/create! (system/bucketstore system) tenant bucket
+                   {:acl target-acl})
     (-> (response)
         (header "Location" (str "/" bucket))
         (header "Connection" "close"))))
@@ -147,7 +147,7 @@
       (throw (ex-info "bucket not empty" {:type :bucket-not-empty
                                           :bucket bucket
                                           :status-code 409})))
-    (bucket/delete! (system/bucketstore system) bucket)
+    (store/delete! (system/bucketstore system) bucket)
     (-> (response)
         (status 204))))
 
@@ -185,7 +185,7 @@
 (defn delete-bucket-cors
   "Destroy any previous CORS configuration"
   [{:keys [bucket]} system]
-  (bucket/update! (system/bucketstore system) bucket {:cors nil})
+  (store/update! (system/bucketstore system) bucket {:cors nil})
   (status (response) 204))
 
 (defn put-bucket-cors
@@ -193,7 +193,7 @@
   [{:keys [bucket body]} system]
   (let [cors (-> (slurp body) (cors/xml->cors) (pr-str))]
     (debug "got cors: " cors)
-    (bucket/update! (system/bucketstore system) bucket {:cors cors})
+    (store/update! (system/bucketstore system) bucket {:cors cors})
     (response)))
 
 (defn put-bucket-acl
@@ -212,7 +212,7 @@
                      (perms/header-acl (:tenant authorization) headers))
         acl        (or header-acl
                        (-> (slurp body) (acl/xml->acl) (pr-str)))]
-    (bucket/update! (system/bucketstore system) bucket {:acl acl})
+    (store/update! (system/bucketstore system) bucket {:acl acl})
     (response)))
 
 (defn get-bucket-acl
@@ -269,7 +269,7 @@
 (defn get-object-acl
   "Retrieve and format object acl"
   [{:keys [od bucket object] {:keys [tenant]} :authorization :as request} system]
-  (let [acl (or (some-> (meta/fetch (bucket/metastore od) bucket object)
+  (let [acl (or (some-> (store/fetch (bucket/metastore od) bucket object)
                         :acl
                         read-string)
                 {:FULL_CONTROL [{:ID tenant}]})]
@@ -293,7 +293,7 @@
                      (perms/header-acl bd headers (:tenant authorization)))
         acl        (or header-acl
                        (-> (slurp body) (acl/xml->acl) (pr-str)))]
-    (meta/update! (bucket/metastore od) bucket object {:acl acl})
+    (store/update! (bucket/metastore od) bucket object {:acl acl})
     (response)))
 
 (defn put-or-delete-bucket-policy
@@ -360,8 +360,8 @@
                              :bucket bucket
                              :object path
                              :size   (desc/size od)})
-      (meta/delete! (bucket/metastore od) bucket path)
-      (blob/delete! (desc/blobstore od) od (desc/version od)))
+      (store/delete! (bucket/metastore od) bucket path)
+      (store/delete! (desc/blobstore od) od (desc/version od)))
     (-> (response)
         (status 204))))
 
@@ -373,8 +373,8 @@
                          :bucket bucket
                          :object object
                          :size   (desc/size od)})
-  (meta/delete! (bucket/metastore od) bucket object)
-  (blob/delete! (desc/blobstore od) od (desc/version od))
+  (store/delete! (bucket/metastore od) bucket object)
+  (store/delete! (desc/blobstore od) od (desc/version od))
   (-> (response)
       (status 204)))
 
@@ -443,7 +443,7 @@
                              :bucket bucket
                              :object object
                              :size   (desc/init-size dst)})
-      (blob/delete! (desc/blobstore dst) dst previous))
+      (store/delete! (desc/blobstore dst) dst previous))
 
     (doseq [[k v] meta]
       (desc/col! dst k v))
@@ -466,7 +466,7 @@
                                   bucket
                                   object
                                   upload-id)]
-    (blob/delete! (desc/blobstore od) inode version))
+    (store/delete! (desc/blobstore od) inode version))
   (meta/abort-multipart-upload! (bucket/metastore od)
                                 bucket
                                 object
@@ -550,7 +550,7 @@
                                           object
                                           upload-id)
             (push-str :block)
-            (blob/delete! (desc/blobstore part) part (desc/version part)))
+            (store/delete! (desc/blobstore part) part (desc/version part)))
 
           (when (and previous (not= previous (desc/version od)))
             (push-str :block)
@@ -559,7 +559,7 @@
                                    :bucket bucket
                                    :object object
                                    :size   (desc/init-size od)})
-            (blob/delete! (desc/blobstore od) od previous))
+            (store/delete! (desc/blobstore od) od previous))
 
           (debug "all streams now flushed")
           (push-str (xml/complete-multipart-upload bucket object

@@ -5,6 +5,15 @@
             [qbits.hayt            :refer [use-keyspace create-keyspace with]]
             [clojure.tools.logging :refer [debug]]))
 
+(defprotocol Convergeable
+  (converge! [this]))
+
+(defprotocol Crudable
+  (fetch [this k] [this k1 k2] [this k1 k2 k3])
+  (update! [this k v] [this k1 k2 v] [this k1 k2 k3 v])
+  (delete! [this k] [this k1 k2] [this k1 k2 k3])
+  (create! [this k v] [this k1 k2 v] [this k1 k2 k3 v]))
+
 (defn cassandra-store
   "Connect to a cassandra cluster, and use a specific keyspace.
    When the keyspace is not found, try creating it"

@@ -155,12 +155,18 @@
         bs        (* max-chunk max-block-chunks)
         limit     100]
     (debug "got max-chunk " max-chunk "and max-block-chunks " max-block-chunks)
-    (reify Blobstore
-
+    (reify
+      store/Convergeable
       (converge! [this]
         (execute session inode_blocks-table)
         (execute session block-table))
-
+      store/Crudable
+      (delete! [this od version]
+        (let [ino (if (= (class od) java.util.UUID) od (d/inode od))]
+          (doseq [{block :block} (execute session (get-block-q ino version :asc))]
+            (execute session (delete-block-q ino version block)))
+          (execute session (delete-blockref-q ino version))))
+      Blobstore
       (blocks [this od]
         (let [ino (d/inode od)
               ver (d/version od)]
@@ -174,12 +180,6 @@
               ver (d/version od)]
           (seq (execute session (get-chunk-q ino ver block offset
                                              absolute-chunk-limit)))))
-
-      (delete! [this od version]
-        (let [ino (if (= (class od) java.util.UUID) od (d/inode od))]
-          (doseq [{block :block} (execute session (get-block-q ino version :asc))]
-            (execute session (delete-block-q ino version block)))
-          (execute session (delete-blockref-q ino version))))
 
       (boundary? [this block offset]
         (>= offset (+ block bs)))

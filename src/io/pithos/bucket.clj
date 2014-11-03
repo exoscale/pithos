@@ -15,12 +15,8 @@
 (defprotocol Bucketstore
   "The bucketstore contains the schema migration function,
    two bucket lookup functions and CRUD signatures"
-  (converge! [this])
   (by-tenant [this tenant])
-  (by-name [this bucket])
-  (create! [this tenant bucket columns])
-  (update! [this bucket columns])
-  (delete! [this bucket]))
+  (by-name [this bucket]))
 
 (defprotocol BucketDescriptor
   (region [this])
@@ -92,15 +88,12 @@
    the above options"
   [{:keys [default-region] :as config}]
   (let [session (store/cassandra-store config)]
-    (reify Bucketstore
+    (reify
+      store/Convergeable
       (converge! [this]
         (execute session bucket-table)
         (execute session bucket_tenant-index))
-      (by-tenant [this tenant]
-        (execute session (bucket-by-tenant-q tenant)))
-      (by-name [this bucket]
-        (first
-         (execute session (fetch-bucket-q bucket))))
+      store/Crudable
       (create! [this tenant bucket columns]
         (if-let [[details] (seq (execute session (fetch-bucket-q bucket)))]
           (when (not= tenant (:tenant details))
@@ -125,7 +118,13 @@
           (throw (ex-info "bucket not found"
                           {:type        :no-such-bucket
                            :status-code 404
-                           :bucket      bucket})))))))
+                           :bucket      bucket}))))
+      Bucketstore
+      (by-tenant [this tenant]
+        (execute session (bucket-by-tenant-q tenant)))
+      (by-name [this bucket]
+        (first
+         (execute session (fetch-bucket-q bucket)))))))
 
 (defn get-region
   "Fetch the regionstore from regions"
