@@ -27,6 +27,8 @@
             [qbits.alia.uuid        :as uuid]))
 
 (defn assoc-targets
+  "Each operation has a primary target, fetch details early on has assoc
+   them in the operations map"
   [{:keys [bucket object] {:keys [uploadid]} :params :as req} system target]
   (case target
     :bucket (assoc req :bd (bucket/bucket-descriptor system bucket))
@@ -50,6 +52,8 @@
             (filter (comp valid? key) headers))))
 
 (defn parse-int
+  "When integers are supplied as arguments, parse them or
+   error out"
   ([nickname default val]
      (if val
        (try
@@ -65,6 +69,9 @@
      (parse-int nickname nil val)))
 
 (defn get-range
+  "Fetch range information from headers. We ignore the total size
+   when supplied using the Content-Range header. The end of the
+   range may be ommitted, not the start."
   [od headers]
   (if-let [range-def (or (get headers "range")
                          (get headers "content-range"))]

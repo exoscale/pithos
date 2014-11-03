@@ -11,6 +11,9 @@
             [clojure.tools.logging :refer [debug error]]))
 
 (defn chunk->ba
+  "Chunks in pithos come back as bytebuffers and we
+   need byte-arrays for outputstreams, this converts
+   from the former to the latter."
   [{:keys [payload]}]
   (let [array (.array payload)
         off   (.position payload)
@@ -18,6 +21,8 @@
     [array off len]))
 
 (defn stream-to
+  "Given an outputstream and a range, stream from
+   an object descriptor to that outputstream."
   ([od ^OutputStream stream [start end]]
      (debug "got range: " start end)
      (let [blob   (d/blobstore od)
@@ -52,6 +57,12 @@
        od)))
 
 (defn stream-from
+  "Given an input stream and an object descriptor, stream data from the
+   input stream to the descriptor.
+
+   Our current approach has the drawback of not enforcing blocksize
+   requirements since we have no way of being notified when reaching a
+   threshold."
   ([^InputStream stream od]
      (stream-from stream od true))
   ([^InputStream stream od close?]
@@ -88,6 +99,7 @@
              (.close stream)))))))
 
 (defn stream-copy
+  "Copy from one object descriptor to another."
   [src dst]
   (let [sblob  (d/blobstore src)
         dblob  (d/blobstore dst)
@@ -107,6 +119,7 @@
     dst))
 
 (defn stream-copy-part-block
+  "Copy a single part's block to a destination"
   [notifier dst hash part g-offset {:keys [block]}]
   (let [dblob      (d/blobstore dst)
         sblob      (d/blobstore part)
@@ -132,6 +145,7 @@
 
 
 (defn stream-copy-part
+  "Copy a single part to a destination"
   [notifier dst [offset hash] part]
   (let [sblob  (d/blobstore part)
         blocks (b/blocks sblob part)]
