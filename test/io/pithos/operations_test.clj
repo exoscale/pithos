@@ -42,8 +42,12 @@
     (converge! [this])
     store/Crudable
     (create! [this tenant bucket columns]
-      (swap! state assoc-in [:buckets bucket]
-             (assoc columns :tenant tenant :bucket bucket)))
+      (let [columns (merge {:created (iso8601-timestamp)
+                            :region  :myregion
+                            :tenant  tenant
+                            :bucket bucket}
+                           columns)]
+        (swap! state assoc-in [:buckets bucket] columns)))
     (delete! [this bucket]
       (swap! state update-in [:buckets] dissoc bucket))
     (update! [this bucket columns]
@@ -176,17 +180,24 @@
         handler  (comp (api/executor system) (signer (name key)))
         date!    (comp iso8601->rfc822 iso8601-timestamp)]
 
-    (testing "get service 1"
+    (testing "put bucket"
       (handler {:request-method :put
                 :headers {"host" "batman.blob.example.com"
                           "date" (date!)}
                 :sign-uri "/batman/"
                 :uri "/"})
+
       (is (= #{"batman"} (-> @state :buckets keys set)))
+
       (is (= (pr-str {:FULL_CONTROL [{:ID "foo@example.com"
                                       :DisplayName "foo@example.com"}]})
-             (-> @state :buckets (get "batman") :acl))
+             (-> @state :buckets (get "batman") :acl))))
 
+    (testing "remove bucket"
+      (handler {:request-method :delete
+                :headers {"host" "batman.blob.example.com"
+                          "date" (date!)}
+                :sign-uri "/batman/"
+                :uri "/"})
 
-
-    ))))
+      (is (empty? (:buckets @state))))))
