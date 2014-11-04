@@ -182,4 +182,11 @@
                           "date" (date!)}
                 :sign-uri "/batman/"
                 :uri "/"})
-      (is (= #{"batman"} (-> @state :buckets keys set))))))
+      (is (= #{"batman"} (-> @state :buckets keys set)))
+      (is (= (pr-str {:FULL_CONTROL [{:ID "foo@example.com"
+                                      :DisplayName "foo@example.com"}]})
+             (-> @state :buckets (get "batman") :acl))
+
+
+
+    ))))
