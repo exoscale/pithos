@@ -5,6 +5,7 @@
             [io.pithos.meta       :as meta]
             [io.pithos.blob       :as blob]
             [io.pithos.store      :as store]
+            [io.pithos.reporter   :as reporter]
             [io.pithos.operations :refer [get-range]]
             [io.pithos.util       :refer [inc-prefix]]))
 
@@ -128,3 +129,29 @@
       (swap! @state [:inodes [(desc/inode od) (desc/version od)] :chunks block]
              conj {:offset offset :chunk chunk :chunksize
                    (- (.limit chunk) (.position chunk))}))))
+
+(defn atom-reporter
+  [state]
+  (reify
+    reporter/Reporter
+    (report! [this event]
+      (swap! state update-in [:reports] conj event))))
+
+;; keystores are expected to behave as maps, so can be plain maps
+
+(defn atom-system
+  [uri port state keys max-chunk-size max-block-chunks]
+  (let [bucketstore (atom-bucket-store state)
+        metastore   (atom-meta-store state)
+        blobstore   (atom-blob-store state max-chunk-size max-block-chunks)
+        reporter    (atom-reporter state)
+        keystore    keys]
+    {:bucketstore bucketstore
+     :keystore keystore
+     :options {:service-uri uri
+               :default-region :myregion}
+     :service {:host "127.0.0.1"
+               :port port}
+     :regions {:myregion {:metastore metastore
+                          :storage-classes {:standard blobstore}}}
+     :reporters [reporter]}))
