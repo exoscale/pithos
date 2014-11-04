@@ -12,6 +12,14 @@
             [io.pithos.operations  :refer [dispatch]]
             [io.pithos.request     :refer [safe-prepare]]))
 
+(defn executor
+  "Given a system map, yield a handler function for incoming
+   request maps"
+  [system]
+  (fn [request]
+    (-> (safe-prepare request system)
+        (dispatch system))))
+
 (defn run
   "Run an asynchronous API handler through Netty thanks to aleph http.
    The request handler is an anonymous function which stores the channel
@@ -19,8 +27,6 @@
    several wrappers defined in `io.pithos.api.request` before letting
    `io.pithos.operations` dispatch based on the type of request"
   [system]
-  (let [handler (fn [request]
-                  (-> (safe-prepare request system)
-                      (dispatch system)))]
+  (let [handler (executor system)]
     (run-jetty (merge (service system) {:ring-handler handler})))
   (info "server up and running"))

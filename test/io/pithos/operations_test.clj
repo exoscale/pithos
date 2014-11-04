@@ -6,8 +6,11 @@
             [io.pithos.blob       :as blob]
             [io.pithos.store      :as store]
             [io.pithos.reporter   :as reporter]
+            [io.pithos.sig        :as sig]
+            [io.pithos.api        :as api]
             [io.pithos.operations :refer [get-range]]
-            [io.pithos.util       :refer [inc-prefix]]))
+            [io.pithos.util       :refer [inc-prefix iso8601->rfc822
+                                          iso8601-timestamp]]))
 
 (deftest range-test
   (let [desc   (reify desc/BlobDescriptor (size [this] 1024))
@@ -140,7 +143,7 @@
 ;; keystores are expected to behave as maps, so can be plain maps
 
 (defn atom-system
-  [uri port state keys max-chunk-size max-block-chunks]
+  [uri state keys max-chunk-size max-block-chunks]
   (let [bucketstore (atom-bucket-store state)
         metastore   (atom-meta-store state)
         blobstore   (atom-blob-store state max-chunk-size max-block-chunks)
@@ -150,8 +153,31 @@
      :keystore keystore
      :options {:service-uri uri
                :default-region :myregion}
-     :service {:host "127.0.0.1"
-               :port port}
      :regions {:myregion {:metastore metastore
                           :storage-classes {:standard blobstore}}}
      :reporters [reporter]}))
+
+(defn signer
+  [key]
+  (fn [request]
+    (let [sig (sig/sign-request request key key)]
+      (assoc-in request [:headers "authorization"]
+                (format "AWS %s:%s" key sig)))))
+
+(deftest integration-test
+
+  (let [state   (atom {})
+        key     :AKIAIOSFODNN7EXAMPLE
+        keys    {key {:secret-key (name key)
+                      :tenant     "foo@example.com"}}
+        system  (atom-system "blob.example.com" state keys 16384 1024)
+        handler (comp (api/executor system) (signer (name key)))
+        date!   (comp iso8601->rfc822 iso8601-timestamp)]
+
+    (testing "get service 1"
+      (handler {:request-method :put
+                :headers {"host" "batman.blob.example.com"
+                          "date" (date!)}
+                :uri "/"})
+      (println @state)
+      (is (= #{"batman"} (-> @state :buckets keys set))))))
