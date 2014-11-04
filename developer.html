@@ -106,6 +106,7 @@
 <li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-location">GET Bucket location</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-policy">GET Bucket policy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-uploads">GET Bucket uploads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#post-bucket-delete">POST Bucket delete</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#get-object">GET Object</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#head-object">HEAD Object</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#put-object">PUT Object</a></li>
@@ -215,51 +216,68 @@ to be plugged.</p>
 <p>In clojure parlance, the only requirement an implementation
 must fulfill is to realize the correct protocol.</p>
 <p>Here is a summary of all current protocols:</p>
-<div class="section" id="keystore">
-<h3>Keystore<a class="headerlink" href="#keystore" title="Permalink to this headline">¶</a></h3>
-<p>The keystore protocol contains a single-method: <tt class="docutils literal"><span class="pre">fetch</span></tt>,
-which given a key ID should return a map containing the
-keys:</p>
+<div class="section" id="convergeable">
+<h3>Convergeable<a class="headerlink" href="#convergeable" title="Permalink to this headline">¶</a></h3>
+<p>The convergeable protocol is used to create the
+initial schema for databases that need it. It
+consists of a single method:</p>
+<div class="highlight-clojure"><div class="highlight"><pre><span class="p">(</span><span class="kd">defprotocol </span><span class="nv">Convergeable</span>
+  <span class="p">(</span><span class="nf">converge!</span> <span class="p">[</span><span class="nv">this</span><span class="p">]))</span>
+</pre></div>
+</div>
+<p>This method is called on blobstores, metastores and bucketstores
+during the <tt class="docutils literal"><span class="pre">install-schema</span></tt> phase.</p>
+</div>
+<div class="section" id="crudable">
+<h3>Crudable<a class="headerlink" href="#crudable" title="Permalink to this headline">¶</a></h3>
+<p>The metastore, blobstore and bucketstores share a few functions
+which are gathered in this protocol:</p>
 <dl class="docutils">
 <dt><tt class="docutils literal"><span class="pre">fetch</span></tt></dt>
-<dd><ul class="first last simple">
+<dd>Retrieve metadata from buckets or objects (unused in blobstores)</dd>
+<dt><tt class="docutils literal"><span class="pre">update!</span></tt></dt>
+<dd>Updates an object&#8217;s or bucket&#8217;s metadata (unused in blobstores)</dd>
+<dt><tt class="docutils literal"><span class="pre">create!</span></tt></dt>
+<dd>Insert a bucket (unused in metastores and blobstores)</dd>
+<dt><tt class="docutils literal"><span class="pre">delete!</span></tt></dt>
+<dd>Delete an object, bucket or blob</dd>
+</dl>
+<div class="highlight-clojure"><div class="highlight"><pre><span class="p">(</span><span class="kd">defprotocol </span><span class="nv">Crudable</span>
+  <span class="p">(</span><span class="nf">fetch</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">k</span><span class="p">]</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">k1</span> <span class="nv">k2</span><span class="p">]</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">k1</span> <span class="nv">k2</span> <span class="nv">k3</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">update!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">k</span> <span class="nv">v</span><span class="p">]</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">k1</span> <span class="nv">k2</span> <span class="nv">v</span><span class="p">]</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">k1</span> <span class="nv">k2</span> <span class="nv">k3</span> <span class="nv">v</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">delete!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">k</span><span class="p">]</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">k1</span> <span class="nv">k2</span><span class="p">]</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">k1</span> <span class="nv">k2</span> <span class="nv">k3</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">create!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">k</span> <span class="nv">v</span><span class="p">]</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">k1</span> <span class="nv">k2</span> <span class="nv">v</span><span class="p">]</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">k1</span> <span class="nv">k2</span> <span class="nv">k3</span> <span class="nv">v</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="clojure-lang-ilookup">
+<h3>clojure.lang.ILookup<a class="headerlink" href="#clojure-lang-ilookup" title="Permalink to this headline">¶</a></h3>
+<p>While not a <em>pithos</em> protocol per-se, this protocol
+is used by keystores to behave like standard clojure
+maps. The method used within <tt class="docutils literal"><span class="pre">ILookup</span></tt> is <tt class="docutils literal"><span class="pre">valAt</span></tt>,
+the expected output is a map containing the keys:</p>
+<blockquote>
+<div><ul class="simple">
 <li><tt class="docutils literal"><span class="pre">tenant</span></tt>: the tenant this key belongs to</li>
 <li><tt class="docutils literal"><span class="pre">secret</span></tt>: the associated secret key</li>
 <li><tt class="docutils literal"><span class="pre">memberof</span></tt>: (<em>optional</em>) groups this tenant belongs to</li>
 </ul>
-</dd>
-</dl>
-<div class="highlight-clojure"><div class="highlight"><pre><span class="p">(</span><span class="kd">defprotocol </span><span class="nv">Keystore</span>
-  <span class="p">(</span><span class="nf">fetch</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">id</span><span class="p">]))</span>
-</pre></div>
-</div>
+</div></blockquote>
 </div>
 <div class="section" id="bucketstore">
 <h3>Bucketstore<a class="headerlink" href="#bucketstore" title="Permalink to this headline">¶</a></h3>
 <p>The bucketstore exposes methods to handle buckets:</p>
 <dl class="docutils">
-<dt><tt class="docutils literal"><span class="pre">converge!</span></tt></dt>
-<dd>Optional method to converge the schema during the <tt class="docutils literal"><span class="pre">install-schema</span></tt> phase.</dd>
 <dt><tt class="docutils literal"><span class="pre">by-tenant</span></tt></dt>
 <dd>Retrieves a list of bucket by tenant</dd>
 <dt><tt class="docutils literal"><span class="pre">by-name</span></tt></dt>
 <dd>Retrieves a bucket by name</dd>
-<dt><tt class="docutils literal"><span class="pre">create!</span></tt></dt>
-<dd>Create a bucket</dd>
-<dt><tt class="docutils literal"><span class="pre">update!</span></tt></dt>
-<dd>Update a bucket</dd>
-<dt><tt class="docutils literal"><span class="pre">delete!</span></tt></dt>
-<dd>Destroys a bucket</dd>
 </dl>
 <div class="highlight-clojure"><div class="highlight"><pre><span class="p">(</span><span class="kd">defprotocol </span><span class="nv">Bucketstore</span>
   <span class="s">&quot;The bucketstore contains the schema migration function,</span>
 <span class="s">   two bucket lookup functions and CRUD signatures&quot;</span>
-  <span class="p">(</span><span class="nf">converge!</span> <span class="p">[</span><span class="nv">this</span><span class="p">])</span>
   <span class="p">(</span><span class="nf">by-tenant</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">tenant</span><span class="p">])</span>
-  <span class="p">(</span><span class="nf">by-name</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span><span class="p">])</span>
-  <span class="p">(</span><span class="nf">create!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">tenant</span> <span class="nv">bucket</span> <span class="nv">columns</span><span class="p">])</span>
-  <span class="p">(</span><span class="nf">update!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">columns</span><span class="p">])</span>
-  <span class="p">(</span><span class="nf">delete!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span><span class="p">]))</span>
+  <span class="p">(</span><span class="nf">by-name</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span><span class="p">]))</span>
 </pre></div>
 </div>
 </div>
@@ -267,16 +285,8 @@ keys:</p>
 <h3>Metastore<a class="headerlink" href="#metastore" title="Permalink to this headline">¶</a></h3>
 <p>The metastore exposes methods to handle bucket metadata:</p>
 <dl class="docutils">
-<dt><tt class="docutils literal"><span class="pre">converge!</span></tt></dt>
-<dd>Optional method to converge the schema during the <tt class="docutils literal"><span class="pre">install-schema</span></tt> phase.</dd>
-<dt><tt class="docutils literal"><span class="pre">fetch</span></tt></dt>
-<dd>Retrieves an object&#8217;s metdata</dd>
 <dt><tt class="docutils literal"><span class="pre">prefixes</span></tt></dt>
 <dd>Lists objects</dd>
-<dt><tt class="docutils literal"><span class="pre">update!</span></tt></dt>
-<dd>Updates an object&#8217;s properties</dd>
-<dt><tt class="docutils literal"><span class="pre">delete!</span></tt></dt>
-<dd>Destroys an object</dd>
 <dt><tt class="docutils literal"><span class="pre">abort-multipart-upload!</span></tt></dt>
 <dd>Aborts a multipart upload</dd>
 <dt><tt class="docutils literal"><span class="pre">update-part!</span></tt></dt>
@@ -294,11 +304,7 @@ keys:</p>
 </dl>
 <div class="highlight-clojure"><div class="highlight"><pre><span class="p">(</span><span class="kd">defprotocol </span><span class="nv">Metastore</span>
   <span class="s">&quot;All necessary functions to manipulate bucket metadata&quot;</span>
-  <span class="p">(</span><span class="nf">converge!</span> <span class="p">[</span><span class="nv">this</span><span class="p">])</span>
-  <span class="p">(</span><span class="nf">fetch</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span><span class="p">]</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span> <span class="nv">fail?</span><span class="p">])</span>
   <span class="p">(</span><span class="nf">prefixes</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">params</span><span class="p">])</span>
-  <span class="p">(</span><span class="nf">update!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span> <span class="nv">columns</span><span class="p">])</span>
-  <span class="p">(</span><span class="nf">delete!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span><span class="p">])</span>
   <span class="p">(</span><span class="nf">abort-multipart-upload!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span> <span class="nv">upload</span><span class="p">])</span>
   <span class="p">(</span><span class="nf">update-part!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span> <span class="nv">upload</span> <span class="nv">partno</span> <span class="nv">columns</span><span class="p">])</span>
   <span class="p">(</span><span class="nf">initiate-upload!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">bucket</span> <span class="nv">object</span> <span class="nv">upload</span> <span class="nv">metadata</span><span class="p">])</span>
@@ -313,10 +319,6 @@ keys:</p>
 <h3>Blobstore<a class="headerlink" href="#blobstore" title="Permalink to this headline">¶</a></h3>
 <p>The blobstore expores methods to store and retrieve data:</p>
 <dl class="docutils">
-<dt><tt class="docutils literal"><span class="pre">converge!</span></tt></dt>
-<dd>Optional method to converge the schema during the <tt class="docutils literal"><span class="pre">install-schema</span></tt> phase.</dd>
-<dt><tt class="docutils literal"><span class="pre">delete!</span></tt></dt>
-<dd>Destroys an inode</dd>
 <dt><tt class="docutils literal"><span class="pre">blocks</span></tt></dt>
 <dd>Retrieves blocks from an object descriptor</dd>
 <dt><tt class="docutils literal"><span class="pre">max-chunk</span></tt></dt>
@@ -334,14 +336,25 @@ keys:</p>
   <span class="s">&quot;The blobstore protocol, provides methods to read and write data</span>
 <span class="s">   to inodes, as well as a schema migration function.</span>
 <span class="s">   &quot;</span>
-  <span class="p">(</span><span class="nf">converge!</span> <span class="p">[</span><span class="nv">this</span><span class="p">])</span>
-  <span class="p">(</span><span class="nf">delete!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">inode</span> <span class="nv">version</span><span class="p">])</span>
   <span class="p">(</span><span class="nf">blocks</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">od</span><span class="p">])</span>
   <span class="p">(</span><span class="nf">max-chunk</span> <span class="p">[</span><span class="nv">this</span><span class="p">])</span>
   <span class="p">(</span><span class="nf">chunks</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">od</span> <span class="nv">block</span> <span class="nv">offset</span><span class="p">])</span>
   <span class="p">(</span><span class="nf">start-block!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">od</span> <span class="nv">block</span> <span class="nv">offset</span><span class="p">])</span>
   <span class="p">(</span><span class="nf">chunk!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">od</span> <span class="nv">block</span> <span class="nv">offset</span> <span class="nv">chunk</span><span class="p">])</span>
   <span class="p">(</span><span class="nf">boundary?</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">block</span> <span class="nv">offset</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="reporter">
+<h3>Reporter<a class="headerlink" href="#reporter" title="Permalink to this headline">¶</a></h3>
+<p>The reporter protocol exposes a single method used to register
+an event.</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">report!</span></tt></dt>
+<dd>This method hands off an event to the current reporter.</dd>
+</dl>
+<div class="highlight-clojure"><div class="highlight"><pre><span class="p">(</span><span class="kd">defprotocol </span><span class="nv">Reporter</span>
+  <span class="p">(</span><span class="nf">report!</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">event</span><span class="p">]))</span>
 </pre></div>
 </div>
 </div>
@@ -352,14 +365,13 @@ Let&#8217;s pretend a simple, non-authenticated API is used to provide
 credential results.</p>
 <div class="highlight-clojure"><div class="highlight"><pre><span class="p">(</span><span class="kd">ns </span><span class="nv">com.example.http-keystore</span>
   <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">qbits.jet.client.http</span> <span class="ss">:as</span> <span class="nv">http</span><span class="p">]</span>
-            <span class="p">[</span><span class="nv">io.pithos.keystore</span>    <span class="ss">:as</span> <span class="nv">ks</span><span class="p">]</span>
             <span class="p">[</span><span class="nv">clojure.core.async</span>    <span class="ss">:refer</span> <span class="p">[</span><span class="nv">&lt;!!</span><span class="p">]]))</span>
 
 <span class="p">(</span><span class="kd">defn </span><span class="nv">http-keystore</span>
   <span class="p">[{</span><span class="ss">:keys</span> <span class="p">[</span><span class="nv">base-url</span><span class="p">]}]</span>
   <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">client</span> <span class="p">(</span><span class="nf">http/client</span><span class="p">)]</span>
-    <span class="p">(</span><span class="nf">reify</span> <span class="nv">ks/Keystore</span>
-      <span class="p">(</span><span class="nf">fetch</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">key</span><span class="p">]</span>
+    <span class="p">(</span><span class="nf">reify</span> <span class="nv">clojure.lang.ILookup</span>
+      <span class="p">(</span><span class="nf">valAt</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">key</span><span class="p">]</span>
         <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">url</span>  <span class="p">(</span><span class="nb">str </span><span class="nv">base-url</span> <span class="s">&quot;/&quot;</span> <span class="nv">key</span><span class="p">)</span>
               <span class="nv">opts</span> <span class="p">{</span><span class="ss">:as</span> <span class="ss">:json</span><span class="p">}</span>
               <span class="nv">resp</span> <span class="p">(</span><span class="nf">&lt;!!</span> <span class="p">(</span><span class="nf">http/get</span> <span class="nv">client</span> <span class="nv">url</span> <span class="nv">opts</span><span class="p">))]</span>

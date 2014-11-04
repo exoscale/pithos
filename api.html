@@ -75,11 +75,11 @@
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#overview-of-configuration">Overview of configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#choosing-your-topology">Choosing your topology</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#configuration-file">Configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#reporter-configuration">Reporter Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#using-non-default-stores">Using non-default stores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#configuring-apache-cassandra">Configuring Apache Cassandra</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#enabling-ssl">Enabling SSL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#reverse-proxying-pithos">Reverse proxying pithos</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#reporters">Reporters</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">S3 API</a><ul>
@@ -106,6 +106,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#get-bucket-location">GET Bucket location</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#get-bucket-policy">GET Bucket policy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#get-bucket-uploads">GET Bucket uploads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#post-bucket-delete">POST Bucket delete</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#get-object">GET Object</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#head-object">HEAD Object</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#put-object">PUT Object</a></li>
@@ -237,31 +238,31 @@ provided by pithos.</p>
 <td>OK</td>
 <td>No actual action performed.</td>
 </tr>
-<tr class="row-odd"><td>Object creation</td>
+<tr class="row-odd"><td>Bucket Policy</td>
+<td>OK</td>
+<td>No actual action performed</td>
+</tr>
+<tr class="row-even"><td>Object creation</td>
 <td>OK</td>
 <td>&nbsp;</td>
 </tr>
-<tr class="row-even"><td>Object deletion</td>
+<tr class="row-odd"><td>Object deletion</td>
 <td>OK</td>
 <td>&nbsp;</td>
 </tr>
-<tr class="row-odd"><td>Object multipart uploads</td>
+<tr class="row-even"><td>Object multipart uploads</td>
 <td>OK</td>
 <td>&nbsp;</td>
 </tr>
-<tr class="row-even"><td>Object ACLs</td>
+<tr class="row-odd"><td>Object ACLs</td>
 <td>OK</td>
 <td>Canned ACLs, Header ACLs, Tenant and Group ACLs.</td>
 </tr>
-<tr class="row-odd"><td>Bucket Versioning</td>
+<tr class="row-even"><td>Bucket Versioning</td>
 <td>Unfinished</td>
 <td>&nbsp;</td>
 </tr>
-<tr class="row-even"><td>Object Torrent</td>
-<td>Not implemented</td>
-<td>&nbsp;</td>
-</tr>
-<tr class="row-odd"><td>Bucket Policy</td>
+<tr class="row-odd"><td>Object Torrent</td>
 <td>Not implemented</td>
 <td>&nbsp;</td>
 </tr>
@@ -745,6 +746,36 @@ and returned in the <cite>CommonPrefixes</cite> part of the reply.</li>
 </ul>
 </dd>
 </dl>
+</div>
+<div class="section" id="post-bucket-delete">
+<h2>POST Bucket delete<a class="headerlink" href="#post-bucket-delete" title="Permalink to this headline">¶</a></h2>
+<p>Provide a list of objects to delete from a bucket.
+The list is given as an XML payload.</p>
+<p>Sample Request:</p>
+<div class="highlight-python"><div class="highlight"><pre>POST /?delete HTTP/1.1
+Host: mybucket.service.uri
+Date: &lt;date&gt;
+Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+</pre></div>
+</div>
+<p>Sample Request Body:</p>
+<div class="highlight-xml"><div class="highlight"><pre>
+</pre></div>
+</div>
+<p>&lt;?xml version=&#8221;1.0&#8221; encoding=&#8221;UTF-8&#8221;?&gt;
+&lt;Delete&gt;</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>&lt;Object&gt;</dt>
+<dd>&lt;Key&gt;Key1&lt;/Key&gt;</dd>
+</dl>
+<p>&lt;/Object&gt;
+&lt;Object&gt;</p>
+<blockquote>
+<div>&lt;Key&gt;Key2&lt;/Key&gt;</div></blockquote>
+<p>&lt;/Object&gt;</p>
+</div></blockquote>
+<p>&lt;/Delete&gt;</p>
 </div>
 <div class="section" id="get-object">
 <span id="id20"></span><h2>GET Object<a class="headerlink" href="#get-object" title="Permalink to this headline">¶</a></h2>
