@@ -47,12 +47,13 @@
   (if-let [auth-str (get-in request [:headers "authorization"])]
     (let [[_ access-key sig] (re-matches #"^[Aa][Ww][Ss] (.*):(.*)$" auth-str)
           {:keys [secret] :as authorization} (get keystore access-key)
-          _ (debug "got key details: " (pr-str authorization))
           signed (try (sign-request request access-key secret)
                       (catch Exception e
                         {:failed true :exception e}))]
       (when-not (= sig signed)
         (info "will throw because of failed signature!")
+        (when (:exception signed)
+          (debug (:exception signed) "got exception during signing"))
         (debug "string-to-sign: " (string-to-sign request))
         (throw (ex-info "invalid request signature"
                         {:type :signature-does-not-match
