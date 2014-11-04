@@ -5,16 +5,13 @@
    The basic implementation wants keys from the configuration
    file, you'll likely want to use a custom implementation that
    interacts with your user-base here.
-")
-
-(defprotocol Keystore
-  "Single function protocol, fetch retrieves information for an ID"
-  (fetch [this id]))
+  "
+  (:require [io.pithos.store :as store]))
 
 ;;
 ;; A simple record holding onto a map of keys to details.
 ;; the fetch fn just looks up in its map.
 (defrecord MapKeystore [keys]
-  Keystore
+  store/Crudable
   (fetch [this id]
     (get keys (keyword id))))

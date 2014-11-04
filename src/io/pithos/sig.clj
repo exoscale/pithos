@@ -4,7 +4,7 @@
   (:require [clojure.string            :as s]
             [clojure.tools.logging     :refer [info debug]]
             [clojure.data.codec.base64 :as base64]
-            [io.pithos.keystore        :as ks])
+            [io.pithos.store           :as store])
   (:import  javax.crypto.Mac javax.crypto.spec.SecretKeySpec))
 
 (defn canonicalized
@@ -47,7 +47,7 @@
   [keystore request]
   (if-let [auth-str (get-in request [:headers "authorization"])]
     (let [[_ access-key sig] (re-matches #"^[Aa][Ww][Ss] (.*):(.*)$" auth-str)
-          {:keys [secret] :as authorization} (ks/fetch keystore access-key)
+          {:keys [secret] :as authorization} (store/fetch keystore access-key)
           signed (try (sign-request request access-key secret)
                       (catch Exception e
                         {:failed true :exception e}))]
