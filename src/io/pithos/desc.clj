@@ -3,6 +3,7 @@
   (:require [io.pithos.bucket  :as bucket]
             [io.pithos.meta    :as meta]
             [io.pithos.system  :as system]
+            [io.pithos.store   :as store]
             [io.pithos.util    :as util]
             [qbits.alia.uuid   :as uuid]
             [clojure.tools.logging :refer [debug]]))
@@ -33,7 +34,7 @@
         {:keys [region versioned]} (bucket/by-name bucketstore bucket)
         {:keys [metastore
                 storage-classes]}  (bucket/get-region system region)
-        meta                       (meta/fetch metastore bucket object false)
+        meta                       (store/fetch metastore bucket object false)
         parts                      (meta/list-upload-parts metastore bucket
                                                            object upload)
         ;; XXX: should support several storage classes
@@ -62,7 +63,7 @@
         {:keys [region]}          (bucket/by-name bucketstore bucket)
         {:keys [metastore
                 storage-classes]} (bucket/get-region system region)
-        meta                      (meta/fetch metastore bucket object false)
+        meta                      (store/fetch metastore bucket object false)
         inode                     (or (:inode meta) (uuid/random))
         version                   (or (:version meta) (uuid/time-based))
         ;; XXX: should support several storage classes
@@ -104,7 +105,7 @@
                                :atime (util/iso8601-timestamp)})
                        (merge @cols)
                        (dissoc :bucket :object))]
-          (meta/update! metastore bucket object meta)))
+          (store/update! metastore bucket object meta)))
       clojure.lang.ILookup
       (valAt [this k]
         (get (merge meta {:inode inode :version version} @cols)
@@ -122,7 +123,7 @@
         {:keys [region]}          (bucket/by-name bucketstore bucket)
         {:keys [metastore
                 storage-classes]} (bucket/get-region system region)
-        meta                      (meta/fetch metastore bucket object false)
+        meta                      (store/fetch metastore bucket object false)
         inode                     (uuid/random)
         version                   (uuid/time-based)
         ;; XXX: should support several storage classes

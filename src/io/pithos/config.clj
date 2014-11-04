@@ -23,7 +23,7 @@
 
 (def default-keystore
   "keystore defaults to MapKeyStore"
-  {:use "io.pithos.keystore/map->MapKeystore"})
+  {:use "io.pithos.keystore/map-keystore"})
 
 (def default-bucketstore
   "bucketstore defaults to cassandra"

@@ -15,11 +15,7 @@
 
 (defprotocol Metastore
   "All necessary functions to manipulate bucket metadata"
-  (converge! [this])
-  (fetch [this bucket object] [this bucket object fail?])
   (prefixes [this bucket params])
-  (update! [this bucket object columns])
-  (delete! [this bucket object])
   (abort-multipart-upload! [this bucket object upload])
   (update-part! [this bucket object upload partno columns])
   (initiate-upload! [this bucket object upload metadata])
@@ -242,13 +238,15 @@
   "Given a cluster configuration, reify an instance of Metastore"
   [config]
   (let [session (store/cassandra-store config)]
-    (reify Metastore
+    (reify
+      store/Convergeable
       (converge! [this]
         (execute session object-table)
         (execute session upload-table)
         (execute session object_uploads-table)
         (execute session object_inode-index)
         (execute session upload_bucket-index))
+      store/Crudable
       (fetch [this bucket object fail?]
         (or
          (first (execute session (get-object-q bucket object)))
@@ -257,7 +255,12 @@
                                           :status-code 404
                                           :key object})))))
       (fetch [this bucket object]
-        (fetch this bucket object true))
+        (store/fetch this bucket object true))
+      (update! [this bucket object columns]
+        (execute session (update-object-q bucket object columns)))
+      (delete! [this bucket object]
+        (execute session (delete-object-q bucket object)))
+      Metastore
       (prefixes [this bucket params]
         (get-prefixes
          (fn [prefix marker limit]
@@ -278,8 +281,4 @@
       (list-object-uploads [this bucket object]
         (execute session (list-object-uploads-q bucket object)))
       (list-upload-parts [this bucket object upload]
-        (execute session (list-upload-parts-q bucket object upload)))
-      (update! [this bucket object columns]
-        (execute session (update-object-q bucket object columns)))
-      (delete! [this bucket object]
-        (execute session (delete-object-q bucket object))))))
+        (execute session (list-upload-parts-q bucket object upload))))))
