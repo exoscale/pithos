@@ -222,5 +222,10 @@
                 :sign-uri "/batman/foo.txt"
                 :uri "/foo.txt"
                 :body (java.io.ByteArrayInputStream. (.getBytes "foobar"))})
-      (is (= (sum "foobar") (get-in @state [:objects "batman" "foo.txt" :checksum])))
-      (is (= 6 (get-in @state [:objects "batman" "foo.txt" :size]))))))
+      (is (= (sum "foobar")
+             (get-in @state [:objects "batman" "foo.txt" :checksum])))
+
+      (is (= 6 (get-in @state [:objects "batman" "foo.txt" :size])))
+
+      (is (= (-> @state :reports first)
+             {:type :put :bucket "batman" :object "foo.txt" :size 6})))))
