@@ -194,7 +194,13 @@
                 :sign-uri "/batman/"
                 :uri "/"})
 
-      (is (= #{"batman"} (-> @state :buckets keys set)))
+      (handler {:request-method :put
+                :headers {"host" "foo.blob.example.com"
+                          "date" (date!)}
+                :sign-uri "/foo/"
+                :uri "/"})
+
+      (is (= #{"batman" "foo"} (-> @state :buckets keys set)))
 
       (is (= (pr-str {:FULL_CONTROL [{:ID "foo@example.com"
                                       :DisplayName "foo@example.com"}]})
@@ -202,20 +208,14 @@
 
     (testing "remove bucket"
       (handler {:request-method :delete
-                :headers {"host" "batman.blob.example.com"
+                :headers {"host" "foo.blob.example.com"
                           "date" (date!)}
-                :sign-uri "/batman/"
+                :sign-uri "/foo/"
                 :uri "/"})
 
-      (is (empty? (:buckets @state))))
+      (is (= #{"batman"} (-> @state :buckets keys set))))
 
     (testing "put object"
-      (handler {:request-method :put
-                :headers {"host" "batman.blob.example.com"
-                          "date" (date!)}
-                :sign-uri "/batman/"
-                :uri "/"})
-
       (handler {:request-method :put
                 :headers {"host" "batman.blob.example.com"
                           "date" (date!)}
