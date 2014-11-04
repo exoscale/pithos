@@ -8,6 +8,7 @@
             [io.pithos.reporter   :as reporter]
             [io.pithos.sig        :as sig]
             [io.pithos.api        :as api]
+            [io.pithos.system     :as system]
             [io.pithos.operations :refer [get-range]]
             [io.pithos.util       :refer [inc-prefix iso8601->rfc822
                                           iso8601-timestamp]]))
@@ -149,13 +150,14 @@
         blobstore   (atom-blob-store state max-chunk-size max-block-chunks)
         reporter    (atom-reporter state)
         keystore    keys]
-    {:bucketstore bucketstore
-     :keystore keystore
-     :options {:service-uri uri
-               :default-region :myregion}
-     :regions {:myregion {:metastore metastore
-                          :storage-classes {:standard blobstore}}}
-     :reporters [reporter]}))
+    (system/system-descriptor
+     {:bucketstore bucketstore
+      :keystore keystore
+      :options {:service-uri uri
+                :default-region :myregion}
+      :regions {:myregion {:metastore metastore
+                           :storage-classes {:standard blobstore}}}
+      :reporters [reporter]})))
 
 (defn signer
   [key]
@@ -166,18 +168,18 @@
 
 (deftest integration-test
 
-  (let [state   (atom {})
-        key     :AKIAIOSFODNN7EXAMPLE
-        keys    {key {:secret-key (name key)
-                      :tenant     "foo@example.com"}}
-        system  (atom-system "blob.example.com" state keys 16384 1024)
-        handler (comp (api/executor system) (signer (name key)))
-        date!   (comp iso8601->rfc822 iso8601-timestamp)]
+  (let [state    (atom {})
+        key      "AKIAIOSFODNN7EXAMPLE"
+        keystore {key {:secret key
+                       :tenant "foo@example.com"}}
+        system   (atom-system "blob.example.com" state keystore 16384 1024)
+        handler  (comp (api/executor system) (signer (name key)))
+        date!    (comp iso8601->rfc822 iso8601-timestamp)]
 
     (testing "get service 1"
       (handler {:request-method :put
                 :headers {"host" "batman.blob.example.com"
                           "date" (date!)}
+                :sign-uri "/batman/"
                 :uri "/"})
-      (println @state)
-      (is (= 1 1)))))
+      (is (= #{"batman"} (-> @state :buckets keys set))))))
