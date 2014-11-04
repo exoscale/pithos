@@ -55,30 +55,63 @@ must fulfill is to realize the correct protocol.
 
 Here is a summary of all current protocols:
 
-Keystore
-~~~~~~~~
+Convergeable
+~~~~~~~~~~~~
 
-The keystore protocol contains a single-method: ``fetch``,
-which given a key ID should return a map containing the
-keys:
-
-``fetch``
-  - ``tenant``: the tenant this key belongs to
-  - ``secret``: the associated secret key
-  - ``memberof``: (*optional*) groups this tenant belongs to
+The convergeable protocol is used to create the
+initial schema for databases that need it. It
+consists of a single method:
 
 .. sourcecode:: clojure
 
-  (defprotocol Keystore
-    (fetch [this id]))
+  (defprotocol Convergeable
+    (converge! [this]))
+
+This method is called on blobstores, metastores and bucketstores
+during the ``install-schema`` phase.
+
+Crudable
+~~~~~~~~
+
+The metastore, blobstore and bucketstores share a few functions
+which are gathered in this protocol:
+
+``fetch``
+  Retrieve metadata from buckets or objects (unused in blobstores)
+
+``update!``
+  Updates an object's or bucket's metadata (unused in blobstores)
+
+``create!``
+  Insert a bucket (unused in metastores and blobstores)
+
+``delete!``
+  Delete an object, bucket or blob
+
+.. sourcecode:: clojure
+
+  (defprotocol Crudable
+    (fetch [this k] [this k1 k2] [this k1 k2 k3])
+    (update! [this k v] [this k1 k2 v] [this k1 k2 k3 v])
+    (delete! [this k] [this k1 k2] [this k1 k2 k3])
+    (create! [this k v] [this k1 k2 v] [this k1 k2 k3 v]))
+                  
+
+clojure.lang.ILookup
+~~~~~~~~~~~~~~~~~~~~
+While not a *pithos* protocol per-se, this protocol
+is used by keystores to behave like standard clojure
+maps. The method used within ``ILookup`` is ``valAt``,
+the expected output is a map containing the keys:
+
+  - ``tenant``: the tenant this key belongs to
+  - ``secret``: the associated secret key
+  - ``memberof``: (*optional*) groups this tenant belongs to
 
 Bucketstore
 ~~~~~~~~~~~
 
 The bucketstore exposes methods to handle buckets:
-
-``converge!``
-  Optional method to converge the schema during the ``install-schema`` phase.
 
 ``by-tenant``
   Retrieves a list of bucket by tenant
@@ -86,47 +119,22 @@ The bucketstore exposes methods to handle buckets:
 ``by-name``
   Retrieves a bucket by name
 
-``create!``
-  Create a bucket
-
-``update!``
-  Update a bucket
-
-``delete!``
-  Destroys a bucket
-
 .. sourcecode:: clojure
 
   (defprotocol Bucketstore
     "The bucketstore contains the schema migration function,
      two bucket lookup functions and CRUD signatures"
-    (converge! [this])
     (by-tenant [this tenant])
-    (by-name [this bucket])
-    (create! [this tenant bucket columns])
-    (update! [this bucket columns])
-    (delete! [this bucket]))
+    (by-name [this bucket]))
+
 
 Metastore
 ~~~~~~~~~
 
 The metastore exposes methods to handle bucket metadata:
 
-
-``converge!``
-  Optional method to converge the schema during the ``install-schema`` phase.
-
-``fetch``
-  Retrieves an object's metdata
-
 ``prefixes``
   Lists objects
-
-``update!``
-  Updates an object's properties
-
-``delete!``
-  Destroys an object
 
 ``abort-multipart-upload!``
   Aborts a multipart upload
@@ -153,11 +161,7 @@ The metastore exposes methods to handle bucket metadata:
 
   (defprotocol Metastore
     "All necessary functions to manipulate bucket metadata"
-    (converge! [this])
-    (fetch [this bucket object] [this bucket object fail?])
     (prefixes [this bucket params])
-    (update! [this bucket object columns])
-    (delete! [this bucket object])
     (abort-multipart-upload! [this bucket object upload])
     (update-part! [this bucket object upload partno columns])
     (initiate-upload! [this bucket object upload metadata])
@@ -171,12 +175,6 @@ Blobstore
 ~~~~~~~~~
 
 The blobstore expores methods to store and retrieve data:
-
-``converge!``
-  Optional method to converge the schema during the ``install-schema`` phase.
-
-``delete!``
-  Destroys an inode
 
 ``blocks``
   Retrieves blocks from an object descriptor
@@ -202,14 +200,27 @@ The blobstore expores methods to store and retrieve data:
     "The blobstore protocol, provides methods to read and write data
      to inodes, as well as a schema migration function.
      "
-    (converge! [this])
-    (delete! [this inode version])
     (blocks [this od])
     (max-chunk [this])
     (chunks [this od block offset])
     (start-block! [this od block offset])
     (chunk! [this od block offset chunk])
     (boundary? [this block offset]))
+
+Reporter
+~~~~~~~~
+
+The reporter protocol exposes a single method used to register
+an event.
+
+``report!``
+  This method hands off an event to the current reporter.
+
+
+.. sourcecode:: clojure
+
+  (defprotocol Reporter
+    (report! [this event]))
 
 
 An alternative keystore
@@ -223,14 +234,13 @@ credential results.
 
   (ns com.example.http-keystore
     (:require [qbits.jet.client.http :as http]
-              [io.pithos.keystore    :as ks]
               [clojure.core.async    :refer [<!!]]))
 
   (defn http-keystore
     [{:keys [base-url]}]
     (let [client (http/client)]
-      (reify ks/Keystore
-        (fetch [this key]
+      (reify clojure.lang.ILookup
+        (valAt [this key]
           (let [url  (str base-url "/" key)
                 opts {:as :json}
                 resp (<!! (http/get client url opts))]
