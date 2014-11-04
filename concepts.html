@@ -68,6 +68,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="">Design and Concepts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#s3-concepts">S3 Concepts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cassandra-concepts">Cassandra concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pithos-properties">Pithos properties</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pithos-architecture">Pithos Architecture</a></li>
 </ul>
 </li>
@@ -233,6 +234,24 @@ equivalent of an SQL database</dd>
 <dd>A Cassandra column family stores keyed rows of data sharing a specific
 schema. It can be seen as the equivalent of an SQL table.</dd>
 </dl>
+</div>
+<div class="section" id="pithos-properties">
+<h2>Pithos properties<a class="headerlink" href="#pithos-properties" title="Permalink to this headline">¶</a></h2>
+<p><em>pithos</em> strives to provide an eventual consistent system, enforcing
+validity through clients.</p>
+<p>There is a single operation throughout <em>pithos</em> which necessitates some
+transactional properties: the act of claiming a bucket&#8217;s ownership.
+As it stands, given the current implementation of the bucketstore, this
+operation may return inconsistent results.</p>
+<p>All other operations in <em>pithos</em> are commutative and may be retried
+to achieve expected results.</p>
+<p>It is worth noting that typical S3 clients will ensure the validity of operations
+by comparing local MD5 checksums and checksums reported by <em>pithos</em>.</p>
+<p>While operations are commutative, stale data may be left in the
+<tt class="docutils literal"><span class="pre">inode_blocks</span></tt> and <tt class="docutils literal"><span class="pre">block</span></tt> column families when upload operations
+fail, or clients interrupt uploads. This will result in orphaned blocks,
+which need to be regularily purged from the blobstore. Pithos does not
+provide a method to check for these yet.</p>
 </div>
 <div class="section" id="pithos-architecture">
 <span id="id2"></span><h2>Pithos Architecture<a class="headerlink" href="#pithos-architecture" title="Permalink to this headline">¶</a></h2>
