@@ -7,7 +7,7 @@
    interacts with your user-base here.
   ")
 
-(defn map-keystore [keys]
+(defn map-keystore [{:keys [keys]}]
   "Wrap a map, translating looked-up keys to keywords."
   (reify
     clojure.lang.ILookup
