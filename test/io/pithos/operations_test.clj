@@ -11,7 +11,9 @@
             [io.pithos.system     :as system]
             [io.pithos.operations :refer [get-range]]
             [io.pithos.util       :refer [inc-prefix iso8601->rfc822
-                                          iso8601-timestamp]]))
+                                          iso8601-timestamp
+                                          md5-init md5-sum md5-update]]
+            [clojure.pprint       :refer [pprint]]))
 
 (deftest range-test
   (let [desc   (reify desc/BlobDescriptor (size [this] 1024))
@@ -128,15 +130,17 @@
                 (get-in @state [:inodes [(desc/inode od) (desc/version od)]
                                 :chunks block]))))
     (boundary? [this block offset]
-      (>= offset (+ block (max-chunk-size max-block-chunks))))
+      (>= offset (+ block (* max-chunk-size max-block-chunks))))
     (start-block! [this od block]
       (swap! state update-in
              [:inodes [(desc/inode od) (desc/version od)] :blocks]
              conj block))
     (chunk! [this od block offset chunk]
-      (swap! @state [:inodes [(desc/inode od) (desc/version od)] :chunks block]
-             conj {:offset offset :chunk chunk :chunksize
-                   (- (.limit chunk) (.position chunk))}))))
+      (let [size (- (.limit chunk) (.position chunk))]
+        (swap! state update-in
+               [:inodes [(desc/inode od) (desc/version od)] :chunks block]
+               conj {:offset offset :chunk chunk :chunksize size})
+        size))))
 
 (defn atom-reporter
   [state]
@@ -178,7 +182,10 @@
                        :tenant "foo@example.com"}}
         system   (atom-system "blob.example.com" state keystore 16384 1024)
         handler  (comp (api/executor system) (signer (name key)))
-        date!    (comp iso8601->rfc822 iso8601-timestamp)]
+        date!    (comp iso8601->rfc822 iso8601-timestamp)
+        sum      #(-> (md5-init)
+                      (md5-update (.getBytes %) 0 (count %))
+                      (md5-sum))]
 
     (testing "put bucket"
       (handler {:request-method :put
@@ -200,4 +207,20 @@
                 :sign-uri "/batman/"
                 :uri "/"})
 
-      (is (empty? (:buckets @state))))))
+      (is (empty? (:buckets @state))))
+
+    (testing "put object"
+      (handler {:request-method :put
+                :headers {"host" "batman.blob.example.com"
+                          "date" (date!)}
+                :sign-uri "/batman/"
+                :uri "/"})
+
+      (handler {:request-method :put
+                :headers {"host" "batman.blob.example.com"
+                          "date" (date!)}
+                :sign-uri "/batman/foo.txt"
+                :uri "/foo.txt"
+                :body (java.io.ByteArrayInputStream. (.getBytes "foobar"))})
+      (is (= (sum "foobar") (get-in @state [:objects "batman" "foo.txt" :checksum])))
+      (is (= 6 (get-in @state [:objects "batman" "foo.txt" :size]))))))
