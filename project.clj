@@ -1,4 +1,4 @@
-(defproject io.pithos/pithos "0.6.2-SNAPSHOT"
+(defproject io.pithos/pithos "0.7.0"
   :description "cassandra-backed object storage"
   :maintainer {:email "Pierre-Yves Ritschard <pyr@spootnik.org>"}
   :url "http://pithos.io"
@@ -11,7 +11,7 @@
   :plugins [[lein-sub      "0.3.0"]
             [lein-difftest "2.0.0"]]
   :sub ["pithos-quickstart"]
-  :dependencies [[org.clojure/clojure           "1.7.0-alpha2"]
+  :dependencies [[org.clojure/clojure           "1.7.0-alpha3"]
                  [org.clojure/data.codec        "0.1.0"]
                  [org.clojure/data.xml          "0.0.8"]
                  [org.clojure/data.zip          "0.1.1"]
@@ -26,4 +26,4 @@
                  [cc.qbits/alia                 "2.2.3"]
                  [cc.qbits/jet                  "0.5.0-alpha3"]
                  [net.jpountz.lz4/lz4           "1.2.0"]
-                 [org.xerial.snappy/snappy-java "1.1.1.3"]])
+                 [org.xerial.snappy/snappy-java "1.1.1.6"]])
