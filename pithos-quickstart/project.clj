@@ -4,6 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main io.pithos.quickstart
-  :dependencies [[org.clojure/clojure                "1.7.0-alpha2"]
-                 [io.pithos/pithos                   "0.7.0"]
-                 [org.apache.cassandra/cassandra-all "2.1.1"]])
+  :dependencies [[io.pithos/pithos                   "0.7.0"]
+                 [org.apache.cassandra/cassandra-all "2.1.1"
+                  :exclusions [org.slf4j/slf4j-api
+                               org.slf4j/slf4j-log4j12]]])
