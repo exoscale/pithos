@@ -43,8 +43,8 @@
                                0)
                     end-at   (if (<= offset end chunksize)
                                (- end offset)
-                               0)
-                    cropped  (- len start-at(- len end-at))]
+                               len)
+                    cropped  (- len start-at (- len end-at))]
                 (.write stream array (+ off start-at) cropped)))
             (let [{:keys [offset chunksize]} (last chunks)]
               (recur (+ offset chunksize))))))
