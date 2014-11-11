@@ -239,6 +239,13 @@ Will produce an XML AST equivalent to:
     [:LastModified atime]
     [:ETag (str "\"" etag "\"")]]))
 
+(defn delete-objects
+  [objects]
+  (seq->xmlstr
+    [:DeleteResult xml-ns
+     (for [object objects]
+       [:Deleted [:Key (str object)]])]))
+
 (defn get-bucket-versioning
   "Template for the get bucket versioning response"
   [versioned?]
