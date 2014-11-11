@@ -22,7 +22,7 @@
   [{:keys [headers request-method sign-uri] :as request}]
   (let [content-md5  (get headers "content-md5")
         content-type (get headers "content-type")
-        date         (get headers "date")]
+        date         (if-not (get headers "x-amz-date") (get headers "date"))]
     (s/join
      "\n"
      [(-> request-method name s/upper-case)
