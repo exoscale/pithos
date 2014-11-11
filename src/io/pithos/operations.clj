@@ -362,8 +362,8 @@
                              :size   (desc/size od)})
       (store/delete! (bucket/metastore od) bucket path)
       (store/delete! (desc/blobstore od) od (desc/version od)))
-    (-> (response)
-        (status 204))))
+    (-> (xml/delete-objects paths)
+        (xml-response))))
 
 (defn delete-object
   "Delete current revision of objects."
