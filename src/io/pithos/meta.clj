@@ -10,7 +10,7 @@
 
             [clojure.tools.logging :refer [debug]]
             [clojure.set     :refer [union]]
-            [io.pithos.util  :refer [inc-prefix]]
+            [io.pithos.util  :refer [inc-prefix string->pattern]]
             [io.pithos.store :as store]))
 
 (defprotocol Metastore
@@ -193,8 +193,8 @@
   [objects prefix delimiter]
   (if (seq objects)
     (let [prefix (or prefix "")
-          suffix (if delimiter (str "[^\\" delimiter "]") ".")
-          pat    (str "^" prefix suffix "*$")
+          suffix (if delimiter (str "[^\\" (string->pattern delimiter) "]") ".")
+          pat    (str "^" (string->pattern prefix) suffix "*$")
           keep?  (comp (partial re-find (re-pattern pat)) :object)]
       (filter keep? objects))
     objects))
@@ -204,7 +204,8 @@
   [objects prefix delim]
   (set
    (when (and (seq delim) (seq objects))
-     (let [prefix   (or prefix "")
+     (let [prefix   (or (string->pattern prefix) "")
+           delim    (string->pattern delim)
            regex    (re-pattern
                      (str "^(" prefix "[^\\" delim "]*\\" delim ").*$"))
            ->prefix (comp second
