@@ -8,6 +8,7 @@
             [io.pithos.sig         :refer [validate]]
             [io.pithos.operations  :refer [ex-handler]]
             [io.pithos.system      :refer [service-uri keystore]]
+            [io.pithos.util        :refer [string->pattern]]
             [ring.util.codec       :as codec]
             [qbits.alia.uuid       :as uuid]))
 
@@ -174,7 +175,7 @@
 (defn yield-rewrite-bucket
   "Move from a vhost based access method to a full resource access path"
   [service-uri]
-  (let [pattern-str (str "^(.*)." service-uri "$")
+  (let [pattern-str (str "^(.*)." (string->pattern service-uri) "$")
         pattern     (re-pattern pattern-str)
         transformer (fn [bucket uri] (str "/" bucket (if (seq uri) uri "/")))]
     (fn [{:keys [uri] {:strs [host] :or {host ""}} :headers :as request}]
