@@ -4,7 +4,7 @@
             [clojure.java.io :as io]))
 
 (deftest xml-slurp-test
-  (let [repr {:cors1 [{:origins ["*"]
+  (let [repr {:cors1 [{:origins ["http://*.example.com"]
                        :methods [:get]
                        :headers ["*"]
                        :exposed []

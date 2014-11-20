@@ -96,3 +96,17 @@
   (->> isodate
        (parse (:date-time-parser formatters))
        (unparse rfc822-format)))
+
+(def ^:private regex-char-esc-smap
+  "Characters to be escaped in a regular pattern (including inside a set)"
+  ;; The documentation is available here:a
+  ;;  https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html
+  (let [esc-chars "[]{}()<>*+^$?|\\.&-!#"]
+    (zipmap esc-chars
+            (map (partial str "\\") esc-chars))))
+(defn string->pattern
+  "Escape a string to be used as a regular pattern"
+  [string]
+  (->> string
+       (replace regex-char-esc-smap)
+       (reduce str "")))

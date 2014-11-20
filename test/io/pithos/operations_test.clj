@@ -1,5 +1,6 @@
 (ns io.pithos.operations-test
   (:require [clojure.test         :refer :all]
+            [clojure.java.io      :as io]
             [io.pithos.desc       :as desc]
             [io.pithos.bucket     :as bucket]
             [io.pithos.meta       :as meta]
@@ -53,7 +54,7 @@
     (delete! [this bucket]
       (swap! state update-in [:buckets] dissoc bucket))
     (update! [this bucket columns]
-      (swap! state update-in [:buckets] merge columns))
+      (swap! state update-in [:buckets bucket] merge columns))
     bucket/Bucketstore
     (by-tenant [this tenant]
       (filter (comp (partial = tenant) :tenant) (:buckets @state)))
@@ -120,8 +121,8 @@
     blob/Blobstore
 
     (blocks [this od]
-      (sort (get-in @state [:inodes [(desc/inode od) (desc/version od)]
-                            :blocks])))
+      (sort-by :block (get-in @state [:inodes [(desc/inode od) (desc/version od)]
+                                      :blocks])))
     (max-chunk [this] max-chunk-size)
     (chunks [this od block offset]
       (drop-while
@@ -134,12 +135,12 @@
     (start-block! [this od block]
       (swap! state update-in
              [:inodes [(desc/inode od) (desc/version od)] :blocks]
-             conj block))
+             conj {:block block}))
     (chunk! [this od block offset chunk]
       (let [size (- (.limit chunk) (.position chunk))]
         (swap! state update-in
                [:inodes [(desc/inode od) (desc/version od)] :chunks block]
-               conj {:offset offset :chunk chunk :chunksize size})
+               conj {:offset offset :payload chunk :chunksize size})
         size))))
 
 (defn atom-reporter
@@ -228,4 +229,35 @@
       (is (= 6 (get-in @state [:objects "batman" "foo.txt" :size])))
 
       (is (= (-> @state :reports first)
-             {:type :put :bucket "batman" :object "foo.txt" :size 6})))))
+             {:type :put :bucket "batman" :object "foo.txt" :size 6})))
+
+    (testing "get object"
+      (let [response (handler {:request-method :get
+                               :headers {"host" "batman.blob.example.com"
+                                         "date" (date!)}
+                               :sign-uri "/batman/foo.txt"
+                               :uri "/foo.txt"})]
+        (is (= (:status response) 200))
+        (is (= (slurp (:body response)) "foobar"))))
+
+
+    (testing "cors headers"
+      (let [response (handler {:request-method :put
+                               :headers {"host" "batman.blob.example.com"
+                                         "date" (date!)}
+                               :sign-uri "/batman/?cors"
+                               :uri "/"
+                               :query-string "cors"
+                               :body (java.io.ByteArrayInputStream.
+                                      (.getBytes (slurp (io/resource "cors1.xml"))))})]
+        (is (= (:status response) 200)))
+
+      (let [response (handler {:request-method :options
+                               :headers {"host" "batman.blob.example.com"
+                                         "date" (date!)
+                                         "access-control-request-method" "GET"
+                                         "origin" "http://batman.example.com"}
+                               :sign-uri "/batman/foo.txt"
+                               :uri "/foo.txt"})]
+        (is (= (:status response) 204))
+        (is (= (get-in response [:headers "Access-Control-Allow-Origin"]) "http://batman.example.com"))))))
