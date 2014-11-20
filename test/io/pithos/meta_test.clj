@@ -25,7 +25,32 @@
                      #{}
                      [{:object "foo/bar.txt"}
                       {:object "foo/baz.txt"}]
-                     ""
+                     10
+                     nil
+                     false
+
+                     "simple list with prefix"
+                     [{:object "foo/bar.txt"}
+                      {:object "foo/baz.txt"}
+                      {:object "batman/foo.txt"}]
+                     "foo/"
+                     "/"
+                     #{}
+                     [{:object "foo/bar.txt"}
+                      {:object "foo/baz.txt"}]
+                     10
+                     nil
+                     false
+
+                     "with prefix but no delimiter"
+                     [{:object "foo-bar.txt"}
+                      {:object "foo-baz.txt"}
+                      {:object "batman-foo.txt"}]
+                     "foo-"
+                     nil
+                     #{}
+                     [{:object "foo-bar.txt"}
+                      {:object "foo-baz.txt"}]
                      10
                      nil
                      false

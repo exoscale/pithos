@@ -191,9 +191,11 @@
 (defn filter-keys
   "Keep only contents in a list of objects"
   [objects prefix delimiter]
-  (if (and (seq delimiter) (seq objects))
+  (if (seq objects)
     (let [prefix    (or prefix "")
-          pat       (str "^" prefix "[^\\" delimiter "]*$")
+          no-delim  (if delimiter (str "[^\\" delimiter "]")
+                        ".")
+          pat       (str "^" prefix no-delim "*$")
           keep?     (comp (partial re-find (re-pattern pat)) :object)]
       (filter keep? objects))
     objects))
