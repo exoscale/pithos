@@ -192,11 +192,10 @@
   "Keep only contents in a list of objects"
   [objects prefix delimiter]
   (if (seq objects)
-    (let [prefix    (or prefix "")
-          no-delim  (if delimiter (str "[^\\" delimiter "]")
-                        ".")
-          pat       (str "^" prefix no-delim "*$")
-          keep?     (comp (partial re-find (re-pattern pat)) :object)]
+    (let [prefix (or prefix "")
+          suffix (if delimiter (str "[^\\" delimiter "]") ".")
+          pat    (str "^" prefix suffix "*$")
+          keep?  (comp (partial re-find (re-pattern pat)) :object)]
       (filter keep? objects))
     objects))
 
