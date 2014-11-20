@@ -6,6 +6,7 @@
             [clojure.zip           :refer [xml-zip node root]]
             [clojure.data.zip      :refer [children]]
             [clojure.data.zip.xml  :refer [xml-> xml1-> text]]
+            [io.pithos.util        :refer [string->pattern]]
             [io.pithos.xml         :refer [seq->xml]]))
 
 (defn node->rule
@@ -70,7 +71,8 @@
 
 (defn origin-matches?
   [src dst]
-  (let [pat (str "^" (replace dst "*" "(.*)") "$")]
+  (let [dst (string->pattern dst)
+        pat (str "^" (replace dst "\\*" "(.*)") "$")]
     (re-find (re-pattern pat) src)))
 
 (defn origins-match?
