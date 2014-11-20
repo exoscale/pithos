@@ -33,7 +33,7 @@
               :while (<= block end)]
         (debug "found block " block)
         (loop [offset block]
-          (when-let [chunks (b/chunks (d/blobstore od) od block offset)]
+          (when-let [chunks (seq (b/chunks (d/blobstore od) od block offset))]
             (debug "got " (count chunks) " chunks")
             (doseq [{:keys [offset chunksize] :as chunk}  chunks
                     :let [[array off len] (chunk->ba chunk)]
