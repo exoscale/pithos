@@ -71,7 +71,7 @@
 (defn origin-matches?
   [src dst]
   (let [pat (str "^" (replace dst "*" "(.*)") "$")]
-    (re-find (re-pattern dst) src)))
+    (re-find (re-pattern pat) src)))
 
 (defn origins-match?
   [origin method req-headers {:keys [origins methods headers]}]
