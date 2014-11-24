@@ -81,6 +81,11 @@
    :versions "versions"
    :website "website"})
 
+(defn uri-decode
+  [s]
+  (when s
+    (java.net.URLDecoder/decode s "UTF-8")))
+
 (defn action-routes
   "Really simple router, extracts target (service, bucket or object)"
   []
@@ -97,7 +102,7 @@
   "Matches incoming route and yields target bucket and object"
   [request [target matcher]]
   (when-let [{bucket :bucket object :*} (matcher request)]
-    {:target target :bucket bucket :object object}))
+    {:target target :bucket (uri-decode bucket) :object (uri-decode object)}))
 
 (defn yield-assoc-target
   "closure which for each incoming request will assoc target, bucket
@@ -193,8 +198,8 @@
            (if (and master tenant) (assoc auth :tenant tenant) auth))))
 
 (defn decode-uri
-  [{:keys [uri] :as req}]
-  (assoc req uri (java.net.URLDecoder/decode uri "UTF-8")))
+  [req]
+  (update-in req [:uri] uri-decode))
 
 (defn prepare
   "Generate closures and walks each requests through wrappers."
@@ -212,7 +217,8 @@
 
         (assoc-target)
         (assoc-operation)
-        (authenticate system))))
+        (authenticate system)
+        (decode-uri))))
 
 (defn safe-prepare
   "Wrap prepare in a try-catch block"
