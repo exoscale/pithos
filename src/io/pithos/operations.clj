@@ -518,6 +518,7 @@
                                            bucket object upload-id)
         metadata  (-> (:metadata details) (dissoc "acl" "initiated"))
         inparts   (xml/xml->multipart (slurp body))]
+    (push-str "<?xml version= \"1.0\" encoding= \"UTF-8\"?>")
     (future
       (try
         (when previous
@@ -562,8 +563,14 @@
             (store/delete! (desc/blobstore od) od previous))
 
           (debug "all streams now flushed")
-          (push-str (xml/complete-multipart-upload bucket object
-                                                   (desc/checksum od))))
+          (let [body (xml/complete-multipart-upload bucket object
+                                                    (desc/checksum od))
+                ;; some parsers have difficulty handling leading
+                ;; spaces before the xml def, so trim it.
+                ;; 38 corresponds to the length of
+                ;; "<?xml version= \"1.0\" encoding= \"UTF-8\"?>"
+                trimmed (.substring body 38)]
+            (push-str trimmed)))
         (catch Exception e
           (error e "error in multipart completion"))
         (finally
