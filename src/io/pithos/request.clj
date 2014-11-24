@@ -192,6 +192,10 @@
     (assoc req :authorization
            (if (and master tenant) (assoc auth :tenant tenant) auth))))
 
+(defn decode-uri
+  [{:keys [uri] :as req}]
+  (assoc req uri (java.net.URLDecoder/decode uri "UTF-8")))
+
 (defn prepare
   "Generate closures and walks each requests through wrappers."
   [req system]
