@@ -512,7 +512,7 @@
   (let [ch        (chan)
         previous  (desc/init-version od)
         push-str  (fn [type]
-                    (put! ch (case type :block "\n" :chunk " " type)))
+                    (put! ch (case type :block "" :chunk "" type)))
         etag      (promise)
         details   (meta/get-upload-details (bucket/metastore od)
                                            bucket object upload-id)
