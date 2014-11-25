@@ -101,7 +101,8 @@ Will produce an XML AST equivalent to:
                                      (filter (complement (comp vector? first)))
                                      (remove empty?)
                                      (map tag-nodes->xml))]
-                  (->Element (name tag) attrs (vec (concat seq-nodes tag-nodes))))
+                  (->Element (name tag) attrs
+                             (vec (concat seq-nodes tag-nodes))))
                 (->Element (name tag) attrs (first nodes)))))]
     (tag-nodes->xml input)))
 
@@ -145,7 +146,9 @@ Will produce an XML AST equivalent to:
 
 (defn list-bucket
   "Template for the list-bucket operation response"
-  [{:keys [marker truncated? next-marker keys prefixes]} {:keys [tenant bucket]} {:keys [prefix delimiter max-keys]}]
+  [{:keys [marker truncated? next-marker keys prefixes]}
+   {:keys [tenant bucket]}
+   {:keys [prefix delimiter max-keys]}]
   (seq->xmlstr
    (apply vector
           :ListBucketResult xml-ns
@@ -278,7 +281,9 @@ Will produce an XML AST equivalent to:
        :signature-does-not-match
        [:Error
         [:Code "SignatureDoesNotMatch"]
-        [:Message "The request signature we calculated does not match the signature you provided. Check your key and signing method."]
+        [:Message (str "The request signature we calculated does not match "
+                       "the signature you provided. "
+                       "Check your key and signing method.")]
         [:RequestId reqid]
         [:HostId reqid]
         [:ExpectedSignature (:expected payload)]
@@ -326,13 +331,17 @@ Will produce an XML AST equivalent to:
        :invalid-acl-xml
        [:Error
         [:Code "MalformedACLError"]
-        [:Message "The XML you provided was not well-formed or did not validate against our published schema."]
+        [:Message (str "The XML you provided was not well-formed "
+                       "or did not validate against our published schema.")]
         [:RequestId reqid]
         [:HostId reqid]]
        :bucket-already-exists
        [:Error
         [:Code "BucketAlreadyExists"]
-        [:Message "The requested bucket name is not available. The bucket namespace is shared by all users of the system. Please select a different name and try again."]
+        [:Message
+         (str "The requested bucket name is not available. "
+              "The bucket namespace is shared by all users of the system. "
+              "Please select a different name and try again.")]
         [:BucketName (:bucket payload)]
         [:RequestId reqid]
         [:HostId reqid]]
