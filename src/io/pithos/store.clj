@@ -30,7 +30,8 @@
              (if (and (= (class exception) InvalidQueryException)
                       (re-find #"^[kK]eyspace.*does not exist$"
                                (.getMessage exception)))
-               (do (alia/execute session (create-keyspace keyspace (with hints)))
+               (do (alia/execute session
+                                 (create-keyspace keyspace (with hints)))
                  (alia/execute session (use-keyspace keyspace))
                  session)
                (throw e)))))))
