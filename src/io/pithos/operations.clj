@@ -554,12 +554,13 @@
                                  :size   (desc/size od)})
           (doseq [part allparts]
             (push-str :block)
-            (meta/abort-multipart-upload! (bucket/metastore part)
-                                          bucket
-                                          object
-                                          upload-id)
-            (push-str :block)
             (store/delete! (desc/blobstore part) part (desc/version part)))
+
+          (meta/abort-multipart-upload! (bucket/metastore od)
+                                        bucket
+                                        object
+                                        upload-id)
+
 
           (when (and previous (not= previous (desc/version od)))
             (push-str :block)
