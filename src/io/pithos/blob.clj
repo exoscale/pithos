@@ -163,7 +163,8 @@
       store/Crudable
       (delete! [this od version]
         (let [ino (if (= (class od) java.util.UUID) od (d/inode od))]
-          (doseq [{block :block} (execute session (get-block-q ino version :asc))]
+          (doseq [{block :block} (execute session
+                                          (get-block-q ino version :asc))]
             (execute session (delete-block-q ino version block)))
           (execute session (delete-blockref-q ino version))))
       Blobstore
