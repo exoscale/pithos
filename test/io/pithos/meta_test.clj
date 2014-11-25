@@ -1,7 +1,8 @@
 (ns io.pithos.meta-test
   (:require [clojure.test    :refer :all]
             [io.pithos.util  :refer [inc-prefix]]
-            [io.pithos.meta  :refer [filter-keys filter-prefixes get-prefixes]]))
+            [io.pithos.meta  :refer [filter-keys filter-prefixes
+                                     get-prefixes]]))
 
 
 (deftest prefixes-and-contents-test
