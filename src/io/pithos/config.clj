@@ -2,17 +2,18 @@
   "This namespace parses YAML data into clojure forms which
    are then augmented with a mechanism initialy described here:
 
-   http://spootnik.org/entries/2014/01/25_poor-mans-dependency-injection-in-clojure.html
+   http://bit.ly/1xRgOLb
 
-   Default implementation for protocols are provided but can be overrided with the `use`
-   keyword.
+   Default implementation for protocols are provided but can be overriden
+   with the `use` keyword.
 "
   (:require [clj-yaml.core         :refer [parse-string]]
             [clojure.tools.logging :refer [error info debug]]
             [io.pithos.util        :refer [to-bytes]]))
 
 (def default-logging
-  "Logging can be bypassed if a log4j configuration is provided to the underlying JVM"
+  "Logging can be bypassed if a log4j configuration is provided
+    to the underlying JVM"
   {:use "org.spootnik.logconfig/start-logging!"
    :pattern "%p [%d] %t - %c - %m%n"
    :external false
