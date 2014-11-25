@@ -121,8 +121,9 @@
     blob/Blobstore
 
     (blocks [this od]
-      (sort-by :block (get-in @state [:inodes [(desc/inode od) (desc/version od)]
-                                      :blocks])))
+      (sort-by :block
+               (get-in @state [:inodes [(desc/inode od) (desc/version od)]
+                               :blocks])))
     (max-chunk [this] max-chunk-size)
     (chunks [this od block offset]
       (drop-while
@@ -249,7 +250,8 @@
                                :uri "/"
                                :query-string "cors"
                                :body (java.io.ByteArrayInputStream.
-                                      (.getBytes (slurp (io/resource "cors1.xml"))))})]
+                                      (.getBytes
+                                       (slurp (io/resource "cors1.xml"))))})]
         (is (= (:status response) 200)))
 
       (let [response (handler {:request-method :options
@@ -260,4 +262,5 @@
                                :sign-uri "/batman/foo.txt"
                                :uri "/foo.txt"})]
         (is (= (:status response) 204))
-        (is (= (get-in response [:headers "Access-Control-Allow-Origin"]) "http://batman.example.com"))))))
+        (is (= (get-in response [:headers "Access-Control-Allow-Origin"])
+               "http://batman.example.com"))))))
