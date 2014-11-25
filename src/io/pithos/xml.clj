@@ -238,7 +238,7 @@ Will produce an XML AST equivalent to:
   "Template for the copy object response"
   [etag atime]
   (seq->xmlstr
-   [:CopyObjectResult
+   [:CopyObjectResult xml-ns
     [:LastModified atime]
     [:ETag (str "\"" etag "\"")]]))
 
