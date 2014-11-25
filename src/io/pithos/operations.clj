@@ -78,7 +78,8 @@
                                  system)
             (let [src (desc/object-descriptor system s-bucket s-object)]
               (when-not (desc/init-version src)
-                (throw (ex-info "no such key" {:type :no-such-key :key s-object})))
+                (throw (ex-info "no such key" {:type :no-such-key
+                                               :key  s-object})))
               [src (if update-metadata?
                      (get-metadata headers)
                      (:metadata src))])))
@@ -142,7 +143,8 @@
   "Deletes a bucket, only possible if the bucket isn't empty. The bucket
    should also be checked for in-progress uploads."
   [{:keys [bd bucket] :as request} system]
-  (let [{:keys [keys]} (meta/prefixes (bucket/metastore bd) bucket {:max-keys 1})]
+  (let [{:keys [keys]} (meta/prefixes (bucket/metastore bd)
+                                      bucket {:max-keys 1})]
     (when (pos? (count keys))
       (throw (ex-info "bucket not empty" {:type :bucket-not-empty
                                           :bucket bucket
@@ -268,7 +270,7 @@
 
 (defn get-object-acl
   "Retrieve and format object acl"
-  [{:keys [od bucket object] {:keys [tenant]} :authorization :as request} system]
+  [{:keys [od bucket object] {:keys [tenant]} :authorization} system]
   (let [acl (or (some-> (store/fetch (bucket/metastore od) bucket object)
                         :acl
                         read-string)
@@ -411,7 +413,8 @@
 
    There are two radically different upload scenario, a standard upload
    where the body of the request needs to be stored and requests containing
-   an `x-amz-copy-source header` which contains a reference to another object to copy.
+   an `x-amz-copy-source header` which contains a reference to another object
+   to copy.
 
    In this case a new inode is created and data copied over, if permissions are
    sufficient for a copy.
@@ -535,7 +538,8 @@
               od       (stream/stream-copy-parts (vec parts) od push-str)]
 
           (desc/col! od :acl (get-in details [:metadata "acl"]))
-          (desc/col! od :content-type (get-in details [:metadata "content-type"]))
+          (desc/col! od :content-type
+                     (get-in details [:metadata "content-type"]))
           (doseq [[k v] metadata]
             (desc/col! od k v))
           (desc/save! od)
