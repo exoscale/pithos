@@ -232,6 +232,22 @@
       (is (= (-> @state :reports first)
              {:type :put :bucket "batman" :object "foo.txt" :size 6})))
 
+    (testing "put object with metadata"
+      (handler {:request-method :put
+                :headers {"host" "batman.blob.example.com"
+                          "x-amz-meta-foo" "bar"
+                          "date" (date!)}
+                :sign-uri "/batman/foo-meta.txt"
+                :uri "/foo-meta.txt"
+                :body (java.io.ByteArrayInputStream. (.getBytes "foobar"))})
+      (is (= (sum "foobar")
+             (get-in @state [:objects "batman" "foo-meta.txt" :checksum]))
+          (= "bar"
+             (get-in @state [:objects "batman" "foo-meta.txt"
+                             :headers "x-amz-meta-foo"])))
+
+      (is (= 6 (get-in @state [:objects "batman" "foo.txt" :size]))))
+
     (testing "get object"
       (let [response (handler {:request-method :get
                                :headers {"host" "batman.blob.example.com"
