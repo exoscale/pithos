@@ -1,6 +1,7 @@
 (ns io.pithos.operations-test
   (:require [clojure.test         :refer :all]
             [clojure.java.io      :as io]
+            [clojure.core.async   :as a]
             [io.pithos.desc       :as desc]
             [io.pithos.bucket     :as bucket]
             [io.pithos.meta       :as meta]
@@ -15,6 +16,9 @@
             [io.pithos.util       :refer [inc-prefix iso8601->rfc822
                                           iso8601-timestamp
                                           md5-init md5-sum md5-update]]
+            [clojure.data.xml     :refer [->Element emit-str parse-str]]
+            [clojure.zip          :refer [xml-zip]]
+            [clojure.data.zip.xml :refer [xml-> xml1-> text]]
             [clojure.pprint       :refer [pprint]]))
 
 (deftest range-test
@@ -284,6 +288,64 @@
                                    "<ETag>\"%s\"</ETag></CopyObjectResult>")
                               (:xmlns xml/xml-ns) date (sum "foobar"))]
           (is (= payload (:body resp))))))
+
+    (testing "multipart upload"
+      (reset! state {})
+      (handler {:request-method :put
+                :headers {"host" "batman.blob.example.com"
+                          "date" (date!)}
+                :sign-uri "/batman/"
+                :uri "/"})
+
+
+      (let [upload-id (-> (handler {:request-method :post
+                                    :headers {"host" "batman.blob.example.com"
+                                              "date" (date!)}
+                                    :sign-uri "/batman/foo-multi.txt?uploads"
+                                    :query-string "uploads"
+                                    :uri "/foo-multi.txt"})
+                          :body
+                          (parse-str)
+                          (xml-zip)
+                          (xml1-> :UploadId text))]
+        (handler {:request-method :put
+                  :headers {"host" "batman.blob.example.com"
+                            "date" (date!)}
+                  :sign-uri (str "/batman/foo-multi.txt?partNumber=1&uploadId="
+                                 upload-id)
+                  :query-string (str "uploadId=" upload-id "&partNumber=1")
+                  :uri "/foo-multi.txt"
+                  :body (java.io.ByteArrayInputStream. (.getBytes "foo"))})
+        (handler {:request-method :put
+                  :headers {"host" "batman.blob.example.com"
+                            "date" (date!)}
+                  :sign-uri (str "/batman/foo-multi.txt?partNumber=2&uploadId="
+                                 upload-id)
+                  :query-string (str "uploadid=" upload-id "&partnumber=2")
+                  :uri "/foo-multi.txt"
+                  :body (java.io.ByteArrayInputStream. (.getBytes "bar"))})
+        (->>
+         (handler {:request-method :post
+                   :headers {"host" "batman.blob.example.com"
+                             "date" (date!)}
+                   :sign-uri (str "/batman/foo-multi.txt?uploadId=" upload-id)
+                   :uri "/foo-multi.txt"
+                   :query-string (str "uploadid=" upload-id)
+                   :body (java.io.ByteArrayInputStream.
+                          (.getBytes
+                           (str
+                            "<CompleteMultipartUpload>"
+                            "<Part><PartNumber>1</PartNumber><ETag>"
+                            (sum "foo") "</ETag></Part>"
+                            "<Part><PartNumber>2</PartNumber><ETag>"
+                            (sum "bar") "</ETag></Part>"
+                            "</CompleteMultipartUpload>")))})
+         :body
+         (a/reduce str "")
+         (a/<!!))
+
+        (is (= (sum "foobar")
+               (get-in @state [:objects "batman" "foo-multi.txt" :checksum])))))
 
 
     (testing "cors headers"
