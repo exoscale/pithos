@@ -252,7 +252,7 @@
 (defn initiate-upload
   "Start a new upload"
   [{:keys [od bucket object params authorization] :as request} system]
-  (let [metadata            (get-metadata request)
+  (let [metadata            (get-metadata (:headers request))
         upload-id           (uuid/random)
         target-acl          (perms/header-acl (:bd request)
                                               (:tenant authorization)
