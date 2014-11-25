@@ -105,7 +105,7 @@
       (b/start-block! dblob dst block)
       (debug "found block " block)
       (loop [offset block]
-        (when-let [chunks (b/chunks sblob src block offset)]
+        (when-let [chunks (seq (b/chunks sblob src block offset))]
           (doseq [chunk chunks
                   :let [offset (:offset chunk)]]
             (b/chunk! dblob dst block offset (:payload chunk)))
