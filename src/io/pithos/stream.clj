@@ -148,14 +148,16 @@
         blocks (b/blocks sblob part)]
 
     (debug "streaming part: " (d/part part))
-    [(reduce (partial stream-copy-part-block notifier dst hash part) offset blocks)
+    [(reduce (partial stream-copy-part-block notifier dst hash part)
+             offset blocks)
      hash]))
 
 (defn stream-copy-parts
   "Given a list of parts, stream their content to a destination inode"
   [parts dst notifier]
   (let [dblob   (d/blobstore dst)
-        [size hash] (reduce (partial stream-copy-part notifier dst) [0 (u/md5-init)] parts)]
+        [size hash] (reduce (partial stream-copy-part notifier dst)
+                            [0 (u/md5-init)] parts)]
     (d/col! dst :size size)
     (d/col! dst :checksum (u/md5-sum hash))
     (debug "stored size:" size "and checksum: " (u/md5-sum hash))
