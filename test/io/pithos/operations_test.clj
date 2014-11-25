@@ -10,6 +10,7 @@
             [io.pithos.sig        :as sig]
             [io.pithos.api        :as api]
             [io.pithos.system     :as system]
+            [io.pithos.xml        :as xml]
             [io.pithos.operations :refer [get-range]]
             [io.pithos.util       :refer [inc-prefix iso8601->rfc822
                                           iso8601-timestamp
@@ -264,6 +265,25 @@
                                :uri "/foo.txt"})]
         (is (= (:status response) 200))
         (is (= (slurp (:body response)) "foobar"))))
+
+    (testing "object copy"
+      (let [d    (date!)
+            resp  (handler {:request-method :put
+                            :headers {"host" "batman.blob.example.com"
+                                      "date" d
+                                      "x-amz-copy-source" "/batman/foo.txt"}
+                            :sign-uri "/batman/foo-copy.txt"
+                            :uri "/foo-copy.txt"})
+
+            date (get-in @state [:objects "batman" "foo-copy.txt" :atime])]
+        (is (= (sum "foobar")
+               (get-in @state [:objects "batman" "foo-copy.txt" :checksum])))
+        (let [payload (format (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                                   "<CopyObjectResult xmlns=\"%s\">"
+                                   "<LastModified>%s</LastModified>"
+                                   "<ETag>\"%s\"</ETag></CopyObjectResult>")
+                              (:xmlns xml/xml-ns) date (sum "foobar"))]
+          (is (= payload (:body resp))))))
 
 
     (testing "cors headers"
