@@ -99,7 +99,7 @@
       (swap! state update-in [:uploads bucket object] dissoc upload))
     (update-part! [this bucket object upload partno columns]
       (swap! state update-in [:uploads bucket object upload :parts partno]
-             merge columns))
+             merge (assoc columns :partno partno)))
     (initiate-upload! [this bucket object upload metadata]
       (swap! state assoc-in [:uploads bucket object upload :meta] metadata))
     (get-upload-details [this bucket object upload]
@@ -109,7 +109,7 @@
     (list-object-uploads [this bucket object]
       (get-in @state [:uploads bucket object]))
     (list-upload-parts [this bucket object upload]
-      (get-in @state [:uploads bucket object upload :parts]))))
+      (vals (get-in @state [:uploads bucket object upload :parts])))))
 
 (defn atom-blob-store
   [state max-chunk-size max-block-chunks]
@@ -118,7 +118,7 @@
     (converge! [this])
     store/Crudable
     (delete! [this inode version]
-      (swap! state update-in [:inodes] (dissoc [inode version])))
+      (swap! state update-in [:inodes] dissoc [inode version]))
     blob/Blobstore
 
     (blocks [this od]
