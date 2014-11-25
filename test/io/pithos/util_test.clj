@@ -1,6 +1,7 @@
 (ns io.pithos.util-test
   (:require [clojure.test   :refer :all]
-            [io.pithos.util :refer [inc-prefix to-bytes parse-uuid string->pattern]]))
+            [io.pithos.util :refer [inc-prefix to-bytes parse-uuid
+                                    string->pattern]]))
 
 (deftest inc-prefix-test
   (testing "nil prefix"
@@ -55,4 +56,5 @@
   (testing "with escapes"
     (is (= "abc\\\\" (string->pattern "abc\\"))))
   (testing "with back references"
-    (is (= "\\(42\\)\\\\1\\\\k\\<here\\>" (string->pattern "(42)\\1\\k<here>")))))
+    (is (= "\\(42\\)\\\\1\\\\k\\<here\\>"
+           (string->pattern "(42)\\1\\k<here>")))))
