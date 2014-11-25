@@ -11,7 +11,7 @@
   :plugins [[lein-sub      "0.3.0"]
             [lein-difftest "2.0.0"]]
   :sub ["pithos-quickstart"]
-  :dependencies [[org.clojure/clojure           "1.7.0-alpha3"]
+  :dependencies [[org.clojure/clojure           "1.7.0-alpha4"]
                  [org.clojure/data.codec        "0.1.0"]
                  [org.clojure/data.xml          "0.0.8"]
                  [org.clojure/data.zip          "0.1.1"]
