@@ -460,7 +460,7 @@
 
     (-> (if src
           (-> (xml/copy-object (desc/checksum dst)
-                               (iso8601->rfc822 (str (:atime dst))))
+                               (str (:atime dst)))
               (xml-response))
           (response))
         (header "ETag" (str "\"" (desc/checksum dst) "\"")))))
