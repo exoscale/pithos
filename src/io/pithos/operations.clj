@@ -458,7 +458,11 @@
                            :object object
                            :size   (desc/size dst)})
 
-    (-> (response)
+    (-> (if src
+          (-> (xml/copy-object (desc/checksum dst)
+                               (iso8601->rfc822 (str (:atime dst))))
+              (xml-response))
+          (response))
         (header "ETag" (str "\"" (desc/checksum dst) "\"")))))
 
 (defn abort-upload
