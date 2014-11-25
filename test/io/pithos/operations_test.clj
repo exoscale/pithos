@@ -241,12 +241,20 @@
                 :uri "/foo-meta.txt"
                 :body (java.io.ByteArrayInputStream. (.getBytes "foobar"))})
       (is (= (sum "foobar")
-             (get-in @state [:objects "batman" "foo-meta.txt" :checksum]))
-          (= "bar"
-             (get-in @state [:objects "batman" "foo-meta.txt"
-                             :headers "x-amz-meta-foo"])))
+             (get-in @state [:objects "batman" "foo-meta.txt" :checksum])))
 
-      (is (= 6 (get-in @state [:objects "batman" "foo.txt" :size]))))
+      (is (= "bar"
+             (get-in @state [:objects "batman" "foo-meta.txt"
+                             :metadata "x-amz-meta-foo"])))
+
+      (is (= 6 (get-in @state [:objects "batman" "foo.txt" :size])))
+
+      (let [resp (handler {:request-method :head
+                           :headers {"host" "batman.blob.example.com"
+                                     "date" (date!)}
+                           :sign-uri "/batman/foo-meta.txt"
+                           :uri "/foo-meta.txt"})]
+        (is (= (get-in resp [:headers "x-amz-meta-foo"]) "bar"))))
 
     (testing "get object"
       (let [response (handler {:request-method :get
