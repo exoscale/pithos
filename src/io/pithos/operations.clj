@@ -43,7 +43,7 @@
 
 (defn get-metadata
   "Retrieve metadata from a request's headers"
-  [{:keys [headers]}]
+  [headers]
   (let [valid? (fn [x]
                  (or (#{"content-type" "content-encoding"
                         "content-disposition" "content-language"
