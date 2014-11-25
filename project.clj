@@ -1,4 +1,4 @@
-(defproject io.pithos/pithos "0.7.1-SNAPSHOT"
+(defproject io.pithos/pithos "0.7.1"
   :description "cassandra-backed object storage"
   :maintainer {:email "Pierre-Yves Ritschard <pyr@spootnik.org>"}
   :url "http://pithos.io"
