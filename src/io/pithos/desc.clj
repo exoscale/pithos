@@ -99,13 +99,15 @@
       (increment! [this]
         (col! this :version (uuid/time-based)))
       (save! [this]
-        (let [meta (-> meta
+        (let [ts   (util/iso8601-timestamp)
+              meta (-> meta
                        (merge {:inode inode
                                :version version
-                               :atime (util/iso8601-timestamp)})
+                               :atime ts})
                        (merge @cols)
                        (dissoc :bucket :object))]
-          (store/update! metastore bucket object meta)))
+          (store/update! metastore bucket object meta)
+          (swap! cols assoc :atime ts)))
       clojure.lang.ILookup
       (valAt [this k]
         (get (merge meta {:inode inode :version version} @cols)
