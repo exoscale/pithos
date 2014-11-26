@@ -134,6 +134,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#owncloud">owncloud</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#s3fs-s3-fuse-support">s3fs - s3 fuse support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#wal-e-continuous-archiving-for-postgres">WAL-E - continuous archiving for Postgres</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#elasticsearch-index-backup-and-restore">elasticsearch - index backup and restore</a></li>
 </ul>
 </li>
 </ul>
@@ -273,6 +274,44 @@ content:</p>
 </pre></div>
 </div>
 <p>Start postgresql and check the logs to see its restore status.</p>
+</div>
+</div>
+<div class="section" id="elasticsearch-index-backup-and-restore">
+<h2>elasticsearch - index backup and restore<a class="headerlink" href="#elasticsearch-index-backup-and-restore" title="Permalink to this headline">¶</a></h2>
+<p>Snapshotting and restoring indices to Pithos is supported thanks to the <a class="reference external" href="https://github.com/elasticsearch/elasticsearch-cloud-aws">AWS
+Cloud Plugin</a>. To configure a snapshot repository that points to your pithos
+installation, simply add to your <tt class="docutils literal"><span class="pre">/etc/elasticsearch/elasticsearch.yml</span></tt>:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">cloud</span><span class="p-Indicator">:</span>
+  <span class="l-Scalar-Plain">aws</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">access_key</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">&lt;your key&gt;</span>
+    <span class="l-Scalar-Plain">secret_key</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">&lt;your secret&gt;</span>
+    <span class="l-Scalar-Plain">s3</span><span class="p-Indicator">:</span>
+      <span class="l-Scalar-Plain">protocol</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https</span>
+      <span class="l-Scalar-Plain">endpoint</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">s3.example.com</span>
+</pre></div>
+</div>
+<p>Then create your repository:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ curl -XPUT &#39;http://localhost:9200/_snapshot/pithos&#39; -d &#39;{
+    &quot;type&quot;: &quot;s3&quot;,
+    &quot;settings&quot;: {
+        &quot;bucket&quot;: &quot;es-snapshots&quot;
+    }
+}&#39;
+</pre></div>
+</div>
+<p>Starting with version 2.4.2 of the plugin, all settings can be provided
+per-repository:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ curl -XPUT &#39;http://localhost:9200/_snapshot/pithos&#39; -d &#39;{
+    &quot;type&quot;: &quot;s3&quot;,
+    &quot;settings&quot;: {
+        &quot;bucket&quot;: &quot;es-snapshots&quot;,
+        &quot;access_key&quot;: &quot;your key&quot;,
+        &quot;secret_key&quot;: &quot;your secret&quot;,
+        &quot;protocol&quot;: &quot;http&quot;,
+        &quot;endpoint&quot;: &quot;s3.example.com&quot;,
+    }
+}&#39;
+</pre></div>
 </div>
 </div>
 </div>
