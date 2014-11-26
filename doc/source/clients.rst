@@ -99,3 +99,45 @@ content::
     restore_command = 'envdir /etc/wal-e.d/env /path/to/wal-e wal-fetch "%f" "%p"'
 
 Start postgresql and check the logs to see its restore status.
+
+elasticsearch - index backup and restore
+----------------------------------------
+
+Snapshotting and restoring indices to Pithos is supported thanks to the `AWS
+Cloud Plugin`_. To configure a snapshot repository that points to your pithos
+installation, simply add to your ``/etc/elasticsearch/elasticsearch.yml``:
+
+.. code-block:: yaml
+
+    cloud:
+      aws:
+        access_key: <your key>
+        secret_key: <your secret>
+        s3:
+          protocol: https
+          endpoint: s3.example.com
+
+Then create your repository::
+
+    $ curl -XPUT 'http://localhost:9200/_snapshot/pithos' -d '{
+        "type": "s3",
+        "settings": {
+            "bucket": "es-snapshots"
+        }
+    }'
+
+Starting with version 2.4.2 of the plugin, all settings can be provided
+per-repository::
+
+    $ curl -XPUT 'http://localhost:9200/_snapshot/pithos' -d '{
+        "type": "s3",
+        "settings": {
+            "bucket": "es-snapshots",
+            "access_key": "your key",
+            "secret_key": "your secret",
+            "protocol": "http",
+            "endpoint": "s3.example.com",
+        }
+    }'
+
+.. _AWS Cloud Plugin: https://github.com/elasticsearch/elasticsearch-cloud-aws
