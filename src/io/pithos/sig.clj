@@ -3,7 +3,9 @@
    http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html"
   (:require [clojure.string            :as s]
             [clojure.tools.logging     :refer [info debug]]
-            [clojure.data.codec.base64 :as base64])
+            [clojure.data.codec.base64 :as base64]
+            [clj-time.core             :refer [after? now]]
+            [clj-time.coerce           :refer [to-date-time]])
   (:import  javax.crypto.Mac javax.crypto.spec.SecretKeySpec))
 
 (defn canonicalized
@@ -19,10 +21,12 @@
 
 (defn string-to-sign
   "Yield the string to sign for an incoming request"
-  [{:keys [headers request-method sign-uri] :as request}]
+  [{:keys [headers request-method sign-uri params] :as request}]
   (let [content-md5  (get headers "content-md5")
         content-type (get headers "content-type")
-        date         (if-not (get headers "x-amz-date") (get headers "date"))]
+        date         (or (get headers "x-amz-date")
+                         (get params :expires)
+                         (get headers "date"))]
     (s/join
      "\n"
      [(-> request-method name s/upper-case)
@@ -40,12 +44,25 @@
                  (.doFinal (.getBytes to-sign))
                  (base64/encode)))))
 
+(defn auth
+  "Extract access key and signature from the request, using query string
+  parameters or Authorization header"
+  [request]
+  (if-let [auth-str (get-in request [:headers "authorization"])]
+    (let [[_ access-key sig] (re-matches #"^[Aa][Ww][Ss] (.*):(.*)$" auth-str)]
+      {:sig sig :access-key access-key})
+    (let [access-key (get-in request [:params :awsaccesskeyid])
+          sig        (get-in request [:params :signature])]
+      (if (and access-key sig)
+        {:sig sig :access-key access-key}
+        nil))))
+
 (defn validate
   "Validate an incoming request (e.g: make sure the signature is correct),
    when applicable (requests may be unauthenticated)"
   [keystore request]
-  (if-let [auth-str (get-in request [:headers "authorization"])]
-    (let [[_ access-key sig] (re-matches #"^[Aa][Ww][Ss] (.*):(.*)$" auth-str)
+  (if-let [data (auth request)]
+    (let [{:keys [sig access-key]}           data
           {:keys [secret] :as authorization} (get keystore access-key)
           signed (try (sign-request request access-key secret)
                       (catch Exception e
@@ -58,9 +75,16 @@
         (throw (ex-info "invalid request signature"
                         {:type :signature-does-not-match
                          :status-code 403
-                         :auth-string auth-str
                          :request request
                          :expected signed
                          :to-sign (string-to-sign request)})))
+      (when-let [expires (get-in request [:params :expires])]
+        (let [expires (to-date-time (* 1000 (Integer/parseInt expires)))]
+          (when (after? (now) expires)
+            (throw (ex-info "expired request"
+                            {:type :expired-request
+                             :status-code 403
+                             :request request
+                             :expires expires})))))
       (update-in authorization [:memberof] concat ["authenticated-users"]))
     {:tenant :anonymous :memberof ["anonymous"]}))

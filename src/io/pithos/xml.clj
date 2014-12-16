@@ -9,7 +9,9 @@
             [clojure.data.zip.xml :refer [xml-> xml1-> text]]
             [clojure.pprint       :refer [pprint]]
             [clojure.string       :as s]
-            [io.pithos.sig        :as sig]))
+            [clj-time.core        :refer [now]]
+            [io.pithos.sig        :as sig]
+            [io.pithos.util       :refer [iso8601]]))
 
 (defn xml->delete
   [src]
@@ -292,6 +294,14 @@ Will produce an XML AST equivalent to:
               :to-sign
               .getBytes seq (map (partial format "%02x")) (s/join " "))]
         [:StringToSign (:to-sign payload)]]
+       :expired-request
+       [:Error
+        [:Code "AccessDenied"]
+        [:Message "Request has expired"]
+        [:Expires (iso8601 (:expires payload))]
+        [:ServerTime (iso8601 (now))]
+        [:RequestId reqid]
+        [:HostId reqid]]
        :no-such-key
        [:Error
         [:Code "NoSuchKey"]
