@@ -5,7 +5,8 @@
             [clojure.tools.logging     :refer [info debug]]
             [clojure.data.codec.base64 :as base64]
             [clj-time.core             :refer [after? now]]
-            [clj-time.coerce           :refer [to-date-time]])
+            [clj-time.coerce           :refer [to-date-time]]
+            [org.spootnik.constance    :refer [constant-string=]])
   (:import  javax.crypto.Mac javax.crypto.spec.SecretKeySpec))
 
 (defn canonicalized
@@ -67,7 +68,7 @@
           signed (try (sign-request request access-key secret)
                       (catch Exception e
                         {:failed true :exception e}))]
-      (when-not (= sig signed)
+      (when-not (constant-string= sig signed)
         (info "will throw because of failed signature!")
         (when (:exception signed)
           (debug (:exception signed) "got exception during signing"))
