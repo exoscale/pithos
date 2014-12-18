@@ -97,6 +97,11 @@
        (parse (:date-time-parser formatters))
        (unparse rfc822-format)))
 
+(defn iso8601
+  "iso8601 timestamp representation"
+  [date]
+  (unparse (formatter "yyyy-MM-dd'T'HH:mm:ssZ") date))
+
 (def ^:private regex-char-esc-smap
   "Characters to be escaped in a regular pattern (including inside a set)"
   ;; The documentation is available here:a
