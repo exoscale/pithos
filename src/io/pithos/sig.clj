@@ -25,9 +25,9 @@
   [{:keys [headers request-method sign-uri params] :as request}]
   (let [content-md5  (get headers "content-md5")
         content-type (get headers "content-type")
-        date         (or (get headers "x-amz-date")
-                         (get params :expires)
-                         (get headers "date"))]
+        date         (or (get params :expires)
+                         (if-not (get headers "x-amz-date")
+                           (get headers "date")))]
     (s/join
      "\n"
      [(-> request-method name s/upper-case)
