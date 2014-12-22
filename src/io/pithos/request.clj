@@ -229,5 +229,6 @@
   (debug "request: " (pr-str req))
   (try (prepare req system)
        (catch Exception e
+         (debug e "unhandled exception during request preparation")
          (insert-id
           {:operation :error :exception e}))))
