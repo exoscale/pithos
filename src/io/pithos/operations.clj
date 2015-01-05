@@ -235,19 +235,11 @@
       (xml/list-multipart-uploads bucket)
       (xml-response)))
 
-(defn options-bucket
-  [{:keys [bucket headers request-method] :as request} system]
-  (let [cors   (some-> (bucket/by-name (system/bucketstore system) bucket)
-                       :cors
-                       read-string)]
-    (when-not cors
-      (throw (ex-info "Forbidden"
-                      {:type :forbidden
-                       :status-code 403})))
-    (-> (response)
-        (status 204)
-        (update-in [:headers] merge (cors/matches? cors headers
-                                                   request-method)))))
+(defn options-object
+  "Answer an empty object for any OPTIONS request"
+  [request system]
+  (-> (response)
+      (status 204)))
 
 (defn initiate-upload
   "Start a new upload"
@@ -661,26 +653,28 @@
    :get-bucket-uploads      {:handler get-bucket-uploads
                              :perms   [[:bucket :READ]]
                              :target  :bucket}
-   :options-bucket          {:handler options-bucket
-                             :target  :bucket
-                             :perms   [[:object :READ]]}
-   :options-object          {:handler options-bucket
-                             :target  :bucket
+   :options-object          {:handler options-object
+                             :target  :object
+                             :cors    true
                              :perms   [[:object :READ]]}
    :post-bucket-delete      {:handler post-bucket-delete
                              :target  :bucket
                              :perms   [[:bucket :WRITE]]}
    :get-object              {:handler get-object
                              :target  :object
+                             :cors    true
                              :perms   [[:object :READ]]}
    :head-object             {:handler head-object
                              :target  :object
+                             :cors    true
                              :perms   [[:object :READ]]}
    :put-object              {:handler put-object
                              :target  :object
+                             :cors    true
                              :perms   [[:bucket :WRITE]]}
    :delete-object           {:handler delete-object
                              :target  :object
+                             :cors    true
                              :perms   [[:bucket :WRITE]]}
    :get-object-acl          {:handler get-object-acl
                              :target  :object
@@ -722,14 +716,30 @@
    (ex-handler request exception)
 
    request
-   (let [{:keys [handler perms target]} (get opmap operation)
-         handler                        (or handler unknown)]
-     (try (perms/authorize request perms system)
-          (-> request
-              (assoc-targets system target)
-              (handler system)
-              (request-id request))
-          (catch Exception e
-            (when-not (:type (ex-data e))
-              (error e "caught exception during operation"))
-            (ex-handler request e))))))
+   (let [{:keys [handler perms target cors]} (get opmap operation)
+         handler                             (or handler unknown)
+         resp
+         (try (perms/authorize request perms system)
+              (-> request
+                  (assoc-targets system target)
+                  (handler system)
+                  (request-id request))
+              (catch Exception e
+                (when-not (:type (ex-data e))
+                  (error e "caught exception during operation"))
+                (ex-handler request e)))]
+
+     ;; If an "Origin" header is present and we are asked to handle
+     ;; CORS rules, process them.
+     (let [{:keys [bucket headers request-method]} request]
+       (if (and cors (get headers "origin"))
+         (if-let [rules (some-> (bucket/by-name (system/bucketstore system)
+                                                  bucket)
+                                  :cors
+                                  read-string)]
+           (update-in resp [:headers]
+                      merge (cors/matches? rules
+                                           headers
+                                           request-method))
+           resp)
+         resp)))))

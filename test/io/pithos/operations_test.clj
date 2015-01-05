@@ -348,7 +348,7 @@
                (get-in @state [:objects "batman" "foo-multi.txt" :checksum])))))
 
 
-    (testing "cors headers"
+    (testing "cors headers with OPTIONS"
       (let [response (handler {:request-method :put
                                :headers {"host" "batman.blob.example.com"
                                          "date" (date!)}
@@ -368,5 +368,46 @@
                                :sign-uri "/batman/foo.txt"
                                :uri "/foo.txt"})]
         (is (= (:status response) 204))
+        (is (= (get-in response [:headers "Access-Control-Allow-Origin"])
+               "http://batman.example.com"))))
+
+    (testing "cors headers with GET"
+      (let [response (handler {:request-method :put
+                               :headers {"host" "batman.blob.example.com"
+                                         "date" (date!)}
+                               :sign-uri "/batman/?cors"
+                               :uri "/"
+                               :query-string "cors"
+                               :body (java.io.ByteArrayInputStream.
+                                      (.getBytes
+                                       (slurp (io/resource "cors1.xml"))))})]
+        (is (= (:status response) 200)))
+
+      (let [response (handler {:request-method :put
+                               :headers {"host" "batman.blob.example.com"
+                                         "date" (date!)}
+                               :sign-uri "/batman/foo.txt"
+                               :uri "/foo.txt"
+                               :body (java.io.ByteArrayInputStream.
+                                      (.getBytes "foobar"))})]
+        (is (= (:status response) 200)))
+
+      (let [response (handler {:request-method :get
+                               :headers {"host" "batman.blob.example.com"
+                                         "date" (date!)
+                                         "origin" "http://batman.example.com"}
+                               :sign-uri "/batman/foo.txt"
+                               :uri "/foo.txt"})]
+        (is (= (:status response) 200))
+        (is (= (get-in response [:headers "Access-Control-Allow-Origin"])
+               "http://batman.example.com")))
+
+      (let [response (handler {:request-method :get
+                               :headers {"host" "batman.blob.example.com"
+                                         "date" (date!)
+                                         "origin" "http://batman.example.com"}
+                               :sign-uri "/batman/foobar.txt"
+                               :uri "/foobar.txt"})]
+        (is (= (:status response) 404))
         (is (= (get-in response [:headers "Access-Control-Allow-Origin"])
                "http://batman.example.com"))))))
