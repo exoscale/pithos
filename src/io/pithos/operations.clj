@@ -655,26 +655,26 @@
                              :target  :bucket}
    :options-object          {:handler options-object
                              :target  :object
-                             :cors    true
+                             :cors?   true
                              :perms   [[:object :READ]]}
    :post-bucket-delete      {:handler post-bucket-delete
                              :target  :bucket
                              :perms   [[:bucket :WRITE]]}
    :get-object              {:handler get-object
                              :target  :object
-                             :cors    true
+                             :cors?   true
                              :perms   [[:object :READ]]}
    :head-object             {:handler head-object
                              :target  :object
-                             :cors    true
+                             :cors?   true
                              :perms   [[:object :READ]]}
    :put-object              {:handler put-object
                              :target  :object
-                             :cors    true
+                             :cors?   true
                              :perms   [[:bucket :WRITE]]}
    :delete-object           {:handler delete-object
                              :target  :object
-                             :cors    true
+                             :cors?   true
                              :perms   [[:bucket :WRITE]]}
    :get-object-acl          {:handler get-object-acl
                              :target  :object
@@ -716,8 +716,10 @@
    (ex-handler request exception)
 
    request
-   (let [{:keys [handler perms target cors]} (get opmap operation)
-         handler                             (or handler unknown)
+   (let [{:keys [handler perms target cors?]}    (get opmap operation)
+         {:keys [bucket headers request-method]} request
+         origin                                  (get headers "origin")
+         handler                                 (or handler unknown)
          resp
          (try (perms/authorize request perms system)
               (-> request
@@ -731,15 +733,12 @@
 
      ;; If an "Origin" header is present and we are asked to handle
      ;; CORS rules, process them.
-     (let [{:keys [bucket headers request-method]} request]
-       (if (and cors (get headers "origin"))
-         (if-let [rules (some-> (bucket/by-name (system/bucketstore system)
-                                                  bucket)
-                                  :cors
-                                  read-string)]
-           (update-in resp [:headers]
-                      merge (cors/matches? rules
-                                           headers
-                                           request-method))
-           resp)
-         resp)))))
+     (if-let [rules (and cors?
+                         origin
+                         (some-> (bucket/by-name (system/bucketstore system)
+                                                 bucket)
+                                 :cors
+                                 read-string))]
+       (update-in resp [:headers] merge
+                  (cors/matches? rules headers request-method))
+       resp))))
