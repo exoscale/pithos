@@ -657,6 +657,10 @@
                              :target  :object
                              :cors?   true
                              :perms   [[:object :READ]]}
+   :options-bucket          {:handler options-object
+                             :target  :object
+                             :cors?   true
+                             :perms   [[:bucket :READ]]}
    :post-bucket-delete      {:handler post-bucket-delete
                              :target  :bucket
                              :perms   [[:bucket :WRITE]]}
