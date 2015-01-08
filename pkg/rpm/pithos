@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ -f /etc/default/pithos ]; then
+    . /etc/default/pithos
+fi
+
+JAR="$EXTRA_CLASSPATH:/usr/lib/pithos/pithos.jar"
+CONFIG="/etc/pithos/pithos.yaml"
+
+exec java $EXTRA_JAVA_OPTS $OPTS -cp "$JAR" io.pithos -f "$CONFIG" $*
