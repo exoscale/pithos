@@ -162,7 +162,7 @@
     (set-mojo! "projversion" (get-version project))
     (set-mojo! "name" (:name project))
     (set-mojo! "summary" (:description project))
-    (set-mojo! "copyright" (:email (:maintainer project)))
+    (set-mojo! "copyright" "exoscale"))
     (set-mojo! "workarea" (workarea project))
     (set-mojo! "mappings" (mappings project))
     (set-mojo! "preinstallScriptlet" (scriptlet
