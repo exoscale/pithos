@@ -9,8 +9,7 @@
                                             content-type exception-status]]
             [io.pithos.util         :refer [piped-input-stream
                                             parse-uuid
-                                            iso8601->rfc822
-                                            ->channel-buffer]]
+                                            iso8601->rfc822]]
             [clojure.core.async     :refer [go chan >! <! put! close!]]
             [clojure.tools.logging  :refer [debug info warn error]]
             [clojure.string         :refer [split lower-case]]
@@ -491,6 +490,7 @@
                                                    upload-id partnumber)
         [src _]              (get-source request system)]
 
+    (debug "uploading part: " partnumber)
     (if src
       (stream/stream-copy src pd)
       (stream/stream-from body pd))

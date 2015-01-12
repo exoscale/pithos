@@ -2,8 +2,7 @@
   "A few utility functions, used in several places"
   (:import [java.io                PipedInputStream PipedOutputStream]
            [java.util              TimeZone Calendar]
-           [java.lang              Math]
-           [org.jboss.netty.buffer ChannelBuffers])
+           [java.lang              Math])
   (:require [clojure.string  :refer [lower-case]]
             [clj-time.format :refer [formatters parse unparse formatter]]))
 
@@ -68,11 +67,6 @@
   "Parse the string representation of a uuid"
   [s]
   (java.util.UUID/fromString s))
-
-(defn ->channel-buffer
-  "Convert a heap-buffer to a channel-buffer"
-  [hb]
-  (ChannelBuffers/copiedBuffer hb))
 
 (def utc
   "The UTC timezone, only fetched once"
