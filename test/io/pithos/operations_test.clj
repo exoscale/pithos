@@ -410,4 +410,19 @@
                                :uri "/foobar.txt"})]
         (is (= (:status response) 404))
         (is (= (get-in response [:headers "Access-Control-Allow-Origin"])
-               "http://batman.example.com"))))))
+               "http://batman.example.com"))))
+
+    (testing "response overrides"
+
+      (let [response (handler {:request-method :get
+                               :query-string "response-content-type=application/json&response-content-disposition=blargh"
+                               :headers {"host" "batman.blob.example.com"
+                                         "date" (date!)
+                                         "origin" "http://batman.example.com"}
+                               :sign-uri "/batman/foo.txt"
+                               :uri "/foo.txt"})]
+        (is (= (:status response 200)))
+        (is (= (get-in response [:headers "content-type"]) "application/json"))
+        (is (= (get-in response [:headers "content-disposition"]) "blargh"))))
+
+    ))
