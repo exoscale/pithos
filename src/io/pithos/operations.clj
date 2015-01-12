@@ -722,7 +722,7 @@
       resp)))
 
 (defn override-response-headers
-  [resp params]
+  [resp authenticated? params]
   (let [override? #{:response-content-type
                     :response-content-language
                     :response-content-disposition
@@ -730,7 +730,7 @@
                     :response-content-encoding
                     :response-expires}
         override! (fn [headers [k v]] (assoc headers (.substring (name k) 9) v))]
-    (if (= (quot (:status resp) 100) 2)
+    (if (and authenticated? (= (quot (:status resp) 100) 2))
       (update-in resp [:headers]
                  (partial reduce override!)
                  (filter (comp override? key) params))
@@ -750,6 +750,10 @@
    (let [{:keys [handler perms target cors?]}    (get opmap operation)
          {:keys [bucket headers request-method]} request
          origin                                  (get headers "origin")
+         anonymous?                              (= (get-in
+                                                     request
+                                                     [:authorization :tenant])
+                                                    :anonymous)
          handler                                 (or handler unknown)]
 
      (cond-> (try (perms/authorize request perms system)
@@ -757,10 +761,11 @@
                       (assoc-targets system target)
                       (handler system)
                       (request-id request)
-                      (override-response-headers params))
+                      (override-response-headers (not anonymous?) params))
                   (catch Exception e
                     (when-not (:type (ex-data e))
                       (error e "caught exception during operation"))
                     (ex-handler request e)))
+
              cors?
              (add-cors-info bucket origin system headers request-method)))))
