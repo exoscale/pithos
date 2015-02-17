@@ -9,8 +9,7 @@
                                             content-type exception-status]]
             [io.pithos.util         :refer [piped-input-stream
                                             parse-uuid
-                                            iso8601->rfc822
-                                            ->channel-buffer]]
+                                            iso8601->rfc822]]
             [clojure.core.async     :refer [go chan >! <! put! close!]]
             [clojure.tools.logging  :refer [debug info warn error]]
             [clojure.string         :refer [split lower-case]]
@@ -491,6 +490,7 @@
                                                    upload-id partnumber)
         [src _]              (get-source request system)]
 
+    (debug "uploading part: " partnumber)
     (if src
       (stream/stream-copy src pd)
       (stream/stream-from body pd))
@@ -709,9 +709,36 @@
       (exception-status (ex-data exception))
       (request-id request)))
 
+(defn add-cors-info
+  "If an \"Origin\" header is present and we are asked to
+   handle CORS rules, process them"
+  [resp bucket origin system headers method]
+  (let [rules (and origin (some-> (bucket/by-name
+                                   (system/bucketstore system) bucket)
+                                  :cors
+                                  read-string))]
+    (if rules
+      (update-in resp [:headers] merge (cors/matches? rules headers method))
+      resp)))
+
+(defn override-response-headers
+  [resp authenticated? params]
+  (let [override? #{:response-content-type
+                    :response-content-language
+                    :response-content-disposition
+                    :response-content-cache
+                    :response-content-encoding
+                    :response-expires}
+        override! (fn [headers [k v]] (assoc headers (.substring (name k) 9) v))]
+    (if (and authenticated? (= (quot (:status resp) 100) 2))
+      (update-in resp [:headers]
+                 (partial reduce override!)
+                 (filter (comp override? key) params))
+      resp)))
+
 (defn dispatch
   "Dispatch operation"
-  [{:keys [operation exception] :as request} system]
+  [{:keys [operation exception params] :as request} system]
   (when (not= operation :options-service)
     (debug "handling operation: " operation))
 
@@ -723,26 +750,22 @@
    (let [{:keys [handler perms target cors?]}    (get opmap operation)
          {:keys [bucket headers request-method]} request
          origin                                  (get headers "origin")
-         handler                                 (or handler unknown)
-         resp
-         (try (perms/authorize request perms system)
-              (-> request
-                  (assoc-targets system target)
-                  (handler system)
-                  (request-id request))
-              (catch Exception e
-                (when-not (:type (ex-data e))
-                  (error e "caught exception during operation"))
-                (ex-handler request e)))]
+         anonymous?                              (= (get-in
+                                                     request
+                                                     [:authorization :tenant])
+                                                    :anonymous)
+         handler                                 (or handler unknown)]
 
-     ;; If an "Origin" header is present and we are asked to handle
-     ;; CORS rules, process them.
-     (if-let [rules (and cors?
-                         origin
-                         (some-> (bucket/by-name (system/bucketstore system)
-                                                 bucket)
-                                 :cors
-                                 read-string))]
-       (update-in resp [:headers] merge
-                  (cors/matches? rules headers request-method))
-       resp))))
+     (cond-> (try (perms/authorize request perms system)
+                  (-> request
+                      (assoc-targets system target)
+                      (handler system)
+                      (request-id request)
+                      (override-response-headers (not anonymous?) params))
+                  (catch Exception e
+                    (when-not (:type (ex-data e))
+                      (error e "caught exception during operation"))
+                    (ex-handler request e)))
+
+             cors?
+             (add-cors-info bucket origin system headers request-method)))))

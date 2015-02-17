@@ -68,7 +68,9 @@
           signed (try (sign-request request access-key secret)
                       (catch Exception e
                         {:failed true :exception e}))]
-      (when-not (and (not (nil? sig)) (constant-string= sig signed))
+      (when-not (and (not (nil? sig))
+                     (string? signed)
+                     (constant-string= sig signed))
         (info "will throw because of failed signature!")
         (when (:exception signed)
           (debug (:exception signed) "got exception during signing"))

@@ -31,6 +31,7 @@
     "prefix"
     "requestpayment"
     "response-cache-control"
+    "response-content-type"
     "response-content-disposition"
     "response-content-encoding"
     "response-content-language"
