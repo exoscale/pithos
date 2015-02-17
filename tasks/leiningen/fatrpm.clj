@@ -177,8 +177,7 @@
     (set-mojo! "postremoveScriptlet" (scriptlet
                                        (file (:root project)
                                              "pkg" "deb" "postrm.sh")))
-    (set-mojo! "requires" (create-dependency ["jre1.8.0_25 >= 1.8.0_25"
-                                              "daemonize >= 1.7.3"]))
+    (set-mojo! "requires" (create-dependency ["daemonize >= 1.7.3"]))
     (.execute)))
 
 (defn extract-rpm
