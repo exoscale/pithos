@@ -177,7 +177,7 @@
 (defn signer
   [key]
   (fn [request]
-    (let [sig (sig/sign-request request key key)]
+    (let [sig (sig/sign-request request key)]
       (assoc-in request [:headers "authorization"]
                 (format "AWS %s:%s" key sig)))))
 
