@@ -10,6 +10,10 @@
   ([body]
      {:status 200 :headers {} :body body}))
 
+(defn redirect
+  [location]
+  {:status 302 :headers {"location" location} :body ""})
+
 (defn header
   "Add a header to a response, coerce value to string"
   [resp header val]
