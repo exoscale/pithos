@@ -1,16 +1,19 @@
 (ns io.pithos.request
   "This namespace provides all necessary wrapper functions to validate and
    augment the incoming request map."
-  (:require [clojure.string        :refer [lower-case join]]
-            [clojure.tools.logging :refer [debug info warn error]]
-            [clojure.pprint        :refer [pprint]]
-            [clout.core            :refer [route-matches route-compile]]
-            [io.pithos.sig         :refer [validate]]
-            [io.pithos.operations  :refer [ex-handler]]
-            [io.pithos.system      :refer [service-uri keystore]]
-            [io.pithos.util        :refer [string->pattern]]
-            [ring.util.codec       :as codec]
-            [qbits.alia.uuid       :as uuid]))
+  (:require [clojure.string                   :refer [lower-case join]]
+            [clojure.tools.logging            :refer [debug info warn error]]
+            [clojure.pprint                   :refer [pprint]]
+            [io.pithos.sig                    :refer [validate check-sig]]
+            [io.pithos.operations             :refer [ex-handler]]
+            [io.pithos.system                 :refer [service-uri keystore]]
+            [io.pithos.util                   :refer [string->pattern]]
+            [clout.core                       :as c]
+            [ring.middleware.multipart-params :as mp]
+            [clojure.data.codec.base64        :as base64]
+            [ring.util.codec                  :as codec]
+            [cheshire.core                    :as json]
+            [qbits.alia.uuid                  :as uuid]))
 
 (def known
   "known query args"
@@ -20,6 +23,8 @@
     "delete"
     "delimiter"
     "expires"
+    "file"
+    "key"
     "lifecycle"
     "location"
     "logging"
@@ -93,14 +98,14 @@
 (defn action-routes
   "Really simple router, extracts target (service, bucket or object)"
   []
-  (let [sroute (route-compile "/")
-        broute1 (route-compile "/:bucket")
-        broute2 (route-compile "/:bucket/")
-        oroute (route-compile "/:bucket/*")]
-    [[:service (partial route-matches sroute)]
-     [:bucket  (partial route-matches broute1)]
-     [:bucket  (partial route-matches broute2)]
-     [:object  (partial route-matches oroute)]]))
+  (let [sroute  (c/route-compile "/")
+        broute1 (c/route-compile "/:bucket")
+        broute2 (c/route-compile "/:bucket/")
+        oroute  (c/route-compile "/:bucket/*")]
+    [[:service (partial c/route-matches sroute)]
+     [:bucket  (partial c/route-matches broute1)]
+     [:bucket  (partial c/route-matches broute2)]
+     [:object  (partial c/route-matches oroute)]]))
 
 (defn match-action-route
   "Matches incoming route and yields target bucket and object"
@@ -194,16 +199,34 @@
 
 (defn authenticate
   "Authenticate tenant, allow masquerading only for _master_ keys"
-  [req system]
-  (let [auth   (validate (keystore system) req)
-        master (:master auth)
-        tenant (get-in req [:headers "x-amz-masquerade-tenant"])]
-    (assoc req :authorization
-           (if (and master tenant) (assoc auth :tenant tenant) auth))))
+  [{:keys [multipart-params request-method sign-uri] :as req} system]
+  (if (and (= request-method :post) multipart-params)
+    (let [{:keys [signature awsaccesskeyid policy]} multipart-params
+          [_ bucket] (re-find #"^/[^/]*(/.*)?$" sign-uri)
+          auth (check-sig req (keystore system) awsaccesskeyid policy signature)]
+      (assoc req
+        :post-upload? true
+        :authorization auth
+        :policy (json/parse-string (String. (-> policy
+                                                .getBytes
+                                                base64/decode)))))
+    (let [auth   (validate (keystore system) req)
+          master (:master auth)
+          tenant (get-in req [:headers "x-amz-masquerade-tenant"])]
+      (assoc req :authorization
+             (if (and master tenant) (assoc auth :tenant tenant) auth)))))
 
 (defn decode-uri
   [req]
   (update-in req [:uri] uri-decode))
+
+(defn multipart-params
+  [req]
+  (let [make-input-stream #(when % (java.io.FileInputStream. %))]
+    (-> (mp/multipart-params-request req)
+        (update-in [:params] #(reduce merge {} (filter (comp keyword? key) %)))
+        (update-in [:multipart-params] keywordized)
+        (update-in [:multipart-params :file :tempfile] make-input-stream))))
 
 (defn prepare
   "Generate closures and walks each requests through wrappers."
@@ -221,6 +244,8 @@
 
         (assoc-target)
         (assoc-operation)
+
+        (multipart-params)
         (authenticate system)
         (decode-uri))))
 
