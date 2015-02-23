@@ -5,13 +5,13 @@
    This namespace is where most of the actual work in exposing S3
    functionality happens."
   (:require [io.pithos.response     :refer [header response status
-                                            xml-response request-id
+                                            xml-response request-id redirect
                                             content-type exception-status]]
             [io.pithos.util         :refer [piped-input-stream
                                             parse-uuid
                                             iso8601->rfc822]]
             [clojure.core.async     :refer [go chan >! <! put! close!]]
-            [clojure.tools.logging  :refer [debug info warn error]]
+            [clojure.tools.logging  :refer [trace debug info warn error]]
             [clojure.string         :refer [split lower-case]]
             [io.pithos.util         :as util]
             [io.pithos.store        :as store]
@@ -193,7 +193,7 @@
   "Update bucket CORS configuration"
   [{:keys [bucket body]} system]
   (let [cors (-> (slurp body) (cors/xml->cors) (pr-str))]
-    (debug "got cors: " cors)
+    (trace "got cors: " cors)
     (store/update! (system/bucketstore system) bucket {:cors cors})
     (response)))
 
@@ -757,6 +757,7 @@
          handler                                 (or handler unknown)]
 
      (cond-> (try (perms/authorize request perms system)
+                  (trace "request now: " (pr-str request))
                   (-> request
                       (assoc-targets system target)
                       (handler system)
@@ -764,6 +765,7 @@
                       (override-response-headers (not anonymous?) params))
                   (catch Exception e
                     (when-not (:type (ex-data e))
+                      (debug e "caught exception")
                       (error e "caught exception during operation"))
                     (ex-handler request e)))
 
