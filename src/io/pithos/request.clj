@@ -10,8 +10,9 @@
             [io.pithos.util                   :refer [string->pattern]]
             [clout.core                       :as c]
             [ring.middleware.multipart-params :as mp]
-            [clojure.data.codec.base64        :as base64]
+            [ring.util.request                :as req]
             [ring.util.codec                  :as codec]
+            [clojure.data.codec.base64        :as base64]
             [cheshire.core                    :as json]
             [qbits.alia.uuid                  :as uuid]))
 
@@ -200,7 +201,7 @@
 (defn authenticate
   "Authenticate tenant, allow masquerading only for _master_ keys"
   [{:keys [multipart-params request-method sign-uri] :as req} system]
-  (if (and (= request-method :post) multipart-params)
+  (if (and (= request-method :post) (seq multipart-params))
     (let [{:keys [signature awsaccesskeyid policy]} multipart-params
           [_ bucket] (re-find #"^/[^/]*(/.*)?$" sign-uri)
           auth (check-sig req (keystore system) awsaccesskeyid policy signature)]
@@ -222,11 +223,13 @@
 
 (defn multipart-params
   [req]
-  (let [make-input-stream #(when % (java.io.FileInputStream. %))]
-    (-> (mp/multipart-params-request req)
-        (update-in [:params] #(reduce merge {} (filter (comp keyword? key) %)))
-        (update-in [:multipart-params] keywordized)
-        (update-in [:multipart-params :file :tempfile] make-input-stream))))
+  (if (= (req/content-type req) "multipart/form-data")
+    (let [make-input-stream #(when % (java.io.FileInputStream. %))]
+      (-> (mp/multipart-params-request req)
+          (update-in [:params] #(reduce merge {} (filter (comp keyword? key) %)))
+          (update-in [:multipart-params] #() keywordized)
+          (update-in [:multipart-params :file :tempfile] make-input-stream)))
+    req))
 
 (defn prepare
   "Generate closures and walks each requests through wrappers."
