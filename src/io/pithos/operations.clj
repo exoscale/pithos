@@ -456,6 +456,51 @@
           (response))
         (header "ETag" (str "\"" (desc/checksum dst) "\"")))))
 
+(defn validate-post-policy
+  [policy multipart-params]
+  )
+
+(defn post-bucket
+  "Accept data for storage from upload forms"
+  [{:keys [body bucket authorization policy] :as request} system]
+  (validate-post-policy policy (:multipart-params request))
+
+  (let [params      (:multipart-params request)
+        dst         (desc/object-descriptor system bucket (:key params))
+        previous    (desc/init-version dst)
+        ctype       (:content-type params)
+        acl         (perms/header-acl (:bd request)
+                                      (:tenant authorization)
+                                      {"x-amz-acl" (or (:acl params)
+                                                       "private")})
+        meta        (get-metadata (->> params
+                                       (map (juxt (comp name key) val))
+                                       (reduce merge {})))]
+
+    (do
+      (when previous
+        (desc/increment! dst))
+      (stream/stream-from (-> params :file :tempfile) dst))
+
+    ;; if a previous copy existed, kill it
+    (when (and previous (not= previous (desc/version dst)))
+      (reporter/report-all! (system/reporters system)
+                            {:type   :delete
+                             :bucket bucket
+                             :object (:key params)
+                             :size   (desc/init-size dst)})
+      (store/delete! (desc/blobstore dst) dst previous))
+
+    (doseq [[k v] meta]
+      (desc/col! dst k v))
+    (desc/col! dst :acl acl)
+    (desc/save! dst)
+
+    (if-let [destination (:success_action_redirect params)]
+      (redirect destination)
+      (-> (response)
+          (status (or (:success_action_status params) 204))))))
+
 (defn abort-upload
   "Abort an ongoing upload"
   [{:keys [od upload-id bucket object] :as request} system]
@@ -674,6 +719,10 @@
                              :perms   [[:object :READ]]}
    :put-object              {:handler put-object
                              :target  :object
+                             :cors?   true
+                             :perms   [[:bucket :WRITE]]}
+   :post-bucket             {:handler post-bucket
+                             :target  :bucket
                              :cors?   true
                              :perms   [[:bucket :WRITE]]}
    :delete-object           {:handler delete-object
