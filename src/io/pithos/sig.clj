@@ -36,14 +36,17 @@
       (or date "")
       (canonicalized headers sign-uri)])))
 
+(defn sign-string
+  [src secret-key]
+  (let [key (SecretKeySpec. (.getBytes secret-key) "HmacSHA1")]
+    (String. (-> (doto (Mac/getInstance "HmacSHA1") (.init key))
+                 (.doFinal (.getBytes src))
+                 (base64/encode)))))
+
 (defn sign-request
   "Sign the request, signatures are basic HmacSHA1s, encoded in base64"
-  [request access-key secret-key]
-  (let [to-sign (string-to-sign request)
-        key     (SecretKeySpec. (.getBytes secret-key) "HmacSHA1")]
-    (String. (-> (doto (Mac/getInstance "HmacSHA1") (.init key))
-                 (.doFinal (.getBytes to-sign))
-                 (base64/encode)))))
+  [request secret-key]
+  (sign-string (string-to-sign request) secret-key))
 
 (defn auth
   "Extract access key and signature from the request, using query string
@@ -58,6 +61,26 @@
         {:sig sig :access-key access-key}
         nil))))
 
+(defn check-sig
+  [request keystore key str sig]
+  (let [{:keys [secret] :as authorization} (get keystore key)
+        signed (try (sign-string str secret)
+                    (catch Exception e
+                      {:failed true :exception e}))]
+    (when-not (and (not (nil? sig))
+                   (string? signed)
+                   (constant-string= sig signed))
+      (info "will throw because of failed signature!")
+      (when (:exception signed)
+        (debug (:exception signed) "got exception during signing"))
+      (throw (ex-info "invalid policy signature"
+                      {:type :signature-does-not-match
+                       :status-code 403
+                       :request request
+                       :expected signed
+                       :to-sign str})))
+    (update-in authorization [:memberof] concat ["authenticated-users"])))
+
 (defn validate
   "Validate an incoming request (e.g: make sure the signature is correct),
    when applicable (requests may be unauthenticated)"
@@ -65,7 +88,7 @@
   (if-let [data (auth request)]
     (let [{:keys [sig access-key]}           data
           {:keys [secret] :as authorization} (get keystore access-key)
-          signed (try (sign-request request access-key secret)
+          signed (try (sign-request request secret)
                       (catch Exception e
                         {:failed true :exception e}))]
       (when-not (and (not (nil? sig))
