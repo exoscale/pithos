@@ -499,7 +499,8 @@
     (if-let [destination (:success_action_redirect params)]
       (redirect destination)
       (-> (response)
-          (status (or (:success_action_status params) 204))))))
+          (status (or (Long/parseLong (:success_action_status params))
+                      204))))))
 
 (defn abort-upload
   "Abort an ongoing upload"
