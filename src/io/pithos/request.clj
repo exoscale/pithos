@@ -44,6 +44,8 @@
     "response-expires"
     "restore"
     "signature"
+    "success_action_redirect"
+    "success_action_status"
     "tagging"
     "uploadid"
     "uploads"
