@@ -177,9 +177,11 @@
 (defn signer
   [key]
   (fn [request]
-    (let [sig (sig/sign-request request key)]
-      (assoc-in request [:headers "authorization"]
-                (format "AWS %s:%s" key sig)))))
+    (if-not (:anonymous! request)
+      (let [sig (sig/sign-request request key)]
+        (assoc-in request [:headers "authorization"]
+                  (format "AWS %s:%s" key sig)))
+      request)))
 
 (deftest integration-test
 
