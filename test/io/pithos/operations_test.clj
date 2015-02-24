@@ -415,6 +415,18 @@
         (is (= (:status response) 200))
         (is (= (slurp (:body response)) "not much to say.")))
 
+      (let [cnt      (-> "form-upload2.txt" io/resource io/input-stream slurp count)
+            body     (-> "form-upload2.txt" io/resource io/input-stream)
+            response (handler {:request-method :post
+                               :anonymous! true
+                               :headers {"host" "batman.blob.example.com"
+                                         "content-type" "multipart/form-data; boundary=9431149156168"
+                                         "content-length" (str cnt)}
+                               :sign-uri "/batman/"
+                               :uri "/"
+                               :body body})]
+        (is (= (:status response) 403)))
+
       (let [response (handler {:request-method :get
                                :headers {"host" "batman.blob.example.com"
                                          "date" (date!)
