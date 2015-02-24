@@ -9,10 +9,12 @@
                                             content-type exception-status]]
             [io.pithos.util         :refer [piped-input-stream
                                             parse-uuid
+                                            iso8601->date
                                             iso8601->rfc822]]
             [clojure.core.async     :refer [go chan >! <! put! close!]]
             [clojure.tools.logging  :refer [trace debug info warn error]]
             [clojure.string         :refer [split lower-case]]
+            [clj-time.core          :refer [after? now]]
             [io.pithos.util         :as util]
             [io.pithos.store        :as store]
             [io.pithos.bucket       :as bucket]
@@ -457,13 +459,45 @@
         (header "ETag" (str "\"" (desc/checksum dst) "\"")))))
 
 (defn validate-post-policy
-  [policy multipart-params]
-  )
+  [req {:keys [expiration conditions]} params]
+  (let [array-conds (remove map? conditions)
+        map-conds   (filter map? conditions)]
+    (when (and expiration (after? (now) (iso8601->date expiration)))
+      (throw (ex-info "expired request"
+                      {:type :expired-request
+                       :status-code 403
+                       :request req
+                       :expires expiration})))
+    (doseq [condition map-conds
+            :let [field (-> condition keys first lower-case keyword)
+                  value (-> condition vals first)]]
+      (when-not (= (get params field) value)
+        (throw (ex-info "request does not honor policy"
+                        {:type :upload-policy-violation
+                         :status-code 403
+                         :request req
+                         :field field
+                         :value (get params (keyword field))
+                         :expected value}))))
+    (doseq [[check-type field expected] array-conds
+            :let [field    (-> field (.substring 1) lower-case keyword)
+                  value (get params field)]]
+      (when-not (case check-type
+                  "eq" (= expected value)
+                  "starts-with" (.startsWith value expected))
+        (throw (ex-info "request does not honor policy"
+                        {:type :upload-policy-violation
+                         :status-code 403
+                         :request req
+                         :field field
+                         :value (get params (keyword field))
+                         :expected (format "%s(%s)" check-type value)})))))
+  true)
 
 (defn post-bucket
   "Accept data for storage from upload forms"
   [{:keys [body bucket authorization policy] :as request} system]
-  (validate-post-policy policy (:multipart-params request))
+  (validate-post-policy request policy (:multipart-params request))
 
   (let [params      (:multipart-params request)
         dst         (desc/object-descriptor system bucket (:key params))
