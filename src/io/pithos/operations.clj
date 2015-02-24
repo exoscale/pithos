@@ -463,41 +463,49 @@
   (let [array-conds (remove map? conditions)
         map-conds   (filter map? conditions)]
     (when (and expiration (after? (now) (iso8601->date expiration)))
+      (debug "expired request per policy" (pr-str {:expires expiration}))
       (throw (ex-info "expired request"
                       {:type :expired-request
                        :status-code 403
                        :request req
                        :expires expiration})))
     (doseq [condition map-conds
-            :let [field (-> condition keys first lower-case keyword)
-                  value (-> condition vals first)]]
-      (when-not (= (get params field) value)
+            :let [field    (-> condition keys first)
+                  expected (-> condition vals first)
+                  value (get params field)]]
+      (when-not (= expected value)
+        (debug "upload policy violation"
+               (pr-str {:condition condition :value value}))
         (throw (ex-info "request does not honor policy"
                         {:type :upload-policy-violation
                          :status-code 403
                          :request req
                          :field field
-                         :value (get params (keyword field))
-                         :expected value}))))
+                         :value value
+                         :expected expected}))))
     (doseq [[check-type field expected] array-conds
             :let [field    (-> field (.substring 1) lower-case keyword)
-                  value (get params field)]]
+                  value    (get params field)]]
       (when-not (case check-type
                   "eq" (= expected value)
                   "starts-with" (.startsWith value expected))
+        (debug "upload policy violation"
+               (pr-str {:condition [check-type field expected]
+                        :value value}))
         (throw (ex-info "request does not honor policy"
                         {:type :upload-policy-violation
                          :status-code 403
                          :request req
                          :field field
-                         :value (get params (keyword field))
+                         :value value
                          :expected (format "%s(%s)" check-type value)})))))
   true)
 
 (defn post-bucket
   "Accept data for storage from upload forms"
   [{:keys [body bucket authorization policy] :as request} system]
-  (validate-post-policy request policy (:multipart-params request))
+  (validate-post-policy request policy (assoc (:multipart-params request)
+                                         :bucket bucket))
 
   (let [params      (:multipart-params request)
         dst         (desc/object-descriptor system bucket (:key params))
