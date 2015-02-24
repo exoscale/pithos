@@ -89,9 +89,9 @@
 (defn rule->headers
   [origin method req-headers {:keys [methods exposed headers max-age]}]
   (-> {"Access-Control-Allow-Origin"   origin
-       "Access-Control-Allow-Method"   (-> method name upper-case)
-       "Access-Control-Allow-Headers"  (join " " headers)
-       "Access-Control-Expose-Headers" (join " " exposed)}
+       "Access-Control-Allow-Methods"  (-> method name upper-case)
+       "Access-Control-Allow-Headers"  (join ", " headers)
+       "Access-Control-Expose-Headers" (join ", " exposed)}
       (cond-> max-age (assoc "Access-Control-Max-Age" (str max-age)))))
 
 (defn matches?
