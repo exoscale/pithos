@@ -338,6 +338,15 @@ Will produce an XML AST equivalent to:
         [:ArgumentValue (:val payload)]
         [:HostId reqid]
         [:RequestId reqid]]
+       :upload-policy-violation
+       [:Error
+        [:Code "UploadPolicyViolation"]
+        [:Message (str "Upload request violates upload policy")]
+        [:RequestId reqid]
+        [:HostId reqid]
+        [:Field (str (:field payload))]
+        [:Value (str (:value payload))]
+        [:Expected (str (:expected payload))]]
        :invalid-acl-xml
        [:Error
         [:Code "MalformedACLError"]

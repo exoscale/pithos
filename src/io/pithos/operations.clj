@@ -5,14 +5,16 @@
    This namespace is where most of the actual work in exposing S3
    functionality happens."
   (:require [io.pithos.response     :refer [header response status
-                                            xml-response request-id
+                                            xml-response request-id redirect
                                             content-type exception-status]]
             [io.pithos.util         :refer [piped-input-stream
                                             parse-uuid
+                                            iso8601->date
                                             iso8601->rfc822]]
             [clojure.core.async     :refer [go chan >! <! put! close!]]
-            [clojure.tools.logging  :refer [debug info warn error]]
+            [clojure.tools.logging  :refer [trace debug info warn error]]
             [clojure.string         :refer [split lower-case]]
+            [clj-time.core          :refer [after? now]]
             [io.pithos.util         :as util]
             [io.pithos.store        :as store]
             [io.pithos.bucket       :as bucket]
@@ -193,7 +195,7 @@
   "Update bucket CORS configuration"
   [{:keys [bucket body]} system]
   (let [cors (-> (slurp body) (cors/xml->cors) (pr-str))]
-    (debug "got cors: " cors)
+    (trace "got cors: " cors)
     (store/update! (system/bucketstore system) bucket {:cors cors})
     (response)))
 
@@ -456,6 +458,92 @@
           (response))
         (header "ETag" (str "\"" (desc/checksum dst) "\"")))))
 
+(defn validate-post-policy
+  [req {:keys [expiration conditions]} params]
+  (let [array-conds (remove map? conditions)
+        map-conds   (filter map? conditions)]
+    (when (and expiration (after? (now) (iso8601->date expiration)))
+      (debug "expired request per policy" (pr-str {:expires expiration}))
+      (throw (ex-info "expired request"
+                      {:type :expired-request
+                       :status-code 403
+                       :request req
+                       :expires expiration})))
+    (doseq [condition map-conds
+            :let [field    (-> condition keys first)
+                  expected (-> condition vals first)
+                  value (get params field)]]
+      (when-not (= expected value)
+        (debug "upload policy violation"
+               (pr-str {:condition condition :value value}))
+        (throw (ex-info "request does not honor policy"
+                        {:type :upload-policy-violation
+                         :status-code 403
+                         :request req
+                         :field field
+                         :value value
+                         :expected expected}))))
+    (doseq [[check-type field expected] array-conds
+            :let [field    (-> field (.substring 1) lower-case keyword)
+                  value    (get params field)]]
+      (when-not (case check-type
+                  "eq" (= expected value)
+                  "starts-with" (.startsWith value expected))
+        (debug "upload policy violation"
+               (pr-str {:condition [check-type field expected]
+                        :value value}))
+        (throw (ex-info "request does not honor policy"
+                        {:type :upload-policy-violation
+                         :status-code 403
+                         :request req
+                         :field field
+                         :value value
+                         :expected (format "%s(%s)" check-type value)})))))
+  true)
+
+(defn post-bucket
+  "Accept data for storage from upload forms"
+  [{:keys [body bucket authorization policy] :as request} system]
+  (validate-post-policy request policy (assoc (:multipart-params request)
+                                         :bucket bucket))
+
+  (let [params      (:multipart-params request)
+        dst         (desc/object-descriptor system bucket (:key params))
+        previous    (desc/init-version dst)
+        ctype       (:content-type params)
+        acl         (perms/header-acl (:bd request)
+                                      (:tenant authorization)
+                                      {"x-amz-acl" (or (:acl params)
+                                                       "private")})
+        meta        (get-metadata (->> params
+                                       (map (juxt (comp name key) val))
+                                       (reduce merge {})))]
+
+    (do
+      (when previous
+        (desc/increment! dst))
+      (stream/stream-from (-> params :file :tempfile) dst))
+
+    ;; if a previous copy existed, kill it
+    (when (and previous (not= previous (desc/version dst)))
+      (reporter/report-all! (system/reporters system)
+                            {:type   :delete
+                             :bucket bucket
+                             :object (:key params)
+                             :size   (desc/init-size dst)})
+      (store/delete! (desc/blobstore dst) dst previous))
+
+    (doseq [[k v] meta]
+      (desc/col! dst k v))
+    (desc/col! dst :acl acl)
+    (desc/save! dst)
+
+    (if-let [destination (:success_action_redirect params)]
+      (redirect destination)
+      (-> (response)
+          (status (or (Long/parseLong (:success_action_status params))
+                      204))))))
+
 (defn abort-upload
   "Abort an ongoing upload"
   [{:keys [od upload-id bucket object] :as request} system]
@@ -654,13 +742,13 @@
                              :perms   [[:bucket :READ]]
                              :target  :bucket}
    :options-object          {:handler options-object
-                             :target  :object
+                             :target  :bucket
                              :cors?   true
-                             :perms   [[:object :READ]]}
+                             :perms   []}
    :options-bucket          {:handler options-object
-                             :target  :object
+                             :target  :bucket
                              :cors?   true
-                             :perms   [[:bucket :READ]]}
+                             :perms   []}
    :post-bucket-delete      {:handler post-bucket-delete
                              :target  :bucket
                              :perms   [[:bucket :WRITE]]}
@@ -674,6 +762,10 @@
                              :perms   [[:object :READ]]}
    :put-object              {:handler put-object
                              :target  :object
+                             :cors?   true
+                             :perms   [[:bucket :WRITE]]}
+   :post-bucket             {:handler post-bucket
+                             :target  :bucket
                              :cors?   true
                              :perms   [[:bucket :WRITE]]}
    :delete-object           {:handler delete-object
@@ -713,10 +805,11 @@
   "If an \"Origin\" header is present and we are asked to
    handle CORS rules, process them"
   [resp bucket origin system headers method]
-  (let [rules (and origin (some-> (bucket/by-name
-                                   (system/bucketstore system) bucket)
-                                  :cors
-                                  read-string))]
+  (let [rules (and (or origin (= method :options))
+                   (some-> (bucket/by-name
+                            (system/bucketstore system) bucket)
+                           :cors
+                           read-string))]
     (if rules
       (update-in resp [:headers] merge (cors/matches? rules headers method))
       resp)))
@@ -757,6 +850,7 @@
          handler                                 (or handler unknown)]
 
      (cond-> (try (perms/authorize request perms system)
+                  (trace "request now: " (pr-str request))
                   (-> request
                       (assoc-targets system target)
                       (handler system)
@@ -764,6 +858,7 @@
                       (override-response-headers (not anonymous?) params))
                   (catch Exception e
                     (when-not (:type (ex-data e))
+                      (debug e "caught exception")
                       (error e "caught exception during operation"))
                     (ex-handler request e)))
 
