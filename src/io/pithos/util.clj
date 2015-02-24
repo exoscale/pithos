@@ -84,6 +84,10 @@
   [s]
   (parse rfc822-format s))
 
+(defn iso8601->date
+  [isodate]
+  (parse (:date-time-parser formatters) isodate))
+
 (defn iso8601->rfc822
   "RFC822 representation based on an iso8601 timestamp"
   [isodate]
