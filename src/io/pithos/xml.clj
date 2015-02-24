@@ -344,9 +344,9 @@ Will produce an XML AST equivalent to:
         [:Message (str "Upload request violates upload policy")]
         [:RequestId reqid]
         [:HostId reqid]
-        [:Field (:field payload)]
-        [:Value (:value payload)]
-        [:Expected (:expected payload)]]
+        [:Field (str (:field payload))]
+        [:Value (str (:value payload))]
+        [:Expected (str (:expected payload))]]
        :invalid-acl-xml
        [:Error
         [:Code "MalformedACLError"]
