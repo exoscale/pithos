@@ -1,0 +1,34 @@
+--9431149156168
+Content-Disposition: form-data; name="key"
+
+qux
+--9431149156168
+Content-Disposition: form-data; name="acl"
+
+private
+--9431149156168
+Content-Disposition: form-data; name="success_action_status"
+
+201
+--9431149156168
+Content-Disposition: form-data; name="Content-Type"
+
+text/plain
+--9431149156168
+Content-Disposition: form-data; name="AWSAccessKeyId"
+
+AKIAIOSFODNN7EXAMPLE
+--9431149156168
+Content-Disposition: form-data; name="Policy"
+
+eyJleHBpcmF0aW9uIjogIjIwMTUtMTItMDFUMTI6MDA6MDAuMDAwWiIsCiAiY29uZGl0aW9ucyI6IFt7ImJ1Y2tldCI6ICJiYXRtYW4ifSwKICAgICAgICAgICAgICAgIHsiYWNsIjogInByaXZhdGUifSwKICAgICAgICAgICAgICAgIHsic3VjY2Vzc19hY3Rpb25fc3RhdHVzIjogIjIwMSJ9XX0K
+--9431149156168
+Content-Disposition: form-data; name="Signature"
+
+wGh4yrZfT9x1nHexd7IJp+s+CNY=
+--9431149156168
+Content-Disposition: form-data; name="file"; filename="MyFilename.jpg"
+Content-Type: text/plain
+
+not much to say.
+--9431149156168--
