@@ -212,7 +212,8 @@
         :authorization auth
         :policy (json/parse-string (String. (-> policy
                                                 .getBytes
-                                                base64/decode)))))
+                                                base64/decode))
+                                   true)))
     (let [auth   (validate (keystore system) req)
           master (:master auth)
           tenant (get-in req [:headers "x-amz-masquerade-tenant"])]
