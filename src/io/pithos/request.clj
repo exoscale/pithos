@@ -229,7 +229,7 @@
     (let [make-input-stream #(when % (java.io.FileInputStream. %))]
       (-> (mp/multipart-params-request req)
           (update-in [:params] #(reduce merge {} (filter (comp keyword? key) %)))
-          (update-in [:multipart-params] #() keywordized)
+          (update-in [:multipart-params] keywordized)
           (update-in [:multipart-params :file :tempfile] make-input-stream)))
     req))
 
