@@ -302,6 +302,14 @@ Will produce an XML AST equivalent to:
         [:ServerTime (iso8601 (now))]
         [:RequestId reqid]
         [:HostId reqid]]
+       :no-such-upload
+       [:Error
+        [:Code "NoSuchUpload"]
+        [:Message "The specified upload-id does not exist for this key."]
+        [:Key (str (:key payload))]
+        [:Upload (str (:upload payload))]
+        [:RequestId reqid]
+        [:HostId reqid]]
        :no-such-key
        [:Error
         [:Code "NoSuchKey"]
