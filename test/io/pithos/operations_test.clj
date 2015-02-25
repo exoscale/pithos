@@ -196,6 +196,15 @@
                       (md5-update (.getBytes %) 0 (count %))
                       (md5-sum))]
 
+    (testing "put to inexistant bucket yields 404"
+      (let [resp (handler {:request-method :put
+                           :headers {"host" "batman.blob.example.com"
+                                     "date" (date!)}
+                           :sign-uri "/batman/foo.txt"
+                           :uri "/foo.txt"
+                           :body (java.io.ByteArrayInputStream. (.getBytes "foobar"))})]
+        (is (= (:status resp) 404))))
+
     (testing "put bucket"
       (handler {:request-method :put
                 :headers {"host" "batman.blob.example.com"
@@ -214,6 +223,16 @@
       (is (= (pr-str {:FULL_CONTROL [{:ID "foo@example.com"
                                       :DisplayName "foo@example.com"}]})
              (-> @state :buckets (get "batman") :acl))))
+
+    (testing "put to wrong bucket yields 404"
+      (let [resp (handler {:request-method :put
+                           :anonymous! true
+                           :headers {"host" "batman.blob.example.com"
+                                     "date" (date!)}
+                           :sign-uri "/batman/foo.txt"
+                           :uri "/foo.txt"
+                           :body (java.io.ByteArrayInputStream. (.getBytes "foobar"))})]
+        (is (= (:status resp) 403))))
 
     (testing "remove bucket"
       (handler {:request-method :delete

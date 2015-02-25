@@ -56,11 +56,15 @@
       (case perm
         :authenticated (ensure! (not= tenant :anonymous))
         :memberof      (ensure! (memberof? arg))
-        :bucket        (ensure! (bucket-satisfies?
-                                 (bucket/by-name bucketstore bucket)
-                                 {:for    tenant
-                                  :groups memberof?
-                                  :needs  arg}))
+        :bucket        (let [bd (bucket/by-name bucketstore bucket)]
+                         (when-not bd
+                           (throw (ex-info "bucket not found"
+                                           {:type        :no-such-bucket
+                                            :status-code 404
+                                            :bucket      bucket})))
+                         (ensure! (bucket-satisfies? bd {:for    tenant
+                                                         :groups memberof?
+                                                         :needs  arg})))
         :object        (ensure! (object-satisfies?
                                  (bucket/by-name bucketstore bucket)
                                  (desc/object-descriptor system bucket object)
