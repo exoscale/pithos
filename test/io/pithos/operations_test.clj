@@ -368,8 +368,45 @@
         (is (= (sum "foobar")
                (get-in @state [:objects "batman" "foo-multi.txt" :checksum])))))
 
+    (testing "invalid multipart upload"
+
+      (reset! state {})
+
+      (handler {:request-method :put
+                :headers {"host" "batman.blob.example.com"
+                          "date" (date!)}
+                :sign-uri "/batman/"
+                :uri "/"})
+
+      (let [upload-id (-> (handler {:request-method :post
+                                    :headers {"host" "batman.blob.example.com"
+                                              "date" (date!)}
+                                    :sign-uri "/batman/foo-multi.txt?uploads"
+                                    :query-string "uploads"
+                                    :uri "/foo-multi.txt"})
+                          :body
+                          (parse-str)
+                          (xml-zip)
+                          (xml1-> :UploadId text))
+            resp      (handler {:request-method :put
+                                :headers {"host" "batman.blob.example.com"
+                                          "date" (date!)}
+                                :sign-uri (str "/batman/foo-multi-else.txt?partNumber=1&uploadId="
+                                               upload-id)
+                                :query-string (str "uploadId=" upload-id "&partNumber=1")
+                                :uri "/foo-multi-else.txt"
+                                :body (java.io.ByteArrayInputStream. (.getBytes "foo"))})]
+        (is (= (:status resp) 404))))
+
 
     (testing "cors headers with OPTIONS"
+      (reset! state {})
+      (handler {:request-method :put
+                :headers {"host" "batman.blob.example.com"
+                          "date" (date!)}
+                :sign-uri "/batman/"
+                :uri "/"})
+
       (let [response (handler {:request-method :put
                                :headers {"host" "batman.blob.example.com"
                                          "date" (date!)}
