@@ -601,8 +601,12 @@
         push-str  (fn [type]
                     (put! ch (case type :block "\n" :chunk " " type)))
         etag      (promise)
-        details   (meta/get-upload-details (bucket/metastore od)
-                                           bucket object upload-id)
+        details   (or (meta/get-upload-details (bucket/metastore od)
+                                               bucket object upload-id)
+                      (throw (ex-info "no such upload" {:type :no-such-upload
+                                                        :status-code 404
+                                                        :key object
+                                                        :upload upload-id})))
         metadata  (-> (:metadata details) (dissoc "acl" "initiated"))
         inparts   (xml/xml->multipart (slurp body))]
     (push-str "<?xml version= \"1.0\" encoding= \"UTF-8\"?>")

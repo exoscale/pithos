@@ -132,6 +132,12 @@
         blobstore                 (get storage-classes :standard)
         cols                      (atom {})
         part                      (Long/parseLong partnumber)]
+    (or
+     (meta/get-upload-details metastore bucket object upload-id)
+     (throw (ex-info "no such upload" {:type :no-such-upload
+                                       :status-code 404
+                                       :key object
+                                       :upload upload-id})))
     (reify
       bucket/BucketDescriptor
       (region [this] (get regions region))
