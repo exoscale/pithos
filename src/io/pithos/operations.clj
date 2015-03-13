@@ -396,6 +396,7 @@
     (-> (response is)
         (content-type (desc/content-type od))
         (header "Content-Length" (- (last range) (first range)))
+        (header "Last-Modified" (iso8601->rfc822 (str (:atime od))))
         (header "ETag" (str "\"" (desc/checksum od) "\""))
         (update-in [:headers] (partial merge (:metadata od))))))
 
