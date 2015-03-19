@@ -513,7 +513,7 @@
                                :sign-uri "/batman/foo.txt"
                                :uri "/foo.txt"})]
         (is (= (:status response 200)))
-        (is (= (get-in response [:headers "content-type"]) "application/json"))
-        (is (= (get-in response [:headers "content-disposition"]) "blargh"))))
+        (is (= (get-in response [:headers "Content-Type"]) "application/json"))
+        (is (= (get-in response [:headers "Content-Disposition"]) "blargh"))))
 
     ))

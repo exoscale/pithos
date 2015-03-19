@@ -13,7 +13,7 @@
                                             iso8601->rfc822]]
             [clojure.core.async     :refer [go chan >! <! put! close!]]
             [clojure.tools.logging  :refer [trace debug info warn error]]
-            [clojure.string         :refer [split lower-case]]
+            [clojure.string         :refer [split lower-case join capitalize]]
             [clj-time.core          :refer [after? now]]
             [io.pithos.util         :as util]
             [io.pithos.store        :as store]
@@ -826,7 +826,10 @@
                     :response-content-cache
                     :response-content-encoding
                     :response-expires}
-        override! (fn [headers [k v]] (assoc headers (.substring (name k) 9) v))]
+        mk-header (fn [s] (->> (split (.substring (name s) 9) #"-")
+                               (map capitalize)
+                               (join "-")))
+        override! (fn [headers [k v]] (assoc headers (mk-header k) v))]
     (if (and authenticated? (= (quot (:status resp) 100) 2))
       (update-in resp [:headers]
                  (partial reduce override!)
