@@ -510,23 +510,10 @@
                                :headers {"host" "batman.blob.example.com"
                                          "date" (date!)
                                          "origin" "http://batman.example.com"}
-                               :sign-uri "/batman/foo.txt"
+                               :sign-uri "/batman/foo.txt?response-content-disposition=blargh&response-content-type=application/json"
                                :uri "/foo.txt"})]
         (is (= (:status response 200)))
         (is (= (get-in response [:headers "Content-Type"]) "application/json"))
-        (is (= (get-in response [:headers "Content-Disposition"]) "blargh")))
-
-      (let [response (handler {:request-method :get
-                               :query-string "response-content-disposition=attachment;%20filename=\"bar\""
-                               :headers {"host" "batman.blob.example.com"
-                                         "date" (date!)
-                                         "origin" "http://batman.example.com"}
-                               :sign-uri "/batman/foo.txt"
-                               :uri "/foo.txt"})]
-        (is (= (:status response 200)))
-        (is (= (get-in response [:headers "Content-Disposition"]) "attachment; filename=\"bar\"")))
-
-
-      )
+        (is (= (get-in response [:headers "Content-Disposition"]) "blargh"))))
 
     ))
