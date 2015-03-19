@@ -85,6 +85,7 @@
    :notification "notification"
    :partnumber "partNumber"
    :policy "policy"
+   :response-content-disposition "response-content-disposition"
    :requestpayment "requestPayment"
    :torrent "torrent"
    :uploadid "uploadId"

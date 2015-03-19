@@ -354,7 +354,7 @@ Will produce an XML AST equivalent to:
         [:HostId reqid]
         [:Field (str (:field payload))]
         [:Value (str (:value payload))]
-        [:Expected (str (:expected payload))]]
+        [:Expected "XXXX"]]
        :invalid-acl-xml
        [:Error
         [:Code "MalformedACLError"]
