@@ -78,7 +78,7 @@
   (javax.xml.bind.DatatypeConverter/printDateTime (Calendar/getInstance @utc)))
 
 (def rfc822-format
-  (formatter "EEE, dd MMM yyyy HH:mm:ss z"))
+  (:rfc822 formatters))
 
 (defn rfc822->date
   [s]
