@@ -39,6 +39,7 @@
     "response-cache-control"
     "response-content-type"
     "response-content-disposition"
+    "responsecontentdisposition"
     "response-content-encoding"
     "response-content-language"
     "response-expires"

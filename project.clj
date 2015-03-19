@@ -27,7 +27,7 @@
                  [clj-time                      "0.9.0"]
                  [ring/ring-core                "1.3.2"]
                  [ring/ring-codec               "1.0.0"]
-                 [cc.qbits/alia                 "2.3.1"]
-                 [cc.qbits/jet                  "0.5.5"]
+                 [cc.qbits/alia                 "2.3.3"]
+                 [cc.qbits/jet                  "0.5.7"]
                  [net.jpountz.lz4/lz4           "1.3"]
                  [org.xerial.snappy/snappy-java "1.1.1.6"]])
