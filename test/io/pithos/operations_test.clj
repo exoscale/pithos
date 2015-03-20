@@ -24,8 +24,8 @@
 (deftest range-test
   (let [desc   (reify desc/BlobDescriptor (size [this] 1024))
         in-out ["no headers"    {}                                  [0  1024]
-                "range"         {"range" "bytes=10-90"}             [10 90]
-                "content-range" {"content-range" "bytes 10-90/200"} [10 90]
+                "range"         {"range" "bytes=10-90"}             [10 91]
+                "content-range" {"content-range" "bytes 10-90/200"} [10 91]
                 "begin-range1"  {"range" "bytes=10-"}               [10 1024]
                 "begin-range2"  {"content-range" "bytes 10-/200"}   [10 1024]
                 "priority"      {"range"         "bytes=1-"
@@ -41,7 +41,7 @@
                             #"invalid range"
                             (get-range d {"range" "blah"})))
       (is (thrown-with-msg? clojure.lang.ExceptionInfo
-                            #"invalid value"
+                            #"invalid range"
                             (get-range d {"range" "bytes=500-bla"}))))))
 (defn atom-bucket-store
   [state]
@@ -290,6 +290,16 @@
                                :uri "/foo.txt"})]
         (is (= (:status response) 200))
         (is (= (slurp (:body response)) "foobar"))))
+
+    (testing "get object range"
+      (let [response (handler {:request-method :get
+                               :headers {"host" "batman.blob.example.com"
+                                         "content-range" "bytes=0-2"
+                                         "date" (date!)}
+                               :sign-uri "/batman/foo.txt"
+                               :uri "/foo.txt"})]
+        (is (= (:status response) 200))
+        (is (= (slurp (:body response)) "foo"))))
 
     (testing "object copy"
       (let [d    (date!)

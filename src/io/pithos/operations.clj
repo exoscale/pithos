@@ -104,6 +104,14 @@
     ([nickname val]
      (parse-int nickname nil val)))
 
+(defn adjust-range
+  "When given a range, coerce it to a proper
+   tuple. For partial ranges we increment the end to
+   adjust for .write's behavior"
+  [default [start end]]
+  (vector (parse-int "range-start" start)
+          (if end (inc (parse-int "range-end" end)) default)))
+
 (defn get-range
   "Fetch range information from headers. We ignore the total size
    when supplied using the Content-Range header. The end of the
@@ -112,15 +120,14 @@
   (if-let [range-def (or (get headers "range")
                          (get headers "content-range"))]
     (->> range-def
-         (re-find #"^bytes[ =](\d+)-(\d+)?")
+         (re-find #"^bytes[ =](\d+)-(\d+)?(/\d+)?[ \t;]*$")
          (#(or % (throw (ex-info "invalid range"
                                  {:type :invalid-argument
                                   :arg "range"
                                   :val range-def
                                   :status-code 400}))))
          (drop 1)
-         (mapv #(or % (str (desc/size od))))
-         (mapv (partial parse-int "range")))
+         (adjust-range (desc/size od)))
     [0 (desc/size od)]))
 
 (defn get-service
