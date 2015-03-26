@@ -1,5 +1,5 @@
 (ns leiningen.fatrpm
-; build a rpm, based off fatrpm in reimann
+  "Build a .rpm package from leiningen, stolen from riemann."
   (:refer-clojure :exclude [replace])
   (:use [clojure.java.shell :only [sh]]
         [clojure.java.io :only [file delete-file writer copy]]
