@@ -37,6 +37,17 @@ boto
 
 Fully tested with the current API coverage.
 
+libcloud
+--------
+
+Working support with the S3 provider::
+
+    from libcloud.storage.types import Provider
+    from libcloud.storage.providers import get_driver
+    cls = get_driver(Provider.S3)
+    driver = cls('api key', 'api secret key', host='s3.example.com')
+    driver.list_containers()
+
 cyberduck
 ---------
 
