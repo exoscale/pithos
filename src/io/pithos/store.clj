@@ -17,11 +17,12 @@
 (defn cassandra-store
   "Connect to a cassandra cluster, and use a specific keyspace.
    When the keyspace is not found, try creating it"
-  [{:keys [cluster keyspace hints repfactor]
-    :or {hints {:replication {:class             "SimpleStrategy"
-                              :replication_factor (or repfactor 1)}}}}]
+  [{:keys [cluster keyspace hints repfactor]}]
   (debug "building cassandra store for: " cluster keyspace hints)
-  (let [cluster (if (sequential? cluster) cluster [cluster])
+  (let [hints   (or hints
+                    {:replication {:class             "SimpleStrategy"
+                                   :replication_factor (or repfactor 1)}})
+        cluster (if (sequential? cluster) cluster [cluster])
         session (-> (alia/cluster {:contact-points cluster}) (alia/connect))]
     (try (alia/execute session (use-keyspace keyspace))
          session
