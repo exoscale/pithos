@@ -7,9 +7,20 @@
    Default implementation for protocols are provided but can be overriden
    with the `use` keyword.
 "
-  (:require [clj-yaml.core         :refer [parse-string]]
-            [clojure.tools.logging :refer [error info debug]]
-            [io.pithos.util        :refer [to-bytes]]))
+  (:require [clj-yaml.core          :refer [parse-string]]
+            [clojure.tools.logging  :refer [error info debug]]
+            [io.pithos.util         :refer [to-bytes]]
+            [org.spootnik.logconfig :refer [start-logging!]]))
+
+(start-logging!
+ {:pattern "%p [%d] %t - %c - %m%n"
+  :external false
+  :console true
+  :files  []
+  :level  "info"
+  :overrides {}})
+
+(info "trying to outrun jetty logging")
 
 (def default-logging
   "Logging can be bypassed if a log4j configuration is provided
@@ -128,17 +139,18 @@
   (try
     (when-not quiet?
       (println "starting with configuration: " path))
-    (-> (load-path path)
-        (update-in [:logging] (partial merge default-logging))
-        (update-in [:logging] get-instance :logging)
-        (update-in [:service] (partial merge default-service))
-        (update-in [:options] (partial merge default-options))
-        (update-in [:keystore] (partial merge default-keystore))
-        (update-in [:keystore] get-instance :keystore)
-        (update-in [:bucketstore] (partial merge default-bucketstore))
-        (update-in [:bucketstore] get-instance :bucketstore)
-        (update-in [:reporters] get-reporters)
-        (update-in [:regions] get-region-stores))
+    (let [opts (load-path path)]
+      (info "setting up logging according to config")
+      (start-logging! (merge default-logging (:logging opts)))
+      (-> opts
+          (update-in [:service] (partial merge default-service))
+          (update-in [:options] (partial merge default-options))
+          (update-in [:keystore] (partial merge default-keystore))
+          (update-in [:keystore] get-instance :keystore)
+          (update-in [:bucketstore] (partial merge default-bucketstore))
+          (update-in [:bucketstore] get-instance :bucketstore)
+          (update-in [:reporters] get-reporters)
+          (update-in [:regions] get-region-stores)))
     (catch Exception e
       (when-not quiet?
         (println "invalid or incomplete configuration: " (str e)))
