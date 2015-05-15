@@ -8,8 +8,8 @@
   (let [repr {:acl1 {:FULL_CONTROL [{:ID "foo" :DisplayName "bar"}]}
               :acl4 {:FULL_CONTROL [{:ID "foo" :DisplayName "bar"}
                                     {:URI "bar"}]
-                     :READ_ACP [{:ID "foo" :DisplayName "bar"}
-                                {:URI "bar"}]}
+                     :READ_ACP [{:ID "foo" :DisplayName "baz"}
+                                {:URI "baz"}]}
               :acl5 {:READ [{:URI "anonymous"}]}}]
 
     (doseq [[src int-repr] repr

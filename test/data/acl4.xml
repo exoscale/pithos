@@ -9,26 +9,26 @@
         <ID>foo</ID>
         <DisplayName>bar</DisplayName>
       </Grantee>
-      <Permission>READ_ACP</Permission>
+      <Permission>FULL_CONTROL</Permission>
     </Grant>
     <Grant>
       <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Group">
         <URI>bar</URI>
       </Grantee>
-      <Permission>READ_ACP</Permission>
+      <Permission>FULL_CONTROL</Permission>
     </Grant>
     <Grant>
       <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CanonicalUser">
         <ID>foo</ID>
-        <DisplayName>bar</DisplayName>
+        <DisplayName>baz</DisplayName>
       </Grantee>
-      <Permission>FULL_CONTROL</Permission>
+      <Permission>READ_ACP</Permission>
     </Grant>
     <Grant>
       <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Group">
-        <URI>bar</URI>
+        <URI>baz</URI>
       </Grantee>
-      <Permission>FULL_CONTROL</Permission>
+      <Permission>READ_ACP</Permission>
     </Grant>
   </AccessControlList>
 </AccessControlPolicy>
