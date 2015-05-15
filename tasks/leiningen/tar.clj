@@ -1,4 +1,5 @@
 (ns leiningen.tar
+  "Create a tarball suitable for rpm packaging, stolen from riemann."
   (:use [clojure.java.shell :only [sh with-sh-dir]]
         [clojure.java.io :only [file delete-file writer copy]]
         [clojure.string :only [join capitalize trim-newline split trim]]
