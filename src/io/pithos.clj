@@ -11,9 +11,9 @@ The `io.pithos` namespace is only responsible for parsing
 command line arguments, loading configuration and starting
 up the appropriate action."
   (:gen-class)
-  (:require [io.pithos.api     :as api]
-            [io.pithos.schema  :as schema]
+  (:require [io.pithos.schema  :as schema]
             [io.pithos.config  :as config]
+            [io.pithos.api     :as api]
             [io.pithos.system  :as system]
             [clojure.tools.cli :refer [cli]]))
 
