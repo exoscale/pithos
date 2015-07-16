@@ -15,10 +15,12 @@ configuration you can put in ``~/.s3cfg``::
     access_key = YOUR_ACCESS_KEY
     secret_key = YOUR_SECRET_KEY
     use_https = True
+    signature_v2 = True
 
 Adapt with your credentials and replace ``s3.example.com`` with the
 value you specified for ``service-uri``.  ``use_https`` is needed only
-if Pithos is served over TLS.
+if Pithos is served over TLS. Currently pithos doesn't support v4
+signatures so the ``signature_v2`` flag is necessary.
 
 When testing locally, the following configuration can be used::
 
@@ -28,6 +30,7 @@ When testing locally, the following configuration can be used::
     access_key = YOUR_ACCESS_KEY
     secret_key = YOUR_SECRET_KEY
     use_https = False
+    signature_v2 = True
     proxy_host = localhost
     proxy_port = 8080
     
