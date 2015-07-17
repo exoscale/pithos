@@ -76,6 +76,31 @@ Column Family
 
 .. _Apache Cassandra: http://cassandra.apache.org
 
+Pithos properties
+-----------------
+
+*pithos* strives to provide an eventual consistent system, enforcing
+validity through clients.
+
+There is a single operation throughout *pithos* which necessitates some
+transactional properties: the act of claiming a bucket's ownership.
+As it stands, given the current implementation of the bucketstore, this
+operation may return inconsistent results.
+
+All other operations in *pithos* are commutative and may be retried
+to achieve expected results.
+
+It is worth noting that typical S3 clients will ensure the validity of operations
+by comparing local MD5 checksums and checksums reported by *pithos*.
+
+While operations are commutative, stale data may be left in the
+``inode_blocks`` and ``block`` column families when upload operations
+fail, or clients interrupt uploads. This will result in orphaned blocks,
+which need to be regularily purged from the blobstore. Pithos does not
+provide a method to check for these yet.
+
+
+
 .. _Pithos Architecture:
 
 Pithos Architecture

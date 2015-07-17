@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>S3 API &mdash; pithos strong-poseidon documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,12 +28,14 @@
   
 
   
+
+  
     <link rel="top" title="pithos strong-poseidon documentation" href="index.html"/>
         <link rel="next" title="Developer Guide" href="developer.html"/>
         <link rel="prev" title="Administrator Guide" href="administrator.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -44,41 +46,87 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="index.html" class="fa fa-home"> pithos</a>
-        <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+        
+
+        
+          <a href="index.html" class="icon icon-home"> pithos
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
-        
-            <ul class="current">
+          
+          
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#obtaining-pithos">Obtaining pithos</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#obtaining-pithos">Obtaining pithos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#binary-releases">Binary releases</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#requirements">Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#runtime-requirements">Runtime requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#build-requirements">Build requirements</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#minimal-configuration">Minimal configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#running-pithos">Running pithos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#running-pithos">Running pithos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#command-line-arguments">Command line arguments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-the-standalone-version">Running the standalone version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-against-an-existing-cluster">Running against an existing cluster</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="concepts.html">Design and Concepts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#s3-concepts">S3 Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html#s3-concepts">S3 Concepts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#terminology">Terminology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#a-global-bucket-namespace">A global bucket namespace</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="concepts.html#cassandra-concepts">Cassandra concepts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="concepts.html#pithos-properties">Pithos properties</a></li>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#pithos-architecture">Pithos Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html#pithos-architecture">Pithos Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-keystore">The Keystore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-bucketstore">The Bucketstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-metastore">The Metastore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-blobstore">The Blobstore</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="administrator.html">Administrator Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#overview-of-configuration">Overview of configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#choosing-your-topology">Choosing your topology</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuration-file">Configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuration-file">Configuration file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="administrator.html#logging-configuration">Logging configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="administrator.html#global-options">Global options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="administrator.html#keystore-configuration">Keystore configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="administrator.html#bucketstore-configuration">Bucketstore configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="administrator.html#metastore-configuration">Metastore configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="administrator.html#blobstore-configuration">Blobstore configuration</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#reporter-configuration">Reporter Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#using-non-default-stores">Using non-default stores</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuring-apache-cassandra">Configuring Apache Cassandra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuring-apache-cassandra">Configuring Apache Cassandra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="administrator.html#bucketstore-and-metastore-clusters">Bucketstore and Metastore Clusters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="administrator.html#blobstore-clusters">Blobstore clusters</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#enabling-ssl">Enabling SSL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administrator.html#reverse-proxying-pithos">Reverse proxying pithos</a></li>
 </ul>
@@ -118,28 +166,48 @@
 <li class="toctree-l2"><a class="reference internal" href="#put-object-upload">PUT Object upload</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#delete-object-upload">DELETE Object upload</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#post-object-upload">POST Object upload</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#specifying-acls">Specifying ACLs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#specifying-acls">Specifying ACLs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#acl-headers">ACL Headers</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#request-signature">Request Signature</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="developer.html">Developer Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="developer.html#building-pithos-from-source">Building Pithos from source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developer.html#contributing-to-pithos">Contributing to pithos</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#creating-alternative-store-implementations">Creating alternative store implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer.html#creating-alternative-store-implementations">Creating alternative store implementations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#convergeable">Convergeable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#crudable">Crudable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#clojure-lang-ilookup">clojure.lang.ILookup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#bucketstore">Bucketstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#metastore">Metastore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#blobstore">Blobstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#reporter">Reporter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#an-alternative-keystore">An alternative keystore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#an-alternative-reporter">An alternative reporter</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="clients.html">Client compatibility list</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="clients.html#s3cmd">s3cmd</a></li>
 <li class="toctree-l2"><a class="reference internal" href="clients.html#boto">boto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#libcloud">libcloud</a></li>
 <li class="toctree-l2"><a class="reference internal" href="clients.html#cyberduck">cyberduck</a></li>
 <li class="toctree-l2"><a class="reference internal" href="clients.html#owncloud">owncloud</a></li>
 <li class="toctree-l2"><a class="reference internal" href="clients.html#s3fs-s3-fuse-support">s3fs - s3 fuse support</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#wal-e-continuous-archiving-for-postgres">WAL-E - continuous archiving for Postgres</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#wal-e-continuous-archiving-for-postgres">WAL-E - continuous archiving for Postgres</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="clients.html#archiving-wal-files">Archiving WAL files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clients.html#restoring-from-archived-wal-files">Restoring from archived WAL files</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="clients.html#elasticsearch-index-backup-and-restore">elasticsearch - index backup and restore</a></li>
 </ul>
 </li>
 </ul>
 
+          
         
       </div>
       &nbsp;
@@ -164,13 +232,15 @@
     <li>S3 API</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/api.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/api.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <div class="section" id="s3-api">
 <h1>S3 API<a class="headerlink" href="#s3-api" title="Permalink to this headline">¶</a></h1>
@@ -190,8 +260,8 @@ providing the SOAP API.</p>
 <h2>API Feature matrix<a class="headerlink" href="#api-feature-matrix" title="Permalink to this headline">¶</a></h2>
 <p>This simple matrix gives an overview of the API coverage
 provided by pithos.</p>
-<table border="1" class="docutils">
-<caption>Feature Matrix</caption>
+<table border="1" class="docutils" id="id32">
+<caption><span class="caption-text">Feature Matrix</span><a class="headerlink" href="#id32" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col width="33%" />
 <col width="33%" />
@@ -286,30 +356,30 @@ provided by pithos.</p>
 <div class="section" id="common-headers">
 <h2>Common Headers<a class="headerlink" href="#common-headers" title="Permalink to this headline">¶</a></h2>
 <dl class="docutils">
-<dt><tt class="docutils literal"><span class="pre">Authorization</span></tt></dt>
+<dt><code class="docutils literal"><span class="pre">Authorization</span></code></dt>
 <dd><p class="first">When provided, signs the request. The expected format is:</p>
 <div class="highlight-python"><div class="highlight"><pre>Authorization: AWS ACCESS_KEY:SIGNATURE
 </pre></div>
 </div>
-<p>See <a class="reference internal" href="#request-signature"><em>Request Signature</em></a> for details on how to generate the signature.</p>
+<p>See <a class="reference internal" href="#request-signature"><span>Request Signature</span></a> for details on how to generate the signature.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last"><em>pithos</em> currently supports version 3 of the request signature method.</p>
 </div>
 <p class="last">When the header isn&#8217;t provided, the request will be treated as anonymous.</p>
 </dd>
-<dt><tt class="docutils literal"><span class="pre">Date</span></tt> and <tt class="docutils literal"><span class="pre">x-amz-date</span></tt></dt>
-<dd>Specifies the date at which the date was present, when <tt class="docutils literal"><span class="pre">x-amz-date</span></tt> is
-present it takes precedence over <tt class="docutils literal"><span class="pre">Date</span></tt>, this allows to bypass the
-automatic setting of <tt class="docutils literal"><span class="pre">Date</span></tt> in some HTTP client libraries.</dd>
-<dt><tt class="docutils literal"><span class="pre">Host</span></tt></dt>
+<dt><code class="docutils literal"><span class="pre">Date</span></code> and <code class="docutils literal"><span class="pre">x-amz-date</span></code></dt>
+<dd>Specifies the date at which the date was present, when <code class="docutils literal"><span class="pre">x-amz-date</span></code> is
+present it takes precedence over <code class="docutils literal"><span class="pre">Date</span></code>, this allows to bypass the
+automatic setting of <code class="docutils literal"><span class="pre">Date</span></code> in some HTTP client libraries.</dd>
+<dt><code class="docutils literal"><span class="pre">Host</span></code></dt>
 <dd>Used to specify the bucket</dd>
 </dl>
 </div>
 <div class="section" id="operations-overview">
 <h2>Operations Overview<a class="headerlink" href="#operations-overview" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="docutils">
-<caption>Feature Matrix</caption>
+<table border="1" class="docutils" id="id33">
+<caption><span class="caption-text">Feature Matrix</span><a class="headerlink" href="#id33" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col width="9%" />
 <col width="91%" />
@@ -447,12 +517,12 @@ a hierachy through the specification of a <cite>prefix</cite>.</p>
 <dl class="docutils">
 <dt>Request parameters:</dt>
 <dd><ul class="first last simple">
-<li><tt class="docutils literal"><span class="pre">prefix</span></tt>: When present, will only return objects which are prefixed with the supplied string.</li>
-<li><tt class="docutils literal"><span class="pre">delimiter</span></tt>: When present, will split entries according to the supplied string. Entries with no
+<li><code class="docutils literal"><span class="pre">prefix</span></code>: When present, will only return objects which are prefixed with the supplied string.</li>
+<li><code class="docutils literal"><span class="pre">delimiter</span></code>: When present, will split entries according to the supplied string. Entries with no
 delimiter present will appear as <cite>Contents</cite> while entries containing the delimiter will be grouped
 and returned in the <cite>CommonPrefixes</cite> part of the reply.</li>
-<li><tt class="docutils literal"><span class="pre">max-keys</span></tt>: The maximum number of keys to return.</li>
-<li><tt class="docutils literal"><span class="pre">marker</span></tt>: When present, use the provided marker to access paged results.</li>
+<li><code class="docutils literal"><span class="pre">max-keys</span></code>: The maximum number of keys to return.</li>
+<li><code class="docutils literal"><span class="pre">marker</span></code>: When present, use the provided marker to access paged results.</li>
 </ul>
 </dd>
 </dl>
@@ -739,12 +809,12 @@ if necessary.</p>
 <dl class="docutils">
 <dt>Request parameters:</dt>
 <dd><ul class="first last simple">
-<li><tt class="docutils literal"><span class="pre">prefix</span></tt>: When present, will only return objects which are prefixed with the supplied string.</li>
-<li><tt class="docutils literal"><span class="pre">delimiter</span></tt>: When present, will split entries according to the supplied string. Entries with no
+<li><code class="docutils literal"><span class="pre">prefix</span></code>: When present, will only return objects which are prefixed with the supplied string.</li>
+<li><code class="docutils literal"><span class="pre">delimiter</span></code>: When present, will split entries according to the supplied string. Entries with no
 delimiter present will appear as <cite>Contents</cite> while entries containing the delimiter will be grouped
 and returned in the <cite>CommonPrefixes</cite> part of the reply.</li>
-<li><tt class="docutils literal"><span class="pre">max-uploads</span></tt>: The maximum number of uploades to return.</li>
-<li><tt class="docutils literal"><span class="pre">marker</span></tt>: When present, use the provided marker to access paged results.</li>
+<li><code class="docutils literal"><span class="pre">max-uploads</span></code>: The maximum number of uploades to return.</li>
+<li><code class="docutils literal"><span class="pre">marker</span></code>: When present, use the provided marker to access paged results.</li>
 </ul>
 </dd>
 </dl>
@@ -1042,10 +1112,10 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="developer.html" class="btn btn-neutral float-right" title="Developer Guide"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="developer.html" class="btn btn-neutral float-right" title="Developer Guide" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="administrator.html" class="btn btn-neutral" title="Administrator Guide"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="administrator.html" class="btn btn-neutral" title="Administrator Guide" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -1057,9 +1127,10 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
         &copy; Copyright 2014, exoscale.
     </p>
   </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
 </footer>
+
         </div>
       </div>
 

@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Administrator Guide &mdash; pithos strong-poseidon documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,12 +28,14 @@
   
 
   
+
+  
     <link rel="top" title="pithos strong-poseidon documentation" href="index.html"/>
         <link rel="next" title="S3 API" href="api.html"/>
         <link rel="prev" title="Design and Concepts" href="concepts.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -44,41 +46,87 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="index.html" class="fa fa-home"> pithos</a>
-        <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+        
+
+        
+          <a href="index.html" class="icon icon-home"> pithos
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
-        
-            <ul class="current">
+          
+          
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#obtaining-pithos">Obtaining pithos</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#obtaining-pithos">Obtaining pithos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#binary-releases">Binary releases</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#requirements">Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#runtime-requirements">Runtime requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#build-requirements">Build requirements</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#minimal-configuration">Minimal configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#running-pithos">Running pithos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#running-pithos">Running pithos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#command-line-arguments">Command line arguments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-the-standalone-version">Running the standalone version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-against-an-existing-cluster">Running against an existing cluster</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="concepts.html">Design and Concepts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#s3-concepts">S3 Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html#s3-concepts">S3 Concepts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#terminology">Terminology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#a-global-bucket-namespace">A global bucket namespace</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="concepts.html#cassandra-concepts">Cassandra concepts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="concepts.html#pithos-properties">Pithos properties</a></li>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#pithos-architecture">Pithos Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html#pithos-architecture">Pithos Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-keystore">The Keystore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-bucketstore">The Bucketstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-metastore">The Metastore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-blobstore">The Blobstore</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Administrator Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#overview-of-configuration">Overview of configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#choosing-your-topology">Choosing your topology</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#configuration-file">Configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-file">Configuration file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#logging-configuration">Logging configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#global-options">Global options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#keystore-configuration">Keystore configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bucketstore-configuration">Bucketstore configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#metastore-configuration">Metastore configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#blobstore-configuration">Blobstore configuration</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#reporter-configuration">Reporter Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#using-non-default-stores">Using non-default stores</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#configuring-apache-cassandra">Configuring Apache Cassandra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuring-apache-cassandra">Configuring Apache Cassandra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bucketstore-and-metastore-clusters">Bucketstore and Metastore Clusters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#blobstore-clusters">Blobstore clusters</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#enabling-ssl">Enabling SSL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#reverse-proxying-pithos">Reverse proxying pithos</a></li>
 </ul>
@@ -118,28 +166,48 @@
 <li class="toctree-l2"><a class="reference internal" href="api.html#put-object-upload">PUT Object upload</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#delete-object-upload">DELETE Object upload</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#post-object-upload">POST Object upload</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#specifying-acls">Specifying ACLs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#specifying-acls">Specifying ACLs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api.html#acl-headers">ACL Headers</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#request-signature">Request Signature</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="developer.html">Developer Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="developer.html#building-pithos-from-source">Building Pithos from source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developer.html#contributing-to-pithos">Contributing to pithos</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#creating-alternative-store-implementations">Creating alternative store implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer.html#creating-alternative-store-implementations">Creating alternative store implementations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#convergeable">Convergeable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#crudable">Crudable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#clojure-lang-ilookup">clojure.lang.ILookup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#bucketstore">Bucketstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#metastore">Metastore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#blobstore">Blobstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#reporter">Reporter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#an-alternative-keystore">An alternative keystore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer.html#an-alternative-reporter">An alternative reporter</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="clients.html">Client compatibility list</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="clients.html#s3cmd">s3cmd</a></li>
 <li class="toctree-l2"><a class="reference internal" href="clients.html#boto">boto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#libcloud">libcloud</a></li>
 <li class="toctree-l2"><a class="reference internal" href="clients.html#cyberduck">cyberduck</a></li>
 <li class="toctree-l2"><a class="reference internal" href="clients.html#owncloud">owncloud</a></li>
 <li class="toctree-l2"><a class="reference internal" href="clients.html#s3fs-s3-fuse-support">s3fs - s3 fuse support</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#wal-e-continuous-archiving-for-postgres">WAL-E - continuous archiving for Postgres</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clients.html#wal-e-continuous-archiving-for-postgres">WAL-E - continuous archiving for Postgres</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="clients.html#archiving-wal-files">Archiving WAL files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clients.html#restoring-from-archived-wal-files">Restoring from archived WAL files</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="clients.html#elasticsearch-index-backup-and-restore">elasticsearch - index backup and restore</a></li>
 </ul>
 </li>
 </ul>
 
+          
         
       </div>
       &nbsp;
@@ -164,13 +232,15 @@
     <li>Administrator Guide</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/administrator.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/administrator.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <div class="section" id="administrator-guide">
 <h1>Administrator Guide<a class="headerlink" href="#administrator-guide" title="Permalink to this headline">¶</a></h1>
@@ -188,7 +258,7 @@
 </div>
 <div class="section" id="choosing-your-topology">
 <h2>Choosing your topology<a class="headerlink" href="#choosing-your-topology" title="Permalink to this headline">¶</a></h2>
-<p>Since <em>pithos</em> can target different clusters for its <em>bucketstore</em>, <em>metastore</em> and <em>blobstore</em> (cf <a class="reference internal" href="concepts.html#pithos-architecture"><em>Pithos Architecture</em></a>). A simple deployment will most likely
+<p>Since <em>pithos</em> can target different clusters for its <em>bucketstore</em>, <em>metastore</em> and <em>blobstore</em> (cf <a class="reference internal" href="concepts.html#pithos-architecture"><span>Pithos Architecture</span></a>). A simple deployment will most likely
 use the same cluster and keyspace for all data while a multi-region large set-up would
 span several clusters: a multi-DC one holding the <em>bucketstore</em> and DC-local ones
 for the <em>metastores</em> and <em>blobstores</em>.</p>
@@ -203,20 +273,20 @@ will need to make sure inter-node latency is low).</p>
 <h2>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this headline">¶</a></h2>
 <p>The <em>pithos</em> configuration file is split in several sections:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">logging</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">options</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">service</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">keystore</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">bucketstore</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">metastore</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">blobstore</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">reporters</span></tt></li>
+<li><code class="docutils literal"><span class="pre">logging</span></code></li>
+<li><code class="docutils literal"><span class="pre">options</span></code></li>
+<li><code class="docutils literal"><span class="pre">service</span></code></li>
+<li><code class="docutils literal"><span class="pre">keystore</span></code></li>
+<li><code class="docutils literal"><span class="pre">bucketstore</span></code></li>
+<li><code class="docutils literal"><span class="pre">metastore</span></code></li>
+<li><code class="docutils literal"><span class="pre">blobstore</span></code></li>
+<li><code class="docutils literal"><span class="pre">reporters</span></code></li>
 </ul>
 <div class="section" id="logging-configuration">
 <h3>Logging configuration<a class="headerlink" href="#logging-configuration" title="Permalink to this headline">¶</a></h3>
 <p><em>pithos</em> relies on <a class="reference external" href="http://logging.apache.org/log4j/1.2/">log4j</a> for logging. To provide an easier way
 to configure logging than the standard approach of supplying a
-<tt class="docutils literal"><span class="pre">log4j.properties</span></tt> file.</p>
+<code class="docutils literal"><span class="pre">log4j.properties</span></code> file.</p>
 <div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">logging</span><span class="p-Indicator">:</span>
   <span class="l-Scalar-Plain">level</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">info</span>
   <span class="l-Scalar-Plain">console</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
@@ -228,19 +298,19 @@ to configure logging than the standard approach of supplying a
 </div>
 <p>The following keys are recognized:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">level</span></tt>: logging level, may be one of: <tt class="docutils literal"><span class="pre">debug</span></tt>, <tt class="docutils literal"><span class="pre">info</span></tt>, <tt class="docutils literal"><span class="pre">warn</span></tt>,
-<tt class="docutils literal"><span class="pre">error</span></tt>, <tt class="docutils literal"><span class="pre">all</span></tt>, <tt class="docutils literal"><span class="pre">fatal</span></tt>, <tt class="docutils literal"><span class="pre">trace</span></tt>, <tt class="docutils literal"><span class="pre">off</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">console</span></tt>: whether to output to the console</li>
-<li><tt class="docutils literal"><span class="pre">json</span></tt>: if true, log in a way compatible with logstash on stdout</li>
-<li><tt class="docutils literal"><span class="pre">pattern</span></tt>: a pattern to be used when logging, formatting options are available at <a class="footnote-reference" href="#id3" id="id1">[1]</a>.</li>
-<li><tt class="docutils literal"><span class="pre">files</span></tt>: a list of files to log to. each entry may either be a string, treated as a path or a map containing a <tt class="docutils literal"><span class="pre">path</span></tt> key and a <tt class="docutils literal"><span class="pre">json</span></tt> key, which when true enables logging in a way compatible with logstash.</li>
+<li><code class="docutils literal"><span class="pre">level</span></code>: logging level, may be one of: <code class="docutils literal"><span class="pre">debug</span></code>, <code class="docutils literal"><span class="pre">info</span></code>, <code class="docutils literal"><span class="pre">warn</span></code>,
+<code class="docutils literal"><span class="pre">error</span></code>, <code class="docutils literal"><span class="pre">all</span></code>, <code class="docutils literal"><span class="pre">fatal</span></code>, <code class="docutils literal"><span class="pre">trace</span></code>, <code class="docutils literal"><span class="pre">off</span></code></li>
+<li><code class="docutils literal"><span class="pre">console</span></code>: whether to output to the console</li>
+<li><code class="docutils literal"><span class="pre">json</span></code>: if true, log in a way compatible with logstash on stdout</li>
+<li><code class="docutils literal"><span class="pre">pattern</span></code>: a pattern to be used when logging, formatting options are available at <a class="footnote-reference" href="#id3" id="id1">[1]</a>.</li>
+<li><code class="docutils literal"><span class="pre">files</span></code>: a list of files to log to. each entry may either be a string, treated as a path or a map containing a <code class="docutils literal"><span class="pre">path</span></code> key and a <code class="docutils literal"><span class="pre">json</span></code> key, which when true enables logging in a way compatible with logstash.</li>
 </ul>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">If you wish to configure logging in ways that pithos&#8217; configuration
-file does not support, <tt class="docutils literal"><span class="pre">logging:</span> <span class="pre">{external:</span> <span class="pre">true}</span></tt> in the config
+file does not support, <code class="docutils literal"><span class="pre">logging:</span> <span class="pre">{external:</span> <span class="pre">true}</span></code> in the config
 will prevent <em>pithos</em> from attempting to modify logging and let you
-supply your own <tt class="docutils literal"><span class="pre">`log4j.properties</span></tt> file.</p>
+supply your own <code class="docutils literal"><span class="pre">`log4j.properties</span></code> file.</p>
 </div>
 </div>
 <div class="section" id="global-options">
@@ -252,11 +322,11 @@ supply your own <tt class="docutils literal"><span class="pre">`log4j.properties
 </pre></div>
 </div>
 <dl class="docutils">
-<dt><tt class="docutils literal"><span class="pre">service-uri</span></tt></dt>
+<dt><code class="docutils literal"><span class="pre">service-uri</span></code></dt>
 <dd>Determines on which hostname buckets will be hosted. This is necessary
 since when used without the proxy functionality present in some clients,
 buckets will be accessed using bucket-specific hostnames.</dd>
-<dt><tt class="docutils literal"><span class="pre">default-region</span></tt></dt>
+<dt><code class="docutils literal"><span class="pre">default-region</span></code></dt>
 <dd>Determines which region buckets will be created on.</dd>
 </dl>
 </div>
@@ -266,7 +336,7 @@ buckets will be accessed using bucket-specific hostnames.</dd>
 The <em>keystore</em> associates API keys with</p>
 <p>By default the keystore implementation reads key information
 from its own config, there are no other public implementations but
-writing your own is straightforward (cf <a class="reference internal" href="developer.html#custom-stores"><em>Creating alternative store implementations</em></a> for details).</p>
+writing your own is straightforward (cf <a class="reference internal" href="developer.html#custom-stores"><span>Creating alternative store implementations</span></a> for details).</p>
 <div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">keystore</span><span class="p-Indicator">:</span>
   <span class="l-Scalar-Plain">keys</span><span class="p-Indicator">:</span>
     <span class="l-Scalar-Plain">AKIAIOSFODNN7EXAMPLE</span><span class="p-Indicator">:</span>
@@ -274,10 +344,10 @@ writing your own is straightforward (cf <a class="reference internal" href="deve
       <span class="l-Scalar-Plain">secret</span><span class="p-Indicator">:</span> <span class="s">&#39;wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY&#39;</span>
 </pre></div>
 </div>
-<p>This configuration, means that a single tenant <tt class="docutils literal"><span class="pre">email&#64;example.com</span></tt> will exist,
-identified by the <tt class="docutils literal"><span class="pre">AKIAIOSFODNN7EXAMPLE</span></tt> access key and the accompanying
+<p>This configuration, means that a single tenant <code class="docutils literal"><span class="pre">email&#64;example.com</span></code> will exist,
+identified by the <code class="docutils literal"><span class="pre">AKIAIOSFODNN7EXAMPLE</span></code> access key and the accompanying
 secret key.</p>
-<p>Additionally, a key entry may have a <tt class="docutils literal"><span class="pre">memberof</span></tt> entry in its output which
+<p>Additionally, a key entry may have a <code class="docutils literal"><span class="pre">memberof</span></code> entry in its output which
 designates which groups a tenant is part of, this is useful when building
 ACLs to allow groups of tenant to operate on an object or bucket.</p>
 </div>
@@ -313,9 +383,9 @@ object metadata for that region.</p>
 <p>The bulk of the config is simple and accepts the same option than
 the <em>bucketstore</em> configuration. There may be as many regions as
 necessary.</p>
-<p>The <tt class="docutils literal"><span class="pre">storage-classes</span></tt> key is used to provide a list of <em>blobstore</em>
+<p>The <code class="docutils literal"><span class="pre">storage-classes</span></code> key is used to provide a list of <em>blobstore</em>
 clusters for a region, each providing a specific storage class
-(cf <a class="reference internal" href="concepts.html#s3-concepts"><em>S3 Concepts</em></a> for details).</p>
+(cf <a class="reference internal" href="concepts.html#s3-concepts"><span>S3 Concepts</span></a> for details).</p>
 </div>
 <div class="section" id="blobstore-configuration">
 <h3>Blobstore configuration<a class="headerlink" href="#blobstore-configuration" title="Permalink to this headline">¶</a></h3>
@@ -337,15 +407,15 @@ chunk size as well as maximum block chunks.</p>
 <h2>Reporter Configuration<a class="headerlink" href="#reporter-configuration" title="Permalink to this headline">¶</a></h2>
 <p>Reporters provide a way to ship events out of pithos. As it stands pithos
 only ships with a log4j reporter, but adding more is trivial and covered
-in <a class="reference internal" href="developer.html#alternative-reporter"><em>An alternative reporter</em></a></p>
+in <a class="reference internal" href="developer.html#alternative-reporter"><span>An alternative reporter</span></a></p>
 <p>Two types of events may be shipped:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">put</span></tt> events, when either a standard put or a complete multipart upload operation succeeds.</li>
-<li><tt class="docutils literal"><span class="pre">delete</span></tt> events, when objects are deleted</li>
+<li><code class="docutils literal"><span class="pre">put</span></code> events, when either a standard put or a complete multipart upload operation succeeds.</li>
+<li><code class="docutils literal"><span class="pre">delete</span></code> events, when objects are deleted</li>
 </ul>
 <p>Additional events may be added in the future.</p>
-<p>Reporters is expected to be a list of reporter configurations. The default <tt class="docutils literal"><span class="pre">log4j</span></tt> reporter
-only takes a <tt class="docutils literal"><span class="pre">level</span></tt> key, to indicate at which level messages should be logged.</p>
+<p>Reporters is expected to be a list of reporter configurations. The default <code class="docutils literal"><span class="pre">log4j</span></code> reporter
+only takes a <code class="docutils literal"><span class="pre">level</span></code> key, to indicate at which level messages should be logged.</p>
 <p>Here we showcase a sample configuration with the default reporter logging at info and
 a third-party one:</p>
 <div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">reporters</span><span class="p-Indicator">:</span>
@@ -367,12 +437,12 @@ credential store.</p>
 these two steps to be able to use it:</p>
 <ul class="simple">
 <li>Make sure the compiled code is available on the JVM&#8217;s <a class="reference external" href="http://docs.oracle.com/javase/tutorial/essential/environment/paths.html">classpath</a></li>
-<li>Instruct <em>pithos</em> to use it instead of the default through the <tt class="docutils literal"><span class="pre">use</span></tt> directive.</li>
+<li>Instruct <em>pithos</em> to use it instead of the default through the <code class="docutils literal"><span class="pre">use</span></code> directive.</li>
 </ul>
 <p>Pretending you have an alternative <em>keystore</em> implementation exposed as the
-<tt class="docutils literal"><span class="pre">com.example.http-keystore/http-keystore</span></tt> namespace, which connects to an
+<code class="docutils literal"><span class="pre">com.example.http-keystore/http-keystore</span></code> namespace, which connects to an
 HTTP url to retrieve credentials,
-living in a <strong>JAR</strong> archive at <tt class="docutils literal"><span class="pre">/usr/lib/pithos-http-keystore.jar</span></tt>
+living in a <strong>JAR</strong> archive at <code class="docutils literal"><span class="pre">/usr/lib/pithos-http-keystore.jar</span></code>
 you would then need to update the configuration file:</p>
 <div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">keystore</span><span class="p-Indicator">:</span>
   <span class="l-Scalar-Plain">use</span><span class="p-Indicator">:</span> <span class="s">&quot;com.example.http-keystore/http-keystore&quot;</span>
@@ -417,7 +487,7 @@ smaller, decoupling it from the <em>blobstore</em> makes a lot of sense</dd>
 <dd>The type of workload a <em>bucketstore</em> and <em>metastore</em> will encounter
 makes it a good candidate for levelled compactions.</dd>
 <dt>Conserve tombstores</dt>
-<dd>While keeping it at the default 10 days might be a lot, <tt class="docutils literal"><span class="pre">gc_grace_seconds</span></tt>
+<dd>While keeping it at the default 10 days might be a lot, <code class="docutils literal"><span class="pre">gc_grace_seconds</span></code>
 should not be dropped too low on the <em>bucketstore</em> and <em>metastore</em> column
 families.</dd>
 </dl>
@@ -448,10 +518,10 @@ the best approach is to rely on a separate web server to handle this, such
 as <a class="reference external" href="http://nginx.org">nginx</a>.</p>
 <p>When using SSL, the certificate used should authenticate requests to the
 chosen <cite>service-uri</cite> in the configuration, as well as sub-domains of the
-<cite>service-uri</cite>. For instance, if you have chosen <tt class="docutils literal"><span class="pre">pithos.example.com</span></tt> as
-your <cite>service-uri</cite>, you will need a certificate for <tt class="docutils literal"><span class="pre">pithos.example.com</span></tt> and
-a wildcard certificate for <tt class="docutils literal"><span class="pre">*.pithos.example.com</span></tt> to be able to authenticate
-requests for <tt class="docutils literal"><span class="pre">my-bucket.pithos.example.com</span></tt>, which is the standard way of
+<cite>service-uri</cite>. For instance, if you have chosen <code class="docutils literal"><span class="pre">pithos.example.com</span></code> as
+your <cite>service-uri</cite>, you will need a certificate for <code class="docutils literal"><span class="pre">pithos.example.com</span></code> and
+a wildcard certificate for <code class="docutils literal"><span class="pre">*.pithos.example.com</span></code> to be able to authenticate
+requests for <code class="docutils literal"><span class="pre">my-bucket.pithos.example.com</span></code>, which is the standard way of
 accessing buckets.</p>
 </div>
 <div class="section" id="reverse-proxying-pithos">
@@ -461,7 +531,7 @@ accessing buckets.</p>
 <dt>Large request buffers</dt>
 <dd>Since objects sent might be large, it is important to make sure
 that your webserver accepts large input payloads. When using <a class="reference external" href="http://nginx.org">nginx</a>,
-this is done by setting <tt class="docutils literal"><span class="pre">client_max_body_size</span></tt> to something
+this is done by setting <code class="docutils literal"><span class="pre">client_max_body_size</span></code> to something
 appropriate.</dd>
 <dt>Input Buffering</dt>
 <dd>If your webserver (for instance <a class="reference external" href="http://nginx.org">nginx</a>) does not provide a way to
@@ -472,7 +542,7 @@ put a strain on the memory consumed by the webservers.</dd>
 <dd><p class="first">Some responses in <em>pithos</em> explicitly ask for buffering to be disabled.
 You can choose to disable buffering altogether in your reverse proxy
 configuration, or instruct your webserver to carry over headers.</p>
-<p class="last">When using <a class="reference external" href="http://nginx.org">nginx</a>, this is done with <tt class="docutils literal"><span class="pre">proxy_pass_header</span> <span class="pre">X-Accel-Buffering</span></tt>.</p>
+<p class="last">When using <a class="reference external" href="http://nginx.org">nginx</a>, this is done with <code class="docutils literal"><span class="pre">proxy_pass_header</span> <span class="pre">X-Accel-Buffering</span></code>.</p>
 </dd>
 </dl>
 <table class="docutils footnote" frame="void" id="id3" rules="none">
@@ -496,10 +566,10 @@ configuration, or instruct your webserver to carry over headers.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="api.html" class="btn btn-neutral float-right" title="S3 API"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="api.html" class="btn btn-neutral float-right" title="S3 API" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="concepts.html" class="btn btn-neutral" title="Design and Concepts"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="concepts.html" class="btn btn-neutral" title="Design and Concepts" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -511,9 +581,10 @@ configuration, or instruct your webserver to carry over headers.</p>
         &copy; Copyright 2014, exoscale.
     </p>
   </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
 </footer>
+
         </div>
       </div>
 
