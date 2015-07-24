@@ -1,7 +1,8 @@
 (ns io.pithos.util-test
   (:require [clojure.test   :refer :all]
-            [io.pithos.util :refer [inc-prefix to-bytes parse-uuid
-                                    string->pattern]]))
+            [io.pithos.util :refer [inc-prefix to-bytes parse-uuid  rfc822->date
+                                    string->pattern]]
+            [clj-time.core  :as time-core]))
 
 (deftest inc-prefix-test
   (testing "nil prefix"
@@ -58,3 +59,16 @@
   (testing "with back references"
     (is (= "\\(42\\)\\\\1\\\\k\\<here\\>"
            (string->pattern "(42)\\1\\k<here>")))))
+
+(deftest rfc822-parse-test
+  (testing "rfc822->date"
+    (is (apply = (map #(.toDateTime % time-core/utc)
+                      [(time-core/date-time 2014 10 01)
+                       (rfc822->date "Wed, 01 Oct 2014 00:00:00 GMT")
+                       (rfc822->date "Wed, 01 Oct 2014 00:00:00 UT")
+                       (rfc822->date "Wed, 01 Oct 2014 00:00:00 UTC")     ;; UTC would be invalid according to Spec
+                       (rfc822->date "Wed, 01 Oct 2014 00:00:00 +0000")
+                       (rfc822->date "Tue, 30 Sep 2014 20:00:00 EST")
+                       (rfc822->date "Wed, 01 Oct 2014 05:00:00 +0500")
+                       (rfc822->date "Tue, 30 Sep 2014 12:00:00 Y")
+                       (rfc822->date "Wed, 01 Oct 2014 12:00:00 M")])))))
