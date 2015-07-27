@@ -515,6 +515,8 @@
                                          :bucket bucket))
 
   (let [params      (:multipart-params request)
+        keyname     (util/interpol (:key params)
+                                   {:filename (-> params :file :filename)})
         dst         (desc/object-descriptor system bucket (:key params))
         previous    (desc/init-version dst)
         ctype       (:content-type params)
