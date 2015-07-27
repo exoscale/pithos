@@ -3,7 +3,8 @@
   (:import [java.io                PipedInputStream PipedOutputStream]
            [java.util              TimeZone Calendar]
            [java.lang              Math])
-  (:require [clojure.string  :refer [lower-case]]
+  (:require [clojure.string  :as s]
+            [clojure.string  :refer [lower-case]]
             [clj-time.format :refer [formatters parse unparse formatter]]))
 
 (defn md5-init
@@ -113,3 +114,8 @@
   (->> string
        (replace regex-char-esc-smap)
        (reduce str "")))
+
+(defn interpol
+  [s args]
+  (let [trimk (fn [s] (keyword (.substring s 2 (dec (.length s)))))]
+    (s/replace s #"\$\{[^}]*\}" (fn [k] (get args (trimk k) "")))))
