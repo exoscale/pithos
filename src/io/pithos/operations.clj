@@ -517,7 +517,7 @@
   (let [params      (:multipart-params request)
         keyname     (util/interpol (:key params)
                                    {:filename (-> params :file :filename)})
-        dst         (desc/object-descriptor system bucket (:key params))
+        dst         (desc/object-descriptor system bucket keyname)
         previous    (desc/init-version dst)
         ctype       (:content-type params)
         acl         (perms/header-acl (:bd request)
