@@ -141,8 +141,8 @@
 
            "bucket-owner-full-control"
            (if desc
-             (merge init {:READ [{:DisplayName (:tenant desc)
-                                  :ID          (:tenant desc)}]})
+             (merge init {:FULL_CONTROL [{:DisplayName (:tenant desc)
+                                          :ID          (:tenant desc)}]})
              init)
 
            "private"
