@@ -119,3 +119,39 @@
   [s args]
   (let [trimk (fn [s] (keyword (.substring s 2 (dec (.length s)))))]
     (s/replace s #"\$\{[^}]*\}" (fn [k] (get args (trimk k) "")))))
+
+
+(defmacro cond-with
+  "Takes a symbol and a set of test/expr pairs. It evaluates
+   each test one at a time. If a test returns logical true,
+   cond-with evaluates the corresponding expr, binding the
+   symbol to the test's return. The return value of the expr
+   is returned and no more tests are evaluated. If no test/expr
+   pairs are present, nil is returned. An odd number of clauses
+   will throw an exception."
+  [sym & clauses]
+  (when clauses
+    (list 'if-let [`~sym (first clauses)]
+          (if (next clauses)
+            (second clauses)
+            (throw (IllegalArgumentException.
+                    "cond-with requires an even number of forms.")))
+          (cons `cond-with (conj  (next (next clauses)) `~sym)))))
+
+(defmacro cond-let
+  "Takes a symbol and a set of test/expr pairs. Tests may be
+   expressions or binding vectors. If a test returns logical true,
+   cond-let evaluates the corresponding, if a binding vector was
+   provided, the expr will be evaluated within that context. The
+   return value of the expr is returned and no more tests are
+   evaluated. If no test/expr paris are present, nil is returned.
+   An odd number of clauses will throw an exception."
+  [& clauses]
+  (when clauses
+    (list (if (vector? (first clauses)) 'if-let 'if)
+          (first clauses)
+          (if (next clauses)
+            (second clauses)
+            (throw (IllegalArgumentException.
+                    "cond-let requires an even number of forms.")))
+          (cons `cond-let (next (next clauses))))))
