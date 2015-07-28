@@ -60,7 +60,7 @@
   [system bucket object]
   (let [bucketstore               (system/bucketstore system)
         regions                   (system/regions system)
-        {:keys [region]}          (bucket/by-name bucketstore bucket)
+        {:keys [region tenant]}   (bucket/by-name bucketstore bucket)
         {:keys [metastore
                 storage-classes]} (bucket/get-region system region)
         meta                      (store/fetch metastore bucket object false)
@@ -110,10 +110,10 @@
           (swap! cols assoc :atime ts)))
       clojure.lang.ILookup
       (valAt [this k]
-        (get (merge meta {:inode inode :version version} @cols)
+        (get (merge meta {:tenant tenant :inode inode :version version} @cols)
              k))
       (valAt [this k def]
-        (get (merge meta {:inode inode :version version} @cols)
+        (get (merge meta {:tenant tenant :inode inode :version version} @cols)
              k
              def)))))
 
