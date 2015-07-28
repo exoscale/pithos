@@ -159,8 +159,8 @@
                     acl-read-acp acl-write-acp
                     acl-full-ctl])
          (-> explicit-acl
-             (update-in [:FULL_CONTROL] conj [{:ID tenant}
-                                              {:DisplayName tenant}])
+             (update-in [:FULL_CONTROL] conj {:ID tenant
+                                              :DisplayName tenant})
              (update-in [:FULL_CONTROL] vec))
 
 
