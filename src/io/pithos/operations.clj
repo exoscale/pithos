@@ -292,7 +292,7 @@
   "
   [{:keys [od bd headers bucket object body authorization] :as request} system]
   (let [header-acl (if (perms/has-header-acl? headers)
-                     (perms/header-acl bd headers (:tenant authorization)))
+                     (perms/header-acl bd (:tenant authorization) headers))
         acl        (or header-acl
                        (-> (slurp body) (acl/xml->acl) (pr-str)))]
     (store/update! (bucket/metastore od) bucket object {:acl acl})
