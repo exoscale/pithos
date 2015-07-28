@@ -97,74 +97,71 @@
       (get headers "x-amz-grant-full-control")))
 
 (defn header-acl
-  ([desc tenant headers]
-     (let [init          {:FULL_CONTROL [{:ID tenant
-                                          :DisplayName tenant}]}
-           canned-acl    (get headers "x-amz-acl")
-           acl-read      (some-> (get headers "x-amz-grant-read")
-                                 (split #","))
-           acl-write     (some-> (get headers "x-amz-grant-write")
-                                 (split #","))
-           acl-read-acp  (some-> (get headers "x-amz-grant-read-acp")
-                                 (split #","))
-           acl-write-acp (some-> (get headers "x-amz-grant-write-acp")
-                                 (split #","))
-           acl-full-ctl  (some-> (get headers "x-amz-grant-full-control")
-                                 (split #","))
-           explicit-acl  {:READ         (mapv ->grantee acl-read)
-                          :READ_ACP     (mapv ->grantee acl-read-acp)
-                          :WRITE        (mapv ->grantee acl-write)
-                          :WRITE_ACP    (mapv ->grantee acl-write-acp)
-                          :FULL_CONTROL (mapv ->grantee acl-full-ctl)}]
-       (pr-str
-        (cond
+  [owner tenant headers]
+  (let [init          {:FULL_CONTROL [{:ID owner
+                                       :DisplayName owner}]}
+        canned-acl    (get headers "x-amz-acl")
+        acl-read      (some-> (get headers "x-amz-grant-read")
+                              (split #","))
+        acl-write     (some-> (get headers "x-amz-grant-write")
+                              (split #","))
+        acl-read-acp  (some-> (get headers "x-amz-grant-read-acp")
+                              (split #","))
+        acl-write-acp (some-> (get headers "x-amz-grant-write-acp")
+                              (split #","))
+        acl-full-ctl  (some-> (get headers "x-amz-grant-full-control")
+                              (split #","))
+        explicit-acl  {:READ         (mapv ->grantee acl-read)
+                       :READ_ACP     (mapv ->grantee acl-read-acp)
+                       :WRITE        (mapv ->grantee acl-write)
+                       :WRITE_ACP    (mapv ->grantee acl-write-acp)
+                       :FULL_CONTROL (mapv ->grantee acl-full-ctl)}]
+    (pr-str
+     (cond
 
-         canned-acl
-         (case canned-acl
-           "public-read-write"
-           (merge init {:READ  [{:URI "anonymous"}]
-                        :WRITE [{:URI "anonymous"}]})
+       canned-acl
+       (case canned-acl
+         "public-read-write"
+         (merge init {:READ  [{:URI "anonymous"}]
+                      :WRITE [{:URI "anonymous"}]})
 
-           "public-read"
-           (merge init {:READ [{:URI "anonymous"}]})
+         "public-read"
+         (merge init {:READ [{:URI "anonymous"}]})
 
-           "authenticated-read"
-           (merge init {:READ [{:URI "authenticated"}]})
+         "authenticated-read"
+         (merge init {:READ [{:URI "authenticated"}]})
 
-           "log-delivery-write" init
+         "log-delivery-write" init
 
-           "bucket-owner-read"
-           (if desc
-             (merge init {:READ [{:DisplayName (:tenant desc)
-                                  :ID          (:tenant desc)}]})
-             init)
+         "bucket-owner-read"
+         (merge init {:READ [{:DisplayName owner
+                              :ID          owner}]})
 
-           "bucket-owner-full-control"
-           (if desc
-             (merge init {:FULL_CONTROL [{:DisplayName (:tenant desc)
-                                          :ID          (:tenant desc)}]})
-             init)
+         "bucket-owner-full-control"
+         init
 
-           "private"
-           init
+         "private"
+         (-> init
+             (udpate-in [:FULL_CONTROL] conj {:ID tenant :DisplayName tenant})
+             (udpate-in [:FULL_CONTROL] vec))
 
-           nil                  init
-           (throw (ex-info "Invalid Argument"
-                           {:arg "x-amz-acl"
-                            :val canned-acl
-                            :status-code 400
-                            :type :invalid-argument})))
+         nil
+         init
 
-         (some seq [acl-read acl-write
-                    acl-read-acp acl-write-acp
-                    acl-full-ctl])
-         (-> explicit-acl
-             (update-in [:FULL_CONTROL] conj {:ID tenant
-                                              :DisplayName tenant})
-             (update-in [:FULL_CONTROL] vec))
+         (throw (ex-info "Invalid Argument"
+                         {:arg "x-amz-acl"
+                          :val canned-acl
+                          :status-code 400
+                          :type :invalid-argument})))
+
+       (some seq [acl-read acl-write
+                  acl-read-acp acl-write-acp
+                  acl-full-ctl])
+       (-> explicit-acl
+           (update-in [:FULL_CONTROL] conj {:ID tenant
+                                            :DisplayName tenant})
+           (update-in [:FULL_CONTROL] vec))
 
 
-         :else
-         init))))
-  ([tenant headers]
-     (header-acl nil tenant headers)))
+       :else
+       init))))

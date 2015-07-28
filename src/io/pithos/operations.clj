@@ -140,7 +140,7 @@
 (defn put-bucket
   "Creates a bucket"
   [{{:keys [tenant]} :authorization :keys [bucket] :as request} system]
-  (let [target-acl (perms/header-acl tenant (:headers request))]
+  (let [target-acl (perms/header-acl tenant tenant (:headers request))]
     (store/create! (system/bucketstore system) tenant bucket
                    {:acl target-acl})
     (-> (response)
@@ -217,9 +217,9 @@
   canned ACLs take precedence over explicit header ACLs which take
   precedence over an XML body
   "
-  [{:keys [bucket body headers authorization] :as request} system]
+  [{:keys [bucket bd body headers authorization] :as request} system]
   (let [header-acl (if (perms/has-header-acl? headers)
-                     (perms/header-acl (:tenant authorization) headers))
+                     (perms/header-acl (:tenant bd) (:tenant authorization) headers))
         acl        (or header-acl
                        (-> (slurp body) (acl/xml->acl) (pr-str)))]
     (store/update! (system/bucketstore system) bucket {:acl acl})
@@ -254,7 +254,7 @@
   [{:keys [od bucket object params authorization] :as request} system]
   (let [metadata            (get-metadata (:headers request))
         upload-id           (uuid/random)
-        target-acl          (perms/header-acl (:bd request)
+        target-acl          (perms/header-acl (-> request :bd :tenant)
                                               (:tenant authorization)
                                               (:headers request))]
     (meta/initiate-upload! (bucket/metastore od)
@@ -290,9 +290,10 @@
   canned ACLs take precedence over explicit header ACLs which take
   precedence over an XML body
   "
-  [{:keys [od bd headers bucket object body authorization] :as request} system]
-  (let [header-acl (if (perms/has-header-acl? headers)
-                     (perms/header-acl od (:tenant authorization) headers))
+  [{:keys [od headers bucket object body authorization] :as request} system]
+  (let [tenant     (-> (bucket/bucket-descriptor system bucket) :tenant)
+        header-acl (if (perms/has-header-acl? headers)
+                     (perms/header-acl tenant (:tenant authorization) headers))
         acl        (or header-acl
                        (-> (slurp body) (acl/xml->acl) (pr-str)))]
     (store/update! (bucket/metastore od) bucket object {:acl acl})
@@ -424,7 +425,7 @@
   (let [dst         od
         previous    (desc/init-version dst)
         ctype       (get (:headers request) "content-type")
-        target-acl  (perms/header-acl (:bd request)
+        target-acl  (perms/header-acl (-> request :bd :tenant)
                                       (:tenant authorization)
                                       (:headers request))
         [src meta]  (get-source request system)]
@@ -520,7 +521,7 @@
         dst         (desc/object-descriptor system bucket keyname)
         previous    (desc/init-version dst)
         ctype       (:content-type params)
-        acl         (perms/header-acl (:bd request)
+        acl         (perms/header-acl (-> request :bd :tenant)
                                       (:tenant authorization)
                                       {"x-amz-acl" (or (:acl params)
                                                        "private")})
