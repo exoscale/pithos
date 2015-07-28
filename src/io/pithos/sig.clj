@@ -2,19 +2,12 @@
   "Compute request signatures as described in
    http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html"
   (:require [clojure.string            :as s]
-            [clojure.data.codec.base64 :as base64]
-            [ring.util.codec           :as codec]
             [clojure.tools.logging     :refer [info debug]]
+            [clojure.data.codec.base64 :as base64]
             [clj-time.core             :refer [after? now]]
             [clj-time.coerce           :refer [to-date-time]]
-            [org.spootnik.constance    :refer [constant-string=]]
-            [io.pithos.util            :refer [cond-let]])
+            [org.spootnik.constance    :refer [constant-string=]])
   (:import  javax.crypto.Mac javax.crypto.spec.SecretKeySpec))
-
-(defn method-dispatcher
-  "Dispatcher for multi-methods relying on the signing method"
-  [params & _]
-  (:method params))
 
 (defn canonicalized
   "Group headers starting with x-amz, each on a separate line and add uri"
@@ -27,10 +20,9 @@
                        (map (partial s/join ":")))
                   [uri])))
 
-(defmulti string-to-sign method-dispatcher)
-
-(defmethod string-to-sign :v2
-  [_ {:keys [headers request-method sign-uri params] :as request}]
+(defn string-to-sign
+  "Yield the string to sign for an incoming request"
+  [{:keys [headers request-method sign-uri params] :as request}]
   (let [content-md5  (get headers "content-md5")
         content-type (get headers "content-type")
         date         (or (get params :expires)
@@ -44,113 +36,35 @@
       (or date "")
       (canonicalized headers sign-uri)])))
 
-
-(defn v4-header?
-  [[k v]]
-  (or (= "host" k)
-      (= "content-type" k)
-      (.startsWith k "x-amz"))
-  )
-(defn v4-canonical
-  [request]
-  (let [headers (->> (:headers request)
-                     (map (juxt (comp s/lower-case key) val))
-                     (filter v4-header?)
-                     (sort-by first))]
-    (s/join
-     "\n"
-     [(-> request :request-method name s/upper-case)
-      (:sign-uri request)
-      (->> (codec/form-decode (:query-string request))
-           (map (juxt (comp s/lower-case key) val))
-           (sort-by first)
-           (map (partial apply format "%s=%s"))
-           (s/join "&"))
-      (->> headers
-           (map (partial apply format "%s:%s"))
-           (s/join "&"))
-      (s/join ";" (map first headers))
-      (-> request :body slurp hex-sha256)
-
-      ]
-     ))
-  )
-
-
-
-(defmethod string-to-sign :v4
-  [sign-params {:keys [headers request-method sign-uri params] :as request}]
-  (let [canonical    (v4-canonical request)
-        content-md5  (get headers "content-md5")
-        content-type (get headers "content-type")
-        date         (or (get params :expires)
-                         (if-not (get headers "x-amz-date")
-                           (get headers "date")))]
-    (s/join
-     "\n"
-     [(-> request-method name s/upper-case)
-      (s/join "&" (map ))
-      (or content-md5 "")
-      (or content-type "")
-      (or date "")
-      (canonicalized headers sign-uri)])))
-
-(defn hmac-string
-  [algo src secret-key]
-  (let [key (SecretKeySpec. (.getBytes secret-key) algo)]
-    (String. (-> (doto (Mac/getInstance algo) (.init key))
+(defn sign-string
+  [src secret-key]
+  (let [key (SecretKeySpec. (.getBytes secret-key) "HmacSHA1")]
+    (String. (-> (doto (Mac/getInstance "HmacSHA1") (.init key))
                  (.doFinal (.getBytes src))
                  (base64/encode)))))
 
-(defmulti sign-request method-dispatcher)
-
-(defmethod sign-request :v2
-  [{:keys [secret-key] :as params} request]
-  (hmac-string "HmacSHA1" (string-to-sign params request) secret-key))
-
-(defmethod sign-request :v4
-  [{:keys [secret-key] :as params} request]
-  (hmac-string "HmacSHA256" (string-to-sign params request) secret-key))
-
-(defn v4-query-params
-  [params])
-
-(defn v4-header-params
-  [auth]
-  (->> (for [var (s/split auth #",")
-             :let [[k v] (s/split var #"=" 2)]
-             :when (and k v)
-             :let [type (some-> k s/lower-case keyword)]]
-         [type
-          (cond
-            (= type :credential)    (s/split v #"/")
-            (= type :signedheaders) (set (map keyword (s/split v #";")))
-            :else                   v)])
-       (into {:method :v4})))
+(defn sign-request
+  "Sign the request, signatures are basic HmacSHA1s, encoded in base64"
+  [request secret-key]
+  (sign-string (string-to-sign request) secret-key))
 
 (defn auth
+  "Extract access key and signature from the request, using query string
+  parameters or Authorization header"
   [request]
-  (let [auth-str (get-in request [:headers "authorization"] "")
-        v2params ((juxt :awsaccesskeyid :signature) (:params request))
-        v4params (v4-query-params (:params request))]
-
-    (cond-let
-     [[_ auth] (re-matches #"^AWS4-HMAC-SHA256 (.*)$" auth-str)]
-     (v4-header-params auth)
-
-     [[_ access-key sig] (re-matches #"^[Aa][Ww][Ss] (.*):(.*)$" auth-str)]
-     {:access-key access-key :sig sig :method :v2}
-
-     [[access-key sig] v2params]
-     (when (and access-key sig)
-       {:access-key access-key :sig sig :method :v2}))))
+  (if-let [auth-str (get-in request [:headers "authorization"])]
+    (let [[_ access-key sig] (re-matches #"^[Aa][Ww][Ss] (.*):(.*)$" auth-str)]
+      {:sig sig :access-key access-key})
+    (let [access-key (get-in request [:params :awsaccesskeyid])
+          sig        (get-in request [:params :signature])]
+      (if (and access-key sig)
+        {:sig sig :access-key access-key}
+        nil))))
 
 (defn check-sig
-  "Validate a signature for a POST upload, which is the only case where
-   signature parameters will live in multipart params"
   [request keystore key str sig]
   (let [{:keys [secret] :as authorization} (get keystore key)
-        signed (try (sign-string-sha1 str secret)
+        signed (try (sign-string str secret)
                     (catch Exception e
                       {:failed true :exception e}))]
     (when-not (and (not (nil? sig))
@@ -167,42 +81,29 @@
                        :to-sign str})))
     (update-in authorization [:memberof] concat ["authenticated-users"])))
 
-(defmulti assoc-secret method-dispatcher)
-
-(defmethod assoc-secret :v2
-  [params keystore]
-  (merge params (get keystore (:access-key params))))
-
-(defmethod assoc-secret :v4
-  [params keystore]
-  (merge params (get keystore (-> params :credential first))))
-
-(defn extract-authorization
-  [params]
-  (select-keys params [:tenant :memberof]))
-
 (defn validate
   "Validate an incoming request (e.g: make sure the signature is correct),
    when applicable (requests may be unauthenticated)"
   [keystore request]
-  (if-let [raw-params (auth request)]
-    (let [sign-params (assoc-secret raw-params keystore)
-          signed (try (sign-request sign-params request)
+  (if-let [data (auth request)]
+    (let [{:keys [sig access-key]}           data
+          {:keys [secret] :as authorization} (get keystore access-key)
+          signed (try (sign-request request secret)
                       (catch Exception e
                         {:failed true :exception e}))]
-      (when-not (and (not (nil? (:signature sign-params)))
+      (when-not (and (not (nil? sig))
                      (string? signed)
-                     (constant-string= (:signature sign-params) signed))
+                     (constant-string= sig signed))
         (info "will throw because of failed signature!")
         (when (:exception signed)
           (debug (:exception signed) "got exception during signing"))
-        (debug "string-to-sign: " (string-to-sign sign-params request))
+        (debug "string-to-sign: " (string-to-sign request))
         (throw (ex-info "invalid request signature"
                         {:type :signature-does-not-match
                          :status-code 403
                          :request request
                          :expected signed
-                         :to-sign (string-to-sign sign-params request)})))
+                         :to-sign (string-to-sign request)})))
       (when-let [expires (get-in request [:params :expires])]
         (let [expires (to-date-time (* 1000 (Integer/parseInt expires)))]
           (when (after? (now) expires)
@@ -211,6 +112,5 @@
                              :status-code 403
                              :request request
                              :expires expires})))))
-      (update-in (extract-authorization sign-params)
-                 [:memberof] concat ["authenticated-users"]))
+      (update-in authorization [:memberof] concat ["authenticated-users"]))
     {:tenant :anonymous :memberof ["anonymous"]}))
