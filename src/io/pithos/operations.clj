@@ -218,7 +218,7 @@
   precedence over an XML body
   "
   [{:keys [bucket body headers authorization] :as request} system]
-  (let [header-acl (if (perms/has-header-acl? header)
+  (let [header-acl (if (perms/has-header-acl? headers)
                      (perms/header-acl (:tenant authorization) headers))
         acl        (or header-acl
                        (-> (slurp body) (acl/xml->acl) (pr-str)))]
