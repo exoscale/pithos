@@ -97,7 +97,7 @@
       (get headers "x-amz-grant-full-control")))
 
 (defn header-acl
-  ([bd tenant headers]
+  ([desc tenant headers]
      (let [init          {:FULL_CONTROL [{:ID tenant
                                           :DisplayName tenant}]}
            canned-acl    (get headers "x-amz-acl")
@@ -134,15 +134,15 @@
            "log-delivery-write" init
 
            "bucket-owner-read"
-           (if bd
-             (merge init {:READ [{:DisplayName (:tenant bd)
-                                  :ID          (:tenant bd)}]})
+           (if desc
+             (merge init {:READ [{:DisplayName (:tenant desc)
+                                  :ID          (:tenant desc)}]})
              init)
 
            "bucket-owner-full-control"
-           (if bd
-             (merge init {:READ [{:DisplayName (:tenant bd)
-                                  :ID          (:tenant bd)}]})
+           (if desc
+             (merge init {:READ [{:DisplayName (:tenant desc)
+                                  :ID          (:tenant desc)}]})
              init)
 
            "private"
