@@ -142,8 +142,8 @@
 
          "private"
          (-> init
-             (udpate-in [:FULL_CONTROL] conj {:ID tenant :DisplayName tenant})
-             (udpate-in [:FULL_CONTROL] vec))
+             (update-in [:FULL_CONTROL] conj {:ID tenant :DisplayName tenant})
+             (update-in [:FULL_CONTROL] vec))
 
          nil
          init
