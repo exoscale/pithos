@@ -28,5 +28,6 @@
    `io.pithos.operations` dispatch based on the type of request"
   [system]
   (let [handler (executor system)]
-    (run-jetty (merge (service system) {:ring-handler handler})))
+    (run-jetty (merge (service system) {:input-buffer-size 65536
+                                        :ring-handler handler})))
   (info "server up and running"))
