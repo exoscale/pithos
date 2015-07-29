@@ -6,7 +6,7 @@
             [clojure.data.codec.base64 :as base64]
             [clj-time.core             :refer [after? now]]
             [clj-time.coerce           :refer [to-date-time]]
-            [org.spootnik.constance    :refer [constant-string=]])
+            [constance.comp            :refer [===]])
   (:import  javax.crypto.Mac javax.crypto.spec.SecretKeySpec))
 
 (defn canonicalized
@@ -69,7 +69,7 @@
                       {:failed true :exception e}))]
     (when-not (and (not (nil? sig))
                    (string? signed)
-                   (constant-string= sig signed))
+                   (=== sig signed))
       (info "will throw because of failed signature!")
       (when (:exception signed)
         (debug (:exception signed) "got exception during signing"))

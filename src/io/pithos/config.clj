@@ -7,10 +7,10 @@
    Default implementation for protocols are provided but can be overriden
    with the `use` keyword.
 "
-  (:require [clj-yaml.core          :refer [parse-string]]
-            [clojure.tools.logging  :refer [error info debug]]
-            [io.pithos.util         :refer [to-bytes]]
-            [org.spootnik.logconfig :refer [start-logging!]]))
+  (:require [clj-yaml.core         :refer [parse-string]]
+            [clojure.tools.logging :refer [error info debug]]
+            [io.pithos.util        :refer [to-bytes]]
+            [unilog.config         :refer [start-logging!]]))
 
 (start-logging!
  {:pattern "%p [%d] %t - %c - %m%n"
