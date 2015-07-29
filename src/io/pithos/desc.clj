@@ -20,6 +20,7 @@
   (init-size [this])
   (metadata [this] [this key] [this key def])
   (content-type [this])
+  (clear! [this])
   (col! [this field val])
   (increment! [this])
   (save! [this]))
@@ -92,6 +93,8 @@
             def))
       (content-type [this]
         (metadata this "content-type" "application/binary"))
+      (clear! [this]
+        (swap! cols assoc :metadata {}))
       (col! [this field val]
         (if (#{:acl :atime :storageclass :size :checksum :inode :version} field)
           (swap! cols assoc (keyword field) val)
