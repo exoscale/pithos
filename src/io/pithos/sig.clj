@@ -93,7 +93,7 @@
                         {:failed true :exception e}))]
       (when-not (and (not (nil? sig))
                      (string? signed)
-                     (constant-string= sig signed))
+                     (=== sig signed))
         (info "will throw because of failed signature!")
         (when (:exception signed)
           (debug (:exception signed) "got exception during signing"))
