@@ -6,14 +6,6 @@
             [clojure.string        :refer [split]]
             [clojure.tools.logging :refer [debug]]))
 
-(defmacro ensure!
-  "Assert that a predicate is true, abort with access denied if not"
-  [pred]
-  `(when-not ~pred
-     (debug "could not ensure: " (str (quote ~pred)))
-     (throw (ex-info "access denied" {:status-code 403
-                                      :type        :access-denied}))))
-
 (defn granted-for?
   "Do current permission allow for operation on this particular perm ?"
   [acl for needs]
@@ -54,23 +46,41 @@
         bucketstore               (system/bucketstore system)]
     (doseq [[perm arg] (map (comp flatten vector) perms)]
       (case perm
-        :authenticated (ensure! (not= tenant :anonymous))
-        :memberof      (ensure! (memberof? arg))
+        :authenticated (when-not (not= tenant :anonymous)
+                         (debug "unauthenticated request to private resource")
+                         (throw (ex-info "access denied" {:status-code 403
+                                                          :type        :access-denied})))
+        :memberof      (when-not (memberof? arg)
+                         (debug "not a member of: " arg "groups:" (pr-str memberof?))
+                         (throw (ex-info "access denied" {:status-code 403
+                                                          :type :access-denied})))
         :bucket        (let [bd (bucket/by-name bucketstore bucket)]
                          (when-not bd
                            (throw (ex-info "bucket not found"
                                            {:type        :no-such-bucket
                                             :status-code 404
                                             :bucket      bucket})))
-                         (ensure! (bucket-satisfies? bd {:for    tenant
-                                                         :groups memberof?
-                                                         :needs  arg})))
-        :object        (ensure! (object-satisfies?
-                                 (bucket/by-name bucketstore bucket)
-                                 (desc/object-descriptor system bucket object)
-                                 {:for    tenant
-                                  :groups memberof?
-                                  :needs  arg}))))
+                         (when-not (bucket-satisfies? bd {:for    tenant
+                                                          :groups memberof?
+                                                          :needs  arg})
+                           (debug "unsatisfied ACL for bucket. candidate:" (pr-str tenant)
+                                  "groups:" (pr-str memberof?)
+                                  "needs:"  arg
+                                  "acl:"    (:acl bd)
+                                  "bucket-owner:" (:tenant bd))
+                           (throw (ex-info "access denied" {:status-code 403
+                                                            :type :access-denied}))))
+        :object        (when-not (object-satisfies?
+                                  (bucket/by-name bucketstore bucket)
+                                  (desc/object-descriptor system bucket object)
+                                  {:for    tenant
+                                   :groups memberof?
+                                   :needs  arg})
+                         (debug "unsatisfied ACL for object. candidate:" (pr-str tenant)
+                                "groups:" (pr-str memberof?)
+                                "needs:"  arg)
+                         (throw (ex-info "access denied" {:status-code 403
+                                                          :type :access-denied})))))
     true))
 
 (defn ->grantee
