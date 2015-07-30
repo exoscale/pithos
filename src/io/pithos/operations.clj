@@ -825,12 +825,11 @@
                           (some-> (bucket/by-name
                                    (system/bucketstore system) bucket)
                                   :cors
-                                  read-string
-                                  (concat default-cors)))]
-    (when rules
-      (debug "got cors rules:" (pr-str rules)))
-    (if rules
-      (update-in resp [:headers] merge (cors/matches? rules headers method))
+                                  read-string))
+        all-rules    (vec (concat (or rules []) (or default-cors [])))]
+    (if (seq all-rules)
+      (let [output (cors/matches? all-rules headers method)]
+        (update-in resp [:headers] merge output))
       resp)))
 
 (defn override-response-headers
