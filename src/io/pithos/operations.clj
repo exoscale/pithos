@@ -820,11 +820,15 @@
   "If an \"Origin\" header is present and we are asked to
    handle CORS rules, process them"
   [resp bucket origin system headers method]
-  (let [rules (and (or origin (= method :options))
-                   (some-> (bucket/by-name
-                            (system/bucketstore system) bucket)
-                           :cors
-                           read-string))]
+  (let [default-cors (get-in system [:options :default-cors])
+        rules        (and (or origin (= method :options))
+                          (some-> (bucket/by-name
+                                   (system/bucketstore system) bucket)
+                                  :cors
+                                  read-string
+                                  (concat default-cors)))]
+    (when rules
+      (debug "got cors rules:" (pr-str rules)))
     (if rules
       (update-in resp [:headers] merge (cors/matches? rules headers method))
       resp)))
