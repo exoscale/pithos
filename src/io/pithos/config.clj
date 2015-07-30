@@ -132,6 +132,13 @@
         :let [reporter (merge default-reporter reporter)]]
     (get-instance reporter :reporter)))
 
+(defn parse-cors
+  [rules]
+  (let [->sym    (fn [s] (-> s name .toLowerCase keyword))
+        sanitize (fn [{:keys [methods] :as rule}]
+                   (assoc rule :methods (map ->sym methods)))]
+    (mapv sanitize rules)))
+
 (defn init
   "Parse YAML file, merge in defaults and then create instances
    where applicable"
@@ -145,6 +152,7 @@
       (-> opts
           (update-in [:service] (partial merge default-service))
           (update-in [:options] (partial merge default-options))
+          (update-in [:options :default-cors] parse-cors)
           (update-in [:keystore] (partial merge default-keystore))
           (update-in [:keystore] get-instance :keystore)
           (update-in [:bucketstore] (partial merge default-bucketstore))
