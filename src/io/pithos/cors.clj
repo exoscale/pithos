@@ -96,7 +96,7 @@
 
 (defn matches?
   [cors headers method]
-  (let [origin     (get headers "origin")
+  (let [origin     (get headers "origin" "_____________________________")
         method     (if (= method :options)
                      (some-> (get headers "access-control-request-method")
                              lower-case
