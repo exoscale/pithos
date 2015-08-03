@@ -364,7 +364,7 @@ Will produce an XML AST equivalent to:
         [:HostId reqid]]
        :invalid-cors-xml
        [:Error
-        [:Code "MalformedCORSError"]
+        [:Code "MalformedXML"]
         [:Message (str "The XML you provided was not well-formed "
                        "or did not validate against our published schema.")]
         [:RequestId reqid]
