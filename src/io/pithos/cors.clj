@@ -35,8 +35,8 @@
     (catch clojure.lang.ExceptionInfo e
       (throw e))
     (catch Exception e
-      (throw (ex-info "Invalid XML in ACL Body"
-                      {:type :invalid-acl-xml
+      (throw (ex-info "Invalid XML in CORS Body"
+                      {:type :invalid-cors-xml
                        :status-code 400})))))
 
 (defn xml->cors

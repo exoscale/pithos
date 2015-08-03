@@ -362,6 +362,13 @@ Will produce an XML AST equivalent to:
                        "or did not validate against our published schema.")]
         [:RequestId reqid]
         [:HostId reqid]]
+       :invalid-cors-xml
+       [:Error
+        [:Code "MalformedCORSError"]
+        [:Message (str "The XML you provided was not well-formed "
+                       "or did not validate against our published schema.")]
+        [:RequestId reqid]
+        [:HostId reqid]]
        :bucket-already-exists
        [:Error
         [:Code "BucketAlreadyExists"]
