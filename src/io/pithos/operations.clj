@@ -830,10 +830,15 @@
         all-rules    (vec (concat (or rules []) (or default-cors [])))]
     (if (seq all-rules)
       (let [output (cors/matches? all-rules headers method)]
-        (update-in resp [:headers] merge output))
+        (if (and (empty? output) throw?)
+          (throw (ex-info "CORS is not enabled for this bucket"
+                          {:type :cors-not-enabled
+                           :status-code 403}))
+          (update-in resp [:headers] merge output)))
       (if throw?
-        (throw (ex-info "CORS is not enabled for this bucket" {:type :cors-not-enabled
-                                                               :status-code 403}))
+        (throw (ex-info "CORS is not enabled for this bucket"
+                        {:type :cors-not-enabled
+                         :status-code 403}))
         resp))))
 
 (defn override-response-headers
