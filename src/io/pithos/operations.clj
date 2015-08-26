@@ -809,8 +809,7 @@
                              :target  :upload
                              :perms   [[:bucket :WRITE]]}})
 
-(defn ex-handler
-  "Wrap exceptions and report them correctly"
+(defn ex-handler  "Wrap exceptions and report them correctly"
   [request exception]
   (-> (xml-response (xml/exception request exception))
       (exception-status (ex-data exception))
@@ -819,9 +818,15 @@
 (defn add-cors-info
   "If an \"Origin\" header is present and we are asked to
    handle CORS rules, process them"
-  [resp bucket origin system headers method]
+  [resp system {:keys [bucket headers request-method] :as req}]
   (let [default-cors (get-in system [:options :default-cors])
+        method       request-method
+        origin       (get headers "origin")
         throw?       (= method :options)
+        error-resp   (ex-handler
+                      req
+                      (ex-info "" {:type :cors-not-enabled
+                                   :status-code 403}))
         rules        (and (or origin (= method :options))
                           (some-> (bucket/by-name
                                    (system/bucketstore system) bucket)
@@ -831,15 +836,9 @@
     (if (seq all-rules)
       (let [output (cors/matches? all-rules headers method)]
         (if (and (empty? output) throw?)
-          (throw (ex-info "CORS is not enabled for this bucket"
-                          {:type :cors-not-enabled
-                           :status-code 403}))
+          error-resp
           (update-in resp [:headers] merge output)))
-      (if throw?
-        (throw (ex-info "CORS is not enabled for this bucket"
-                        {:type :cors-not-enabled
-                         :status-code 403}))
-        resp))))
+      (if throw? error-resp resp))))
 
 (defn override-response-headers
   [resp authenticated? params]
@@ -872,7 +871,6 @@
    request
    (let [{:keys [handler perms target cors?]}    (get opmap operation)
          {:keys [bucket headers request-method]} request
-         origin                                  (get headers "origin")
          anonymous?                              (= (get-in
                                                      request
                                                      [:authorization :tenant])
@@ -892,8 +890,4 @@
                     (ex-handler request e)))
 
        cors?
-       (try (add-cors-info bucket origin system headers request-method)
-            (catch Exception e
-              (when-not (:type (ex-data e))
-                (error e "caught exception during operation"))
-              (ex-handler request e)))))))
+       (add-cors-info system request)))))
