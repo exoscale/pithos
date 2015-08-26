@@ -834,8 +834,7 @@
       (if throw?
         (throw (ex-info "CORS is not enabled for this bucket" {:type :cors-not-enabled
                                                                :status-code 403}))
-        resp)
-      resp)))
+        resp))))
 
 (defn override-response-headers
   [resp authenticated? params]
