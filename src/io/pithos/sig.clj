@@ -81,6 +81,8 @@
                        :to-sign str})))
     (update-in authorization [:memberof] concat ["authenticated-users"])))
 
+(def anonymous {:tenant :anonymous :memberof ["anonymous"]})
+
 (defn validate
   "Validate an incoming request (e.g: make sure the signature is correct),
    when applicable (requests may be unauthenticated)"
@@ -113,4 +115,4 @@
                              :request request
                              :expires expires})))))
       (update-in authorization [:memberof] concat ["authenticated-users"]))
-    {:tenant :anonymous :memberof ["anonymous"]}))
+    anonymous))

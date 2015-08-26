@@ -209,7 +209,13 @@
 (defn authenticate
   "Authenticate tenant, allow masquerading only for _master_ keys"
   [{:keys [multipart-params request-method sign-uri] :as req} system]
-  (if (and (= request-method :post) (seq multipart-params))
+
+  (cond
+
+    (= request-method :options)
+    (assoc req :authorization sig/anonymous)
+
+    (and (= request-method :post) (seq multipart-params))
     (let [{:keys [signature awsaccesskeyid policy]} multipart-params
           [_ bucket] (re-find #"^/[^/]*(/.*)?$" sign-uri)
           auth (check-sig req (keystore system) awsaccesskeyid policy signature)]
@@ -220,6 +226,8 @@
                                                 .getBytes
                                                 base64/decode))
                                    true)))
+
+    :else
     (let [auth   (validate (keystore system) req)
           master (:master auth)
           tenant (get-in req [:headers "x-amz-masquerade-tenant"])]
