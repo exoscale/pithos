@@ -888,9 +888,12 @@
                       (override-response-headers (not anonymous?) params))
                   (catch Exception e
                     (when-not (:type (ex-data e))
-                      (debug e "caught exception")
                       (error e "caught exception during operation"))
                     (ex-handler request e)))
 
-             cors?
-             (add-cors-info bucket origin system headers request-method)))))
+       cors?
+       (try (add-cors-info bucket origin system headers request-method)
+            (catch Exception e
+              (when-not (:type (ex-data e))
+                (error e "caught exception during operation"))
+              (ex-handler request e)))))))
