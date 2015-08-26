@@ -369,6 +369,12 @@ Will produce an XML AST equivalent to:
                        "or did not validate against our published schema.")]
         [:RequestId reqid]
         [:HostId reqid]]
+       :cors-not-enabled
+       [:Error
+        [:Code "AccessForbidden"]
+        [:Message "CORS Response: CORS is not enabled for this Bucket"]
+        [:RequestId reqid]
+        [:HostId reqid]]
        :bucket-already-exists
        [:Error
         [:Code "BucketAlreadyExists"]

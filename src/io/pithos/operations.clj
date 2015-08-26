@@ -821,6 +821,7 @@
    handle CORS rules, process them"
   [resp bucket origin system headers method]
   (let [default-cors (get-in system [:options :default-cors])
+        throw?       (= method :options)
         rules        (and (or origin (= method :options))
                           (some-> (bucket/by-name
                                    (system/bucketstore system) bucket)
@@ -830,6 +831,10 @@
     (if (seq all-rules)
       (let [output (cors/matches? all-rules headers method)]
         (update-in resp [:headers] merge output))
+      (if throw?
+        (throw (ex-info "CORS is not enabled for this bucket" {:type :cors-not-enabled
+                                                               :status-code 403}))
+        resp)
       resp)))
 
 (defn override-response-headers
