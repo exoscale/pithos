@@ -4,7 +4,7 @@
   (:require [clojure.string                   :refer [lower-case join]]
             [clojure.tools.logging            :refer [debug info warn error]]
             [clojure.pprint                   :refer [pprint]]
-            [io.pithos.sig                    :refer [validate check-sig]]
+            [io.pithos.sig                    :refer [validate check-sig anonymous]]
             [io.pithos.operations             :refer [ex-handler]]
             [io.pithos.system                 :refer [service-uri keystore]]
             [io.pithos.util                   :refer [string->pattern]]
@@ -213,7 +213,7 @@
   (cond
 
     (= request-method :options)
-    (assoc req :authorization sig/anonymous)
+    (assoc req :authorization anonymous)
 
     (and (= request-method :post) (seq multipart-params))
     (let [{:keys [signature awsaccesskeyid policy]} multipart-params
