@@ -27,10 +27,17 @@
         content-type (get headers "content-type")
         date         (or (get params :expires)
                          (if-not (get headers "x-amz-date")
-                           (get headers "date")))]
+                           (get headers "date")))
+        method       (if (= :options request-method)
+                       (-> headers
+                           (get "access-control-request-method")
+                           s/upper-case)
+                       (-> request-method
+                           name
+                           s/upper-case))]
     (s/join
      "\n"
-     [(-> request-method name s/upper-case)
+     [method
       (or content-md5 "")
       (or content-type "")
       (or date "")
