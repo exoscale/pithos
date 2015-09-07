@@ -23,7 +23,9 @@
                     {:replication {:class             "SimpleStrategy"
                                    :replication_factor (or repfactor 1)}})
         cluster (if (sequential? cluster) cluster [cluster])
-        session (-> (alia/cluster {:contact-points cluster}) (alia/connect))]
+        session (-> (alia/cluster {:contact-points cluster
+                                   :query-options {:consistency :quorum}})
+                    (alia/connect))]
     (try (alia/execute session (use-keyspace keyspace))
          session
          (catch clojure.lang.ExceptionInfo e
