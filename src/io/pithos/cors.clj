@@ -1,7 +1,7 @@
 (ns io.pithos.cors
   (:refer-clojure :exclude [replace])
   (:require [clojure.data.xml      :refer [parse-str emit-str indent-str]]
-            [clojure.string        :refer [upper-case lower-case replace join]]
+            [clojure.string        :refer [upper-case lower-case replace join split]]
             [clojure.tools.logging :refer [debug]]
             [clojure.zip           :refer [xml-zip node root]]
             [clojure.data.zip      :refer [children]]
@@ -86,13 +86,30 @@
     (set (concat left right))
     (if (neg? (compare left right)) left right)))
 
+(defn make-pattern
+  "Our limited pattern builder. If a star is found, do a prefix-match"
+  [s]
+  (replace s #"\*.*$" ""))
+
+(defn match-headers
+  [req-headers headers]
+  (when req-headers
+    (let [patterns (map make-pattern (split req-headers #"[ \t]*,[ \t]*"))]
+      (join ", "
+            (for [header headers
+                  :when (some #(.startsWith headers %) patterns)]
+              header)))))
+
 (defn rule->headers
   [origin method req-headers {:keys [methods exposed headers max-age]}]
-  (-> {"Access-Control-Allow-Origin"   origin
-       "Access-Control-Allow-Methods"  (-> method name upper-case)
-       "Access-Control-Allow-Headers"  (join ", " headers)
-       "Access-Control-Expose-Headers" (join ", " exposed)}
-      (cond-> max-age (assoc "Access-Control-Max-Age" (str max-age)))))
+  (let [allowed-headers (match-headers req-headers headers)]
+    (-> {"Access-Control-Allow-Origin"   origin
+         "Access-Control-Allow-Methods"  (-> method name upper-case)
+         "Access-Control-Expose-Headers" (join ", " exposed)}
+        (cond-> max-age         (assoc "Access-Control-Max-Age"
+                                       (str max-age))
+                allowed-headers (assoc "Access-Control-Allow-Headers"
+                                       allowed-headers)))))
 
 (defn matches?
   [cors headers method]
