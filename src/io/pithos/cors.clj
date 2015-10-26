@@ -16,7 +16,7 @@
    :methods (vec (map (comp keyword lower-case)
                       (xml-> node :AllowedMethod text)))
    :headers (vec (xml-> node :AllowedHeader text))
-   :exposed (vec (xml-> node :ExposedHeader text))
+   :exposed (vec (xml-> node :ExposeHeader text))
    :max-age (xml1-> node :MaxAgeSeconds text)})
 
 (defn safe-xml-zip
@@ -62,7 +62,7 @@
                           (mapv (partial vector :AllowedMethod)
                                 (map (comp upper-case name) methods))
                           (mapv (partial vector :AllowedHeader) headers)
-                          (mapv (partial vector :ExposedHeader) exposed)
+                          (mapv (partial vector :ExposeHeader) exposed)
                           (if max-age
                             [[:MaxAgeSeconds max-age]]
                             [])))))))))
