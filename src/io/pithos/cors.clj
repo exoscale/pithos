@@ -89,7 +89,7 @@
 (defn make-pattern
   "Our limited pattern builder. If a star is found, do a prefix-match"
   [s]
-  (replace s #"\*.*$" ""))
+  (replace (lower-case s) #"\*.*$" ""))
 
 (defn match-headers
   [req-headers headers]
@@ -98,7 +98,7 @@
           req-headers (split req-headers #"[ \t]*,[ \t]*")]
       (join ", "
             (for [header req-headers
-                  :when (some #(.startsWith header %) patterns)]
+                  :when (some #(.startsWith (lower-case header) %) patterns)]
               header)))))
 
 (defn rule->headers
