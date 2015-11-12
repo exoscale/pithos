@@ -97,7 +97,7 @@
     (let [patterns (map make-pattern (split req-headers #"[ \t]*,[ \t]*"))]
       (join ", "
             (for [header headers
-                  :when (some #(.startsWith headers %) patterns)]
+                  :when (some #(.startsWith header %) patterns)]
               header)))))
 
 (defn rule->headers
