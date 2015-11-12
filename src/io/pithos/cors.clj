@@ -94,16 +94,16 @@
 (defn match-headers
   [req-headers headers]
   (when req-headers
-    (let [patterns (map make-pattern (split req-headers #"[ \t]*,[ \t]*"))]
+    (let [patterns    (map make-pattern headers)
+          req-headers (split req-headers #"[ \t]*,[ \t]*")]
       (join ", "
-            (for [header headers
+            (for [header req-headers
                   :when (some #(.startsWith header %) patterns)]
               header)))))
 
 (defn rule->headers
   [origin method req-headers {:keys [methods exposed headers max-age]}]
   (let [allowed-headers (match-headers req-headers headers)]
-    (debug "allowed headers: " allowed-headers "req-headers: " req-headers "headers: " headers)
     (-> {"Access-Control-Allow-Origin"   origin
          "Access-Control-Allow-Methods"  (-> method name upper-case)
          "Access-Control-Expose-Headers" (join ", " exposed)}
