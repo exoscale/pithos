@@ -288,7 +288,6 @@ Will produce an XML AST equivalent to:
                        "Check your key and signing method.")]
         [:RequestId reqid]
         [:HostId reqid]
-        [:ExpectedSignature (:expected payload)]
         [:StringToSignBytes
          (->> payload
               :to-sign
