@@ -5,6 +5,7 @@
            [java.lang              Math])
   (:require [clojure.string  :as s]
             [clojure.string  :refer [lower-case]]
+            [clj-time.core   :refer [now]]
             [clj-time.format :refer [formatters parse unparse formatter]]))
 
 (defn md5-init
@@ -73,10 +74,6 @@
   "The UTC timezone, only fetched once"
   (delay (TimeZone/getTimeZone "UTC")))
 
-(defn iso8601-timestamp
-  "String representation of the current timestamp in UTC"
-  []
-  (javax.xml.bind.DatatypeConverter/printDateTime (Calendar/getInstance @utc)))
 
 (def rfc822-format
   (formatter "EEE, dd MMM yyyy HH:mm:ss z"))
@@ -99,7 +96,12 @@
 (defn iso8601
   "iso8601 timestamp representation"
   [date]
-  (unparse (formatter "yyyy-MM-dd'T'HH:mm:ssZ") date))
+  (unparse (:date-time formatters) date))
+
+(defn iso8601-timestamp
+  "String representation of the current timestamp in UTC"
+  []
+  (iso8601 (now)))
 
 (def ^:private regex-char-esc-smap
   "Characters to be escaped in a regular pattern (including inside a set)"
