@@ -1,8 +1,8 @@
 (ns io.pithos.util
   "A few utility functions, used in several places"
-  (:import [java.io                PipedInputStream PipedOutputStream]
-           [java.util              TimeZone Calendar]
-           [java.lang              Math])
+  (:import [java.io          PipedInputStream PipedOutputStream]
+           [java.lang        Math]
+           [org.joda.time    DateTimeZone])
   (:require [clojure.string  :as s]
             [clojure.string  :refer [lower-case]]
             [clj-time.core   :refer [now]]
@@ -72,11 +72,18 @@
 
 (def utc
   "The UTC timezone, only fetched once"
-  (delay (TimeZone/getTimeZone "UTC")))
+  DateTimeZone/UTC)
 
+(def gmt
+  "The GMT timezone, only fetched once"
+  (DateTimeZone/forID "GMT"))
 
 (def rfc822-format
-  (formatter "EEE, dd MMM yyyy HH:mm:ss z"))
+  (formatter "EEE, dd MMM yyyy HH:mm:ss" gmt))
+
+(defn date->rfc822
+  [d]
+  (str (unparse rfc822-format d) " GMT"))
 
 (defn rfc822->date
   [s]
@@ -89,9 +96,8 @@
 (defn iso8601->rfc822
   "RFC822 representation based on an iso8601 timestamp"
   [isodate]
-  (->> isodate
-       (parse (:date-time-parser formatters))
-       (unparse rfc822-format)))
+  (->> (parse (:date-time-parser formatters) isodate)
+       (date->rfc822)))
 
 (defn iso8601
   "iso8601 timestamp representation"
