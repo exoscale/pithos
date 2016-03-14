@@ -70,10 +70,6 @@
   [s]
   (java.util.UUID/fromString s))
 
-(def utc
-  "The UTC timezone, only fetched once"
-  DateTimeZone/UTC)
-
 (def gmt
   "The GMT timezone, only fetched once"
   (DateTimeZone/forID "GMT"))
@@ -84,10 +80,6 @@
 (defn date->rfc822
   [d]
   (str (unparse rfc822-format d) " GMT"))
-
-(defn rfc822->date
-  [s]
-  (parse rfc822-format s))
 
 (defn iso8601->date
   [isodate]
