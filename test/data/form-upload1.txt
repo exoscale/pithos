@@ -21,11 +21,11 @@ AKIAIOSFODNN7EXAMPLE
 --9431149156168
 Content-Disposition: form-data; name="Policy"
 
-eyJleHBpcmF0aW9uIjogIjIwMTUtMTItMDFUMTI6MDA6MDAuMDAwWiIsCiAiY29uZGl0aW9ucyI6IFt7ImJ1Y2tldCI6ICJiYXRtYW4ifSwKICAgICAgICAgICAgICAgIHsiYWNsIjogInByaXZhdGUifSwKICAgICAgICAgICAgICAgIHsic3VjY2Vzc19hY3Rpb25fc3RhdHVzIjogIjIwMSJ9XX0K
+eyJleHBpcmF0aW9uIjogIjIwMjUtMTItMDFUMTI6MDA6MDAuMDAwWiIsCiAiY29uZGl0aW9ucyI6IFt7ImJ1Y2tldCI6ICJiYXRtYW4ifSwKICAgICAgICAgICAgICAgIHsiYWNsIjogInByaXZhdGUifSwKICAgICAgICAgICAgICAgIHsic3VjY2Vzc19hY3Rpb25fc3RhdHVzIjogIjIwMSJ9XX0K
 --9431149156168
 Content-Disposition: form-data; name="Signature"
 
-wGh4yrZfT9x1nHexd7IJp+s+CNY=
+c3iMCe5m4lNmRHt+cmPAyOK0lf4=
 --9431149156168
 Content-Disposition: form-data; name="file"; filename="MyFilename.jpg"
 Content-Type: text/plain
