@@ -297,7 +297,7 @@ Will produce an XML AST equivalent to:
        [:Error
         [:Code "AccessDenied"]
         [:Message "Request has expired"]
-        [:Expires (iso8601 (:expires payload))]
+        [:Expires (:expires payload)]
         [:ServerTime (iso8601 (now))]
         [:RequestId reqid]
         [:HostId reqid]]
