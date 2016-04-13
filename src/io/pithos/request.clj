@@ -143,7 +143,7 @@
   [suffixes]
   (fn [{:keys [uri request-method action-params target params] :as request}]
     (let [suffix  (some suffixes action-params)
-          getpair (fn [[k v]] (if v (str k "=" v) k))
+          getpair (fn [[k v]] (if (and v (seq v)) (str k "=" v) k))
           append  (some->> (filter (comp subresources key) params)
                            (map (juxt (comp subresources first) second))
                            (sort-by first)
