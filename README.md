@@ -29,17 +29,7 @@ you will get a standalone Java jar file in the `target/` directory
 
 To run Pithos manually start it with
 
-    java -jar target/pithos-0.7.4-standalone.jar
-
-To run pithos with an embedded cassandra daemon, first build the
-target with:
-
-    lein install
-    lein sub uberjar
-
-You can then run the fully standalone artifact:
-
-    java -jar pithos-quickstart/target/pithos-quickstart-0.7.4-standalone.jar
+    java -jar target/pithos-0.7.5-standalone.jar
 
 Pithos will expect finding a valid configuration file under `/etc/pithos/pithos.yaml`. You can specify a distinct config file using the `-f` switch.
 
@@ -57,7 +47,7 @@ The following startup switches are available:
 Pithos includes a schema definition file in order to bootstrap your Cassandra cluster.
 To install the schema, run:
 
-    java -jar target/pithos-0.7.4-standalone.jar -a install-schema
+    java -jar target/pithos-0.7.5-standalone.jar -a install-schema
 
 
 ## Test using the s3cmd command line client
