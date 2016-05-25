@@ -291,6 +291,47 @@
         (is (= (:status response) 200))
         (is (= (slurp (:body response)) "foobar"))))
 
+    (testing "put object with prefix"
+      (handler {:request-method :put
+                :headers {"host" "batman.blob.example.com"
+                          "date" (date!)}
+                :sign-uri "/batman/blah/foo.txt"
+                :uri "/blah/foo.txt"
+                :body (java.io.ByteArrayInputStream. (.getBytes "foobar"))})
+
+      (is (= (sum "foobar")
+             (get-in @state [:objects "batman" "blah/foo.txt" :checksum]))))
+
+    (testing "get bucket"
+      (let [response (handler {:request-method :get
+                               :headers {"host" "batman.blob.example.com"
+                                         "date" (date!)}
+                               :sign-uri "/batman/"
+                               :uri      ""})]
+        (println (:body response))
+        (is (= (:status response) 200))))
+
+    (testing "get bucket with 0 max-keys"
+      (let [response (handler {:request-method :get
+                               :headers {"host" "batman.blob.example.com"
+                                         "date" (date!)}
+                               :sign-uri "/batman/"
+                               :query-string "max-keys=0&delimiter=/"
+                               :uri      ""})]
+        (println (:body response))
+        (is (= (:status response) 200))))
+
+    (testing "get bucket with 1 max-keys"
+      (let [response (handler {:request-method :get
+                               :headers {"host" "batman.blob.example.com"
+                                         "date" (date!)}
+                               :sign-uri "/batman/"
+                               :query-string "max-keys=1&delimiter=/"
+                               :uri      ""})]
+
+        (println (:body response))
+        (is (= (:status response) 200))))
+
     (testing "get object range"
       (let [response (handler {:request-method :get
                                :headers {"host" "batman.blob.example.com"
