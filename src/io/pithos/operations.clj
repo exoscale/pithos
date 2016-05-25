@@ -42,6 +42,21 @@
               :upload-id (parse-uuid uploadid))
     req))
 
+(defn log-request
+  [{:keys [reqid bucket object] {:keys [uploadid]} :params :as req}
+   operation
+   target]
+  (comment
+    (info "executing request" reqid ":" (name operation) "on"
+          (name (or target :service))
+          (case target
+            :bucket bucket
+            :object object
+            :upload (str object "/" uploadid)
+            "")))
+  req)
+
+
 (defn get-metadata
   "Retrieve metadata from a request's headers"
   [headers]
@@ -860,7 +875,7 @@
 
 (defn dispatch
   "Dispatch operation"
-  [{:keys [operation exception params] :as request} system]
+  [{:keys [reqid operation exception params] :as request} system]
   (when (not= operation :options-service)
     (debug "handling operation: " operation))
 
@@ -878,15 +893,15 @@
          handler                                 (or handler unknown)]
 
      (cond-> (try (perms/authorize request perms system)
-                  (trace "request now: " (pr-str request))
                   (-> request
                       (assoc-targets system target)
+                      (log-request operation target)
                       (handler system)
                       (request-id request)
                       (override-response-headers (not anonymous?) params))
                   (catch Exception e
                     (when-not (:type (ex-data e))
-                      (error e "caught exception during operation"))
+                      (error e "caught exception during operation for reqid" reqid))
                     (ex-handler request e)))
 
        cors?
