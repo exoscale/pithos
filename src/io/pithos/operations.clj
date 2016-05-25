@@ -47,12 +47,11 @@
    operation
    target]
   (comment
-    (info "executing request" reqid ":" (name operation) "on"
-          (name (or target :service))
+    (info "executing request" reqid ":" (name operation)
           (case target
-            :bucket bucket
-            :object object
-            :upload (str object "/" uploadid)
+            :bucket (format "on s3://%s" bucket)
+            :object (format "on s3://%s/%s" bucket object)
+            :upload (format "on s3://%s/%s@%s" bucket object uploadid)
             "")))
   req)
 
