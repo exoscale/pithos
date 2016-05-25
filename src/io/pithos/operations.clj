@@ -884,6 +884,7 @@
 
    request
    (let [{:keys [handler perms target cors?]}    (get opmap operation)
+         capture!                                (get system :raven)
          {:keys [bucket headers request-method]} request
          anonymous?                              (= (get-in
                                                      request
@@ -899,7 +900,9 @@
                       (request-id request)
                       (override-response-headers (not anonymous?) params))
                   (catch Exception e
+
                     (when-not (:type (ex-data e))
+                      (capture! e)
                       (error e "caught exception during operation for reqid" reqid))
                     (ex-handler request e)))
 

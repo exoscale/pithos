@@ -10,7 +10,10 @@
   (:require [clj-yaml.core         :refer [parse-string]]
             [clojure.tools.logging :refer [error info debug]]
             [io.pithos.util        :refer [to-bytes]]
-            [unilog.config         :refer [start-logging!]]))
+            [unilog.config         :refer [start-logging!]]
+            [raven.client          :refer [capture!]]
+            [net.http.client       :refer [build-client]]))
+
 
 (start-logging!
  {:pattern "%p [%d] %t - %c - %m%n"
@@ -132,6 +135,14 @@
         :let [reporter (merge default-reporter reporter)]]
     (get-instance reporter :reporter)))
 
+(defn get-raven
+  [raven]
+  (if raven
+    (let [client (build-client (:http raven))]
+      (fn [ev]
+        (capture! client (:dsn raven) ev)))
+    (fn [& _])))
+
 (defn parse-cors
   [rules]
   (let [->sym    (fn [s] (-> s name .toLowerCase keyword))
@@ -158,6 +169,7 @@
           (update-in [:bucketstore] (partial merge default-bucketstore))
           (update-in [:bucketstore] get-instance :bucketstore)
           (update-in [:reporters] get-reporters)
+          (update-in [:raven] get-raven)
           (update-in [:regions] get-region-stores)))
     (catch Exception e
       (when-not quiet?

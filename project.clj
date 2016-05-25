@@ -20,6 +20,7 @@
                  [org.clojure/core.async        "0.2.374"]
                  [spootnik/unilog               "0.7.13"]
                  [spootnik/constance            "0.5.3"]
+                 [spootnik/raven                "0.1.1"]
                  [clj-yaml                      "0.4.0"]
                  [clout                         "2.1.2"]
                  [cheshire                      "5.5.0"]
