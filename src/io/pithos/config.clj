@@ -135,13 +135,14 @@
         :let [reporter (merge default-reporter reporter)]]
     (get-instance reporter :reporter)))
 
-(defn get-raven
-  [raven]
-  (if raven
-    (let [client (build-client (:http raven))]
+(defn get-sentry
+  [sentry]
+  (if sentry
+    (let [client (build-client (:http sentry))]
       (fn [ev]
-        (capture! client (:dsn raven) ev)))
-    (fn [& _])))
+        (capture! client (:dsn sentry) ev)))
+    (fn [& _]
+      (debug "no sentry configuration, no capture done."))))
 
 (defn parse-cors
   [rules]
@@ -169,7 +170,7 @@
           (update-in [:bucketstore] (partial merge default-bucketstore))
           (update-in [:bucketstore] get-instance :bucketstore)
           (update-in [:reporters] get-reporters)
-          (update-in [:raven] get-raven)
+          (update-in [:sentry] get-sentry)
           (update-in [:regions] get-region-stores)))
     (catch Exception e
       (when-not quiet?
