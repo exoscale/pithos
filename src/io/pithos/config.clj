@@ -23,8 +23,6 @@
   :level  "info"
   :overrides {}})
 
-(info "trying to outrun jetty logging")
-
 (def default-logging
   "Logging can be bypassed if a log4j configuration is provided
     to the underlying JVM"

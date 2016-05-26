@@ -830,9 +830,12 @@
                              :perms   [[:bucket :WRITE]]}})
 
 (defn ex-handler  "Wrap exceptions and report them correctly"
-  [request exception]
-  (-> (xml-response (xml/exception request exception))
-      (exception-status (ex-data exception))
+  [{:keys [reqid] :as request} e operation capture!]
+  (when-not (:type (ex-data e))
+    (capture! e)
+    (error e "operation" (name operation) " with reqid" reqid "failed"))
+  (-> (xml-response (xml/exception request e))
+      (exception-status (ex-data e))
       (request-id request)))
 
 (defn add-cors-info
@@ -880,17 +883,17 @@
 
 (defn dispatch
   "Dispatch operation"
-  [{:keys [reqid operation exception params] :as request} system]
+  [{:keys [reqid operation exception params] :as request}
+   {:keys [sentry] :as system}]
   (when (not= operation :options-service)
     (debug "handling operation: " operation))
 
   (cond
    (= :error operation)
-   (ex-handler request exception)
+   (ex-handler request exception operation sentry)
 
    request
    (let [{:keys [handler perms target cors?]}    (get opmap operation)
-         capture!                                (get system :raven)
          {:keys [bucket headers request-method]} request
          anonymous?                              (= (get-in
                                                      request
@@ -906,11 +909,7 @@
                       (request-id request)
                       (override-response-headers (not anonymous?) params))
                   (catch Exception e
-
-                    (when-not (:type (ex-data e))
-                      (capture! e)
-                      (error e "caught exception during operation for reqid" reqid))
-                    (ex-handler request e)))
+                    (ex-handler request e operation sentry)))
 
        cors?
        (add-cors-info system request)))))

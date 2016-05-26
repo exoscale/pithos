@@ -4,14 +4,15 @@
   instead, data structures should be emitted by other subsystems, this
   namespace will then take care of making them suitable for sending out
   on the wire."
-  (:require [clojure.data.xml     :refer [->Element emit-str parse-str]]
-            [clojure.zip          :refer [xml-zip]]
-            [clojure.data.zip.xml :refer [xml-> xml1-> text]]
-            [clojure.pprint       :refer [pprint]]
-            [clojure.string       :as s]
-            [clj-time.core        :refer [now]]
-            [io.pithos.sig        :as sig]
-            [io.pithos.util       :refer [iso8601]]))
+  (:require [clojure.string        :as s]
+            [io.pithos.sig         :as sig]
+            [clojure.data.xml      :refer [->Element emit-str parse-str]]
+            [clojure.zip           :refer [xml-zip]]
+            [clojure.data.zip.xml  :refer [xml-> xml1-> text]]
+            [clojure.pprint        :refer [pprint]]
+            [clojure.tools.logging :refer [error]]
+            [clj-time.core         :refer [now]]
+            [io.pithos.util        :refer [iso8601]]))
 
 (defn format-exception
   [^Exception e]
@@ -19,7 +20,7 @@
     (ex-data e)
     (str e)
 
-    (instance? org.apache.cassandra.exceptions.CassandraException e)
+    (instance? com.datastax.driver.core.exceptions.DriverException e)
     "an unexpected storage error occured"
 
     (instance? java.lang.NullPointerException e)

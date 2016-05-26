@@ -11,11 +11,13 @@ The `io.pithos` namespace is only responsible for parsing
 command line arguments, loading configuration and starting
 up the appropriate action."
   (:gen-class)
-  (:require [io.pithos.schema  :as schema]
-            [io.pithos.config  :as config]
-            [io.pithos.api     :as api]
-            [io.pithos.system  :as system]
-            [clojure.tools.cli :refer [cli]]))
+  (:require [io.pithos.schema      :as schema]
+            [io.pithos.config      :as config]
+            [io.pithos.api         :as api]
+            [io.pithos.system      :as system]
+            [spootnik.uncaught     :refer [uncaught]]
+            [clojure.tools.logging :refer [error]]
+            [clojure.tools.cli     :refer [cli]]))
 
 ;; ensure jetty does not modify our headers
 (System/setProperty "org.eclipse.jetty.http.HttpParser.STRICT" "true")
@@ -47,6 +49,14 @@ up the appropriate action."
       (println "Could not parse arguments: " (.getMessage e))
       (System/exit 1))))
 
+(defn setup-uncaught
+  [{:keys [sentry] :as system}]
+  (uncaught e
+    (when (and sentry (fn? sentry))
+      (sentry e))
+    (error e "uncaught exception"))
+  system)
+
 (defn -main
   "Main startup path, parse command line arguments, then dispatch to
    appropriate action.
@@ -64,6 +74,7 @@ up the appropriate action."
 
     (-> path
         (config/init quiet)
+        (setup-uncaught)
         (system/system-descriptor)
         action))
   nil)
