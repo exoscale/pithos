@@ -426,6 +426,7 @@
         (content-type (desc/content-type od))
         (header "Content-Length" (- (last range) (first range)))
         (header "ETag" (str "\"" (desc/checksum od) "\""))
+        (header "Last-Modified" (iso8601->rfc822 (str (:atime od))))
         (update-in [:headers] (partial merge (:metadata od))))))
 
 (defn put-object
