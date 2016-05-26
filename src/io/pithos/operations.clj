@@ -46,13 +46,12 @@
   [{:keys [reqid bucket object] {:keys [uploadid]} :params :as req}
    operation
    target]
-  (comment
-    (info "executing request" reqid ":" (name operation)
-          (case target
-            :bucket (format "on s3://%s" bucket)
-            :object (format "on s3://%s/%s" bucket object)
-            :upload (format "on s3://%s/%s@%s" bucket object uploadid)
-            "")))
+  (info "executing request" reqid ":" (name operation)
+        (case target
+          :bucket (format "on s3://%s" bucket)
+          :object (format "on s3://%s/%s" bucket object)
+          :upload (format "on s3://%s/%s@%s" bucket object uploadid)
+          ""))
   req)
 
 
