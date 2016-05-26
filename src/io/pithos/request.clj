@@ -5,7 +5,6 @@
             [clojure.tools.logging            :refer [debug info warn error]]
             [clojure.pprint                   :refer [pprint]]
             [io.pithos.sig                    :refer [validate check-sig anonymous]]
-            [io.pithos.operations             :refer [ex-handler]]
             [io.pithos.system                 :refer [service-uri keystore]]
             [io.pithos.util                   :refer [string->pattern]]
             [clout.core                       :as c]

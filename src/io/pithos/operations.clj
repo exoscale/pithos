@@ -849,7 +849,8 @@
         error-resp   (ex-handler
                       req
                       (ex-info "" {:type :cors-not-enabled
-                                   :status-code 403}))
+                                   :status-code 403})
+                      nil nil)
         rules        (and (or origin (= method :options))
                           (some-> (bucket/by-name
                                    (system/bucketstore system) bucket)
