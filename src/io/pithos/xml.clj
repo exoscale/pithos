@@ -13,6 +13,21 @@
             [io.pithos.sig        :as sig]
             [io.pithos.util       :refer [iso8601]]))
 
+(defn format-exception
+  [^Exception e]
+  (cond
+    (ex-data e)
+    (str e)
+
+    (instance? org.apache.cassandra.exceptions.CassandraException e)
+    "an unexpected storage error occured"
+
+    (instance? java.lang.NullPointerException e)
+    "an unexpected server error occured"
+
+    :else
+    "an unexpected error occured"))
+
 (defn xml->delete
   [src]
   (try
@@ -392,6 +407,6 @@ Will produce an XML AST equivalent to:
         [:HostId reqid]]
        [:Error
         [:Code "Unknown"]
-        [:Message (str exception)]
+        [:Message (format-exception exception)]
         [:RequestId reqid]
         [:HostId reqid]]))))
