@@ -47,10 +47,17 @@
    operation
    target]
   (info "executing request" reqid ":" (name operation)
-        (case target
-          :bucket (format "on s3://%s" bucket)
-          :object (format "on s3://%s/%s" bucket object)
-          :upload (format "on s3://%s/%s@%s" bucket object uploadid)
+        (cond
+          (= :upload target)
+          (format "on s3://%s/%s@%s" bucket object uploadid)
+
+          (= :object target)
+          (format "on s3://%s/%s" bucket object)
+
+          (or (= :bucket target) (= :put-bucket operation))
+          (format "on s3://%s" bucket)
+
+          :else
           ""))
   req)
 
