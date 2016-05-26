@@ -30,6 +30,6 @@
                  [ring/ring-codec               "1.0.0"]
                  [cc.qbits/alia                 "3.1.8"]
                  [cc.qbits/hayt                 "3.0.1"]
-                 [cc.qbits/jet                  "0.6.2"]
+                 [cc.qbits/jet                  "0.7.8"]
                  [net.jpountz.lz4/lz4           "1.3.0"]
                  [org.xerial.snappy/snappy-java "1.1.2.4"]])
