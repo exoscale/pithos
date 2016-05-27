@@ -9,6 +9,24 @@ Documentation site lives at http://pithos.io
 ![Build Status](https://travis-ci.org/exoscale/pithos.svg)
 
 
+# Quickstart
+
+You can use [docker-compose](https://docs.docker.com/compose/) to easily
+run the current branch in a Docker container for testing purposes. The
+Clojure and Cassandra Docker images will use around 1GB of disk space.
+
+    docker-compose up
+
+Create a new bucket:
+
+    s3cmd --config doc/s3cmd.cfg mb s3://my-bucket
+    Bucket 's3://my-bucket/' created
+
+    s3cmd --config doc/s3cmd.cfg ls s3://
+    2016-05-27 09:04  s3://my-bucket
+
+To build an run Pithos manually, continue reading.
+
 # Prerequisites
 
 In order to build and run Pithos you will need the following components:
