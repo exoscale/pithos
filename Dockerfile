@@ -1,4 +1,4 @@
-FROM clojure:lein-2.5.3
+FROM clojure:lein-2.6.1
 
 RUN apt-get update && apt-get install -y --no-install-recommends netcat
 
