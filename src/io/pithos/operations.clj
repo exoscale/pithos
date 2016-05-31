@@ -15,6 +15,7 @@
             [clojure.tools.logging  :refer [trace debug info warn error]]
             [clojure.string         :refer [split lower-case join capitalize]]
             [clj-time.core          :refer [after? now]]
+            [unilog.context         :refer [with-context]]
             [io.pithos.util         :as util]
             [io.pithos.store        :as store]
             [io.pithos.bucket       :as bucket]
@@ -885,33 +886,36 @@
 
 (defn dispatch
   "Dispatch operation"
-  [{:keys [reqid operation exception params] :as request}
+  [{:keys [reqid operation exception params uri] :as request}
    {:keys [sentry] :as system}]
-  (when (not= operation :options-service)
-    (debug "handling operation: " operation))
+  (with-context {:pithos-request-id (or reqid "none")
+                 :pithos-operation (or operation "none")
+                 :pithos-uri (or uri "none")}
+    (when (not= operation :options-service)
+      (debug "handling operation: " operation))
 
-  (cond
-   (= :error operation)
-   (ex-handler request exception operation sentry)
+    (cond
+      (= :error operation)
+      (ex-handler request exception operation sentry)
 
-   request
-   (let [{:keys [handler perms target cors?]}    (get opmap operation)
-         {:keys [bucket headers request-method]} request
-         anonymous?                              (= (get-in
-                                                     request
-                                                     [:authorization :tenant])
-                                                    :anonymous)
-         handler                                 (or handler unknown)]
+      request
+      (let [{:keys [handler perms target cors?]}    (get opmap operation)
+            {:keys [bucket headers request-method]} request
+            anonymous?                              (= (get-in
+                                                        request
+                                                        [:authorization :tenant])
+                                                       :anonymous)
+            handler                                 (or handler unknown)]
 
-     (cond-> (try (perms/authorize request perms system)
-                  (-> request
-                      (assoc-targets system target)
-                      (log-request operation target)
-                      (handler system)
-                      (request-id request)
-                      (override-response-headers (not anonymous?) params))
-                  (catch Exception e
-                    (ex-handler request e operation sentry)))
+        (cond-> (try (perms/authorize request perms system)
+                     (-> request
+                         (assoc-targets system target)
+                         (log-request operation target)
+                         (handler system)
+                         (request-id request)
+                         (override-response-headers (not anonymous?) params))
+                     (catch Exception e
+                       (ex-handler request e operation sentry)))
 
-       cors?
-       (add-cors-info system request)))))
+          cors?
+          (add-cors-info system request))))))
