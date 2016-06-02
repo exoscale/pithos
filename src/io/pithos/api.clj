@@ -29,5 +29,6 @@
   [system]
   (let [handler (executor system)]
     (run-jetty (merge (service system) {:input-buffer-size 65536
+                                        :parser-compliance :legacy
                                         :ring-handler handler})))
   (info "server up and running"))
