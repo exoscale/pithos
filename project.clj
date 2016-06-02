@@ -8,9 +8,6 @@
   :main io.pithos
   :jvm-opts ["-Xmx2g"]
   :profiles {:dev {:resource-paths ["test/data"]}}
-  :plugins [[lein-difftest "2.0.0"]
-            [lein-rpm "0.0.5"]
-            [lein-ancient  "0.6.7"]]
   :dependencies [[org.clojure/clojure           "1.8.0"]
                  [org.clojure/data.codec        "0.1.0"]
                  [org.clojure/data.xml          "0.0.8"]
