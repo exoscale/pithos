@@ -172,9 +172,30 @@
       (xml/list-all-my-buckets)
       (xml-response)))
 
+(defn valid-bucket-char?
+  "Only allow alphanumeric characters as well as dots, hyphens and
+   underscores in bucket names."
+  [c]
+  (or (<= (int \a) (int c) (int \z))
+      (<= (int \A) (int c) (int \Z))
+      (<= (int \0) (int c) (int \9))
+      (#{\. \- \_} c)))
+
+(defn validate-bucket-name!
+  "Apply a bit of name validation to buckets"
+  [bucket]
+  (when-not (and (string? bucket)
+                 (<= 3 (count bucket) 63)
+                 (every? valid-bucket-char? (seq bucket)))
+    (throw (ex-info "invalid bucket-name" {:type :invalid-argument
+                                           :arg "range"
+                                           :val (str bucket)
+                                           :status-code 400}))))
+
 (defn put-bucket
   "Creates a bucket"
   [{{:keys [tenant]} :authorization :keys [bucket] :as request} system]
+  (validate-bucket-name! bucket)
   (let [target-acl (perms/header-acl tenant tenant (:headers request))]
     (store/create! (system/bucketstore system) tenant bucket
                    {:acl target-acl})
@@ -849,7 +870,8 @@
 (defn ex-handler  "Wrap exceptions and report them correctly"
   [{:keys [reqid] :as request} e operation capture!]
   (when-not (:type (ex-data e))
-    (capture! e)
+    (when capture!
+      (capture! e))
     (error e "operation" (name operation) " with reqid" reqid "failed"))
   (-> (xml-response (xml/exception request e))
       (exception-status (ex-data e))

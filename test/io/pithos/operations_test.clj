@@ -210,6 +210,16 @@
                            :body (java.io.ByteArrayInputStream. (.getBytes "foobar"))})]
         (is (= (:status resp) 404))))
 
+    (testing "invalid bucket names"
+      (doseq [bname ["foo bar" "foo@bar" "foo\nbar" "foo%bar" ""
+                     "thisbucketnameiswaytoolongbecauseitismorethan63characterslongwhichistoolong"]]
+        (let [resp (handler {:request-method :put
+                             :headers {"host" (format "%s.blob.example.com" bname)
+                                       "date" (date!)}
+                             :sign-uri (format "/%s/" bname)
+                             :uri "/"})]
+          (= (:status resp) 400))))
+
     (testing "put bucket"
       (handler {:request-method :put
                 :headers {"host" "batman.blob.example.com"
