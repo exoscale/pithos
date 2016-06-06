@@ -6,7 +6,8 @@
             [clojure.data.codec.base64 :as base64]
             [clj-time.core             :refer [after? now]]
             [clj-time.coerce           :refer [to-date-time]]
-            [constance.comp            :refer [===]])
+            [constance.comp            :refer [===]]
+            [io.pithos.util            :refer [date->rfc822]])
   (:import  javax.crypto.Mac javax.crypto.spec.SecretKeySpec))
 
 (defn canonicalized
@@ -113,6 +114,6 @@
                             {:type :expired-request
                              :status-code 403
                              :request request
-                             :expires expires})))))
+                             :expires (date->rfc822 expires)})))))
       (update-in authorization [:memberof] concat ["authenticated-users"]))
     anonymous))
