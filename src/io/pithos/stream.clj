@@ -13,48 +13,94 @@
 (defn chunk->ba
   "Chunks in pithos come back as bytebuffers and we
    need byte-arrays for outputstreams, this converts
-   from the former to the latter."
+   from the former to the latter.
+
+   The underlying bytebuffers can be reused, which is why
+   we need to watch respect the position and limit parameters
+   given."
   [{:keys [payload]}]
   (let [array (.array payload)
         off   (.position payload)
         len   (- (.limit payload) off)]
     [array off len]))
 
+(defn full-file?
+  "Does a range specify the full file?"
+  [od start end]
+  (and (= start 0) (= end (d/size od))))
+
+(defn within-range?
+  "Is a chunk within the range expected"
+  [{:keys [chunksize offset]} start end]
+  (and (<= start (+ offset chunksize)) (<= offset end)))
+
+(defn crop-chunk
+  "This is the land of off-by-one errors, but bear with me:
+   For a specific chunk, we have three streaming cases:
+
+   - We need to stream all of it when it starts beyond the start
+     offset of the range and it ends before the end offset of the range.
+   - If the start offset is contained in this chunk but beyond the
+     first byte, we need to start at the correct mark.
+   - If the end offset is contained in this chunk but before the
+     last byte, we need to stop at the correct mark.
+
+   Here, we treat the last two cases as a single one, by
+   computing a head and tail, and adapting the start offset
+   as well as the length to stream in one go."
+  [{:keys [offset chunksize] :as chunk} start end]
+  (let [[array off len] (chunk->ba chunk)
+        buf-start       offset
+        buf-end         (+ offset chunksize)]
+    (if (and (<= (+ offset chunksize) end) (>= offset start))
+      ;; No cropping necessary.
+      ;; Just pass the byte-buffer as-is.
+      [array off len]
+      ;; We need to crop, compute head and tail and infer
+      ;; actual length from them.
+      (let [head    (if (< buf-start start) (- start buf-start) 0)
+            tail    (if (> buf-end end) (- buf-end end) 0)
+            croplen (- len (+ head tail))]
+        [array (+ off head) croplen]))))
+
+(defn stream-file
+  "Stream a whole file. Do not handle supplied ranges and
+   just write out all chunks."
+  [od ^OutputStream stream blob blocks]
+  (doseq [{:keys [block]} blocks]
+    (doseq [chunk (b/chunks blob od block block)
+            :let [[array off len] (chunk->ba chunk)]]
+      (.write stream array off len))))
+
+(defn stream-range
+  "Stream a range of bytes. Keep iterating on blocks until
+   we reach the end, then only consider chunks in the
+   supplied range, and optionally crop them before streaming out."
+  [od ^OutputStream stream blob blocks start end]
+  (doseq [{:keys [block]} blocks
+          :while (<= block end)]
+    (doseq [chunk (b/chunks blob od block block)
+            :when (within-range? chunk start end)]
+      (let [[array off len] (crop-chunk chunk start end)]
+        (.write stream array off len)))))
+
 (defn stream-to
-  "Given an outputstream and a range, stream from
-   an object descriptor to that outputstream."
+  "Stream a range or a whole file."
   [od ^OutputStream stream [start end]]
-  (debug "got range: " start end)
+  (debug "streaming range: " start end)
   (let [blob   (d/blobstore od)
         blocks (b/blocks blob od)]
-    (debug "got " (count blocks) "blocks")
     (try
-      (doseq [{:keys [block]} blocks
-              :while (<= block end)]
-        (debug "found block " block)
-        (loop [offset block]
-          (when-let [chunks (seq (b/chunks (d/blobstore od) od block offset))]
-            (debug "got " (count chunks) " chunks")
-            (doseq [{:keys [offset chunksize] :as chunk}  chunks
-                    :let [[array off len] (chunk->ba chunk)]
-                    :while (<= offset end)]
-              (let [start-at (if (<= offset start chunksize)
-                               (- start offset)
-                               0)
-                    end-at   (if (<= offset end chunksize)
-                               (- end offset)
-                               len)
-                    cropped  (- len start-at (- len end-at))]
-                (.write stream array (+ off start-at) cropped)))
-            (let [{:keys [offset chunksize]} (last chunks)]
-              (recur (+ offset chunksize))))))
+      (if (full-file? od start end)
+        (stream-file od stream blob blocks)
+        (stream-range od stream blob blocks start end))
       (catch Exception e
         (error e "error during read"))
       (finally
         (debug "closing after read")
         (.flush stream)
-        (.close stream)))
-    od))
+        (.close stream))))
+  od)
 
 (defn stream-from
   "Given an input stream and an object descriptor, stream data from the
