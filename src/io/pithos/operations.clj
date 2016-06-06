@@ -125,13 +125,26 @@
     ([nickname val]
      (parse-int nickname nil val)))
 
+(defn check-range
+  [max [has-range? start end]]
+  (let [e (ex-info "unsatisfiable range"
+                   {:type :invalid-argument
+                    :arg "range"
+                    :val (format "start=%s,end=%s" start end)
+                    :status-code 416})]
+    (cond
+      (> start end) (throw e)
+      :else         [has-range? start end])))
+
 (defn adjust-range
   "When given a range, coerce it to a proper
    tuple. For partial ranges we increment the end to
    adjust for .write's behavior"
   [default [start end]]
-  (vector (parse-int "range-start" start)
-          (if end (inc (parse-int "range-end" end)) default)))
+  (let [end (when end (inc (parse-int "range-end" end)))]
+    (vector true
+            (parse-int "range-start" start)
+            (min (or end default) default))))
 
 (defn get-range
   "Fetch range information from headers. We ignore the total size
@@ -142,14 +155,15 @@
                          (get headers "content-range"))]
     (->> range-def
          (re-find #"^bytes[ =](\d+)-(\d+)?(/\d+)?[ \t;]*$")
-         (#(or % (throw (ex-info "invalid range"
+         (#(or % (throw (ex-info "unsatisfiable range"
                                  {:type :invalid-argument
                                   :arg "range"
                                   :val range-def
-                                  :status-code 400}))))
+                                  :status-code 416}))))
          (drop 1)
-         (adjust-range (desc/size od)))
-    [0 (desc/size od)]))
+         (adjust-range (desc/size od))
+         (check-range (desc/size od)))
+    [false 0 (desc/size od)]))
 
 (defn get-service
   "Lists all buckets for  tenant"
@@ -413,9 +427,9 @@
                                    :bucket bucket
                                    :key object})))
 
-  (let [[is os]     (piped-input-stream)
-        add-headers #(doseq [[k v] (:metadata od)] (header % k v))
-        range       (get-range od headers)]
+  (let [[is os]              (piped-input-stream)
+        add-headers          #(doseq [[k v] (:metadata od)] (header % k v))
+        [has-range? & range] (get-range od headers)]
 
     (debug "will stream " (desc/inode od) (desc/version od))
     (future ;; XXX: set up a dedicated threadpool
@@ -424,6 +438,7 @@
         (catch Exception e
           (error e "could not completely write out: "))))
     (-> (response is)
+        (status (if has-range? 206 200))
         (content-type (desc/content-type od))
         (header "Content-Length" (- (last range) (first range)))
         (header "ETag" (str "\"" (desc/checksum od) "\""))

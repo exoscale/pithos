@@ -23,25 +23,30 @@
 
 (deftest range-test
   (let [desc   (reify desc/BlobDescriptor (size [this] 1024))
-        in-out ["no headers"    {}                                  [0  1024]
-                "range"         {"range" "bytes=10-90"}             [10 91]
-                "content-range" {"content-range" "bytes 10-90/200"} [10 91]
-                "begin-range1"  {"range" "bytes=10-"}               [10 1024]
-                "begin-range2"  {"content-range" "bytes 10-/200"}   [10 1024]
+        in-out ["no headers"    {}                                  [false 0  1024]
+                "range"         {"range" "bytes=10-90"}             [true 10 91]
+                "content-range" {"content-range" "bytes 10-90/200"} [true 10 91]
+                "exceed-range"  {"range" "bytes=10-1026"}           [true 10 1024]
+                "begin-range1"  {"range" "bytes=10-"}               [true 10 1024]
+                "begin-range2"  {"content-range" "bytes 10-/200"}   [true 10 1024]
                 "priority"      {"range"         "bytes=1-"
-                                 "content-range" ""}                [1 1024]]]
+                                 "content-range" ""}                [true 1 1024]]]
     (doseq [[nickname headers output] (partition 3 in-out)]
       (testing (str "valid output for " nickname)
         (is (= output (get-range desc headers)))))))
 
 (deftest range-exception-test
-  (let [d (reify desc/BlobDescriptor (size [this] :none))]
+  (let [d (reify desc/BlobDescriptor (size [this] 1024))]
+    (testing "out of bounds ranges"
+      (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                            #"unsatisfiable range"
+                            (get-range d {"range" "bytes=1027-2"}))))
     (testing "malformed ranges"
       (is (thrown-with-msg? clojure.lang.ExceptionInfo
-                            #"invalid range"
+                            #"unsatisfiable range"
                             (get-range d {"range" "blah"})))
       (is (thrown-with-msg? clojure.lang.ExceptionInfo
-                            #"invalid range"
+                            #"unsatisfiable range"
                             (get-range d {"range" "bytes=500-bla"}))))))
 (defn atom-bucket-store
   [state]
@@ -339,7 +344,7 @@
                                          "date" (date!)}
                                :sign-uri "/batman/foo.txt"
                                :uri "/foo.txt"})]
-        (is (= (:status response) 200))
+        (is (= (:status response) 206))
         (is (= (slurp (:body response)) "foo"))))
 
     (testing "object copy"
