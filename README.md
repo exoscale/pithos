@@ -6,7 +6,7 @@ to distribute contents horizontally.
 
 Documentation site lives at http://pithos.io
 
-![Build Status](https://travis-ci.org/exoscale/pithos.svg)
+[![Build Status](https://travis-ci.org/exoscale/pithos.svg)](https://travis-ci.org/exoscale/pithos)
 
 
 # Quickstart
