@@ -3,7 +3,7 @@
    ownership. It contains a single column-family and an
    accompanying index."
   (:refer-clojure :exclude [update])
-  (:require [qbits.alia      :refer [execute]]
+  (:require [qbits.alia      :as a]
             [qbits.hayt      :refer [select where set-columns
                                      create-table create-index
                                      column-definitions index-name
@@ -86,16 +86,21 @@
 
    If you care deeply about bucket ownership, I'd suggest looking into
    the above options"
-  [{:keys [default-region] :as config}]
-  (let [session (store/cassandra-store config)]
+  [{:keys [default-region read-consistency write-consistency] :as config}]
+  (let [copts   (dissoc config :read-consistency :write-consistency)
+        session (store/cassandra-store copts)
+        rdcty   (or (some-> read-consistency keyword) :quorum)
+        wrcty   (or (some-> write-consistency keyword) :quorum)
+        read!   (fn [query] (a/execute session query {:consistency rdcty}))
+        write!  (fn [query] (a/execute session query {:consistency wrcty}))]
     (reify
       store/Convergeable
       (converge! [this]
-        (execute session bucket-table)
-        (execute session bucket_tenant-index))
+        (write! bucket-table)
+        (write! bucket_tenant-index))
       store/Crudable
       (create! [this tenant bucket columns]
-        (if-let [[details] (seq (execute session (fetch-bucket-q bucket)))]
+        (if-let [[details] (seq (read! (fetch-bucket-q bucket)))]
           (when (not= tenant (:tenant details))
             (throw (ex-info
                     "bucket already exists"
@@ -103,28 +108,28 @@
                      :bucket bucket
                      :status-code 409})))
           (let [acl {:FULL_CONTROL [{:ID tenant}]}]
-            (execute session
-                     (update-bucket-q bucket
-                                      (merge {:region default-region
-                                              :created (iso8601-timestamp)
-                                              :acl     (pr-str acl)}
-                                             columns
-                                             {:tenant tenant}))))))
+            (write!
+             (update-bucket-q bucket
+                              (merge {:region default-region
+                                      :created (iso8601-timestamp)
+                                      :acl     (pr-str acl)}
+                                     columns
+                                     {:tenant tenant}))))))
       (update! [this bucket columns]
-        (execute session (update-bucket-q bucket columns)))
+        (write! (update-bucket-q bucket columns)))
       (delete! [this bucket]
-        (if-let [info (seq (execute session (fetch-bucket-q bucket)))]
-          (execute session (delete-bucket-q bucket))
+        (if-let [info (seq (read! (fetch-bucket-q bucket)))]
+          (write! (delete-bucket-q bucket))
           (throw (ex-info "bucket not found"
                           {:type        :no-such-bucket
                            :status-code 404
                            :bucket      bucket}))))
       Bucketstore
       (by-tenant [this tenant]
-        (execute session (bucket-by-tenant-q tenant)))
+        (read! (bucket-by-tenant-q tenant)))
       (by-name [this bucket]
         (first
-         (execute session (fetch-bucket-q bucket)))))))
+         (read! (fetch-bucket-q bucket)))))))
 
 (defn get-region
   "Fetch the regionstore from regions"

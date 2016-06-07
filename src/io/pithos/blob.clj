@@ -33,7 +33,7 @@
             [io.pithos.store       :as store]
             [io.pithos.desc        :as d]
             [qbits.alia.uuid       :as uuid]
-            [qbits.alia            :refer [execute]]
+            [qbits.alia            :as a]
             [qbits.hayt            :refer [select where columns order-by
                                            insert values limit delete count*
                                            create-table column-definitions]]
@@ -150,28 +150,33 @@
    number of chunks per block and cluster configuration details,
    will create a cassandra session and reify a Blobstore instance
    "
-  [{:keys [max-chunk max-block-chunks] :as config}]
-  (let [session   (store/cassandra-store config)
-        bs        (* max-chunk max-block-chunks)
+  [{:keys [max-chunk max-block-chunks read-consistency write-consistency]
+    :as   config}]
+  (let [copts   (dissoc config :read-consistency :write-consistency)
+        session (store/cassandra-store copts)
+        rdcty   (or (some-> read-consistency keyword) :quorum)
+        wrcty   (or (some-> write-consistency keyword) :quorum)
+        read!   (fn [query] (a/execute session query {:consistency rdcty}))
+        write!  (fn [query] (a/execute session query {:consistency wrcty}))
+        bs      (* max-chunk max-block-chunks)
         limit     100]
     (debug "got max-chunk " max-chunk "and max-block-chunks " max-block-chunks)
     (reify
       store/Convergeable
       (converge! [this]
-        (execute session inode_blocks-table)
-        (execute session block-table))
+        (write! inode_blocks-table)
+        (write! block-table))
       store/Crudable
       (delete! [this od version]
         (let [ino (if (= (class od) java.util.UUID) od (d/inode od))]
-          (doseq [{block :block} (execute session
-                                          (get-block-q ino version :asc))]
-            (execute session (delete-block-q ino version block)))
-          (execute session (delete-blockref-q ino version))))
+          (doseq [{block :block} (read! (get-block-q ino version :asc))]
+            (write! (delete-block-q ino version block))
+            (write! (delete-blockref-q ino version)))))
       Blobstore
       (blocks [this od]
         (let [ino (d/inode od)
               ver (d/version od)]
-          (execute session (get-block-q ino ver :asc))))
+          (read! (get-block-q ino ver :asc))))
 
       (max-chunk [this]
         max-chunk)
@@ -179,18 +184,17 @@
       (chunks [this od block offset]
         (let [ino (d/inode od)
               ver (d/version od)]
-          (seq (execute session (get-chunk-q ino ver block offset
-                                             absolute-chunk-limit)))))
+          (seq (read! (get-chunk-q ino ver block offset
+                                   absolute-chunk-limit)))))
 
       (boundary? [this block offset]
         (>= offset (+ block bs)))
 
       (start-block! [this od block]
-        (execute session
-                 (set-block-q (d/inode od) (d/version od) block)))
+        (write! (set-block-q (d/inode od) (d/version od) block)))
 
       (chunk! [this od block offset chunk]
         (let [size (- (.limit chunk) (.position chunk))]
-          (execute session (set-chunk-q (d/inode od) (d/version od)
-                                        block offset size chunk))
+          (write! (set-chunk-q (d/inode od) (d/version od)
+                               block offset size chunk))
           size)))))
