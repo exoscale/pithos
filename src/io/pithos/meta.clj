@@ -219,7 +219,7 @@
   (loop [objects    (fetcher prefix (or marker prefix) max-keys)
          prefixes   #{}
          keys       []]
-    (let [prefixes (if delimiter
+    (let [prefixes (if (seq delimiter)
                      (union prefixes (filter-prefixes objects prefix delimiter))
                      #{})
           new-keys  (remove prefixes (filter-keys objects prefix delimiter))
