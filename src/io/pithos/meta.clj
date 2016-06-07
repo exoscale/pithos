@@ -266,7 +266,8 @@
       (prefixes [this bucket params]
         (get-prefixes
          (fn [prefix marker limit]
-           (execute session (fetch-object-q bucket prefix marker limit)))
+           (when (and (number? limit) (pos? limit))
+             (execute session (fetch-object-q bucket prefix marker limit))))
          params))
       (initiate-upload! [this bucket object upload metadata]
         (execute session (initiate-upload-q bucket object upload metadata)))
