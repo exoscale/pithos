@@ -2,7 +2,7 @@
   "The metastore is region-local and stores details of bucket content
    (bucket contents are region-local as well)."
   (:refer-clojure :exclude [update])
-  (:require [qbits.alia      :refer [execute]]
+  (:require [qbits.alia      :as a]
             [qbits.hayt      :refer [select where set-columns columns
                                      delete update limit map-type
                                      create-table column-definitions
@@ -244,20 +244,25 @@
 
 (defn cassandra-meta-store
   "Given a cluster configuration, reify an instance of Metastore"
-  [config]
-  (let [session (store/cassandra-store config)]
+  [{:keys [read-consistency write-consistency] :as config}]
+  (let [copts   (dissoc config :read-consistency :write-consistency)
+        session (store/cassandra-store copts)
+        rdcty   (or (some-> read-consistency keyword) :quorum)
+        wrcty   (or (some-> write-consistency keyword) :quorum)
+        read!   (fn [query] (a/execute session query {:consistency rdcty}))
+        write!  (fn [query] (a/execute session query {:consistency wrcty}))]
     (reify
       store/Convergeable
       (converge! [this]
-        (execute session object-table)
-        (execute session upload-table)
-        (execute session object_uploads-table)
-        (execute session object_inode-index)
-        (execute session upload_bucket-index))
+        (write! object-table)
+        (write! upload-table)
+        (write! object_uploads-table)
+        (write! object_inode-index)
+        (write! upload_bucket-index))
       store/Crudable
       (fetch [this bucket object fail?]
         (or
-         (first (execute session (get-object-q bucket object)))
+         (first (read! (get-object-q bucket object)))
          (when fail?
            (throw (ex-info "no such key" {:type :no-such-key
                                           :status-code 404
@@ -265,29 +270,29 @@
       (fetch [this bucket object]
         (store/fetch this bucket object true))
       (update! [this bucket object columns]
-        (execute session (update-object-q bucket object columns)))
+        (write! (update-object-q bucket object columns)))
       (delete! [this bucket object]
-        (execute session (delete-object-q bucket object)))
+        (write! (delete-object-q bucket object)))
       Metastore
       (prefixes [this bucket params]
         (get-prefixes
          (fn [prefix marker limit]
            (when (and (number? limit) (pos? limit))
-             (execute session (fetch-object-q bucket prefix marker limit))))
+             (read! (fetch-object-q bucket prefix marker limit))))
          (normalize-params params)))
       (initiate-upload! [this bucket object upload metadata]
-        (execute session (initiate-upload-q bucket object upload metadata)))
+        (write! (initiate-upload-q bucket object upload metadata)))
       (abort-multipart-upload! [this bucket object upload]
-        (execute session (abort-multipart-upload-q bucket object upload))
-        (execute session (delete-upload-parts-q bucket object upload)))
+        (write! (abort-multipart-upload-q bucket object upload))
+        (write! (delete-upload-parts-q bucket object upload)))
       (update-part! [this bucket object upload partno columns]
-        (execute session (update-part-q bucket object upload partno columns)))
+        (write! (update-part-q bucket object upload partno columns)))
       (get-upload-details [this bucket object upload]
         (first
-         (execute session (get-upload-details-q bucket object upload))))
+         (read! (get-upload-details-q bucket object upload))))
       (list-uploads [this bucket]
-        (execute session (list-uploads-q bucket)))
+        (read! (list-uploads-q bucket)))
       (list-object-uploads [this bucket object]
-        (execute session (list-object-uploads-q bucket object)))
+        (read! (list-object-uploads-q bucket object)))
       (list-upload-parts [this bucket object upload]
-        (execute session (list-upload-parts-q bucket object upload))))))
+        (read! (list-upload-parts-q bucket object upload))))))
