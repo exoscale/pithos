@@ -459,7 +459,13 @@
         (catch Exception e
           (error e "could not completely write out: "))))
     (-> (response is)
-        (status (if has-range? 206 200))
+        (status 200)
+        (cond-> has-range? (status 206)
+                has-range? (header "Content-Range"
+                                   (format "bytes=%s-%s/%s"
+                                           (first range)
+                                           (last range)
+                                           (desc/size od))))
         (content-type (desc/content-type od))
         (header "Content-Length" (- (last range) (first range)))
         (header "ETag" (str "\"" (desc/checksum od) "\""))
