@@ -50,7 +50,7 @@
 (def absolute-chunk-limit
   "max block per chunk can be exceeded when small chunks are uploaded.
   set a large limit of chunks to retrieve from a block."
-  8192)
+  524288)
 
 
 (defprotocol Blobstore
