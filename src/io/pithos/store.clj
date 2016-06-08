@@ -23,8 +23,7 @@
                     {:replication {:class             "SimpleStrategy"
                                    :replication_factor (or repfactor 1)}})
         cluster (if (sequential? cluster) cluster [cluster])
-        session (-> {:contact-points cluster
-                     :query-options {:consistency :quorum}}
+        session (-> {:contact-points cluster}
                     (cond-> (and username password)
                       (assoc :credentials {:username username
                                            :password password}))
