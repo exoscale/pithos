@@ -24,7 +24,7 @@
   :overrides {}})
 
 (def default-logging
-  "Logging can be bypassed if a log4j configuration is provided
+  "Logging can be bypassed if a logback configuration is provided
     to the underlying JVM"
   {:use "org.spootnik.logconfig/start-logging!"
    :pattern "%p [%d] %t - %c - %m%n"
@@ -54,8 +54,8 @@
    :max-block-chunks 2048})
 
 (def default-reporter
-  "reporters default to log4j"
-  {:use "io.pithos.reporter/log4j-reporter"})
+  "reporters default to logging"
+  {:use "io.pithos.reporter/logging-reporter"})
 
 (def default-service
   "The http service is exposed on localhost port 8080 by default"

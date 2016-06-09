@@ -47,9 +47,11 @@ The *pithos* configuration file is split in several sections:
 Logging configuration
 ~~~~~~~~~~~~~~~~~~~~~
 
-*pithos* relies on log4j_ for logging. To provide an easier way
+*pithos* relies on unilog_ for logging which wraps logback_.
+unilog_ provides an easier way
 to configure logging than the standard approach of supplying a
-``log4j.properties`` file.
+``logback.xml`` file, and allows you to configure logging within
+the main pithos configuration file.
 
 .. sourcecode:: yaml
 
@@ -74,9 +76,10 @@ The following keys are recognized:
   If you wish to configure logging in ways that pithos' configuration
   file does not support, ``logging: {external: true}`` in the config
   will prevent *pithos* from attempting to modify logging and let you
-  supply your own ```log4j.properties`` file.
+  supply your own ```logback.xml`` file.
 
-.. _log4j: http://logging.apache.org/log4j/1.2/
+.. _unilog: https://github.com/pyr/unilog
+.. _logack: http://logback.qos.ch
 
 
 Global options
@@ -192,7 +195,7 @@ Reporter Configuration
 ----------------------
 
 Reporters provide a way to ship events out of pithos. As it stands pithos
-only ships with a log4j reporter, but adding more is trivial and covered
+only ships with a logging reporter, but adding more is trivial and covered
 in :ref:`Alternative Reporter`
 
 Two types of events may be shipped:
@@ -202,7 +205,7 @@ Two types of events may be shipped:
 
 Additional events may be added in the future.
 
-Reporters is expected to be a list of reporter configurations. The default ``log4j`` reporter
+Reporters is expected to be a list of reporter configurations. The default ``logging`` reporter
 only takes a ``level`` key, to indicate at which level messages should be logged.
 
 Here we showcase a sample configuration with the default reporter logging at info and

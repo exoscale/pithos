@@ -4,7 +4,7 @@
 (defprotocol Reporter
   (report! [this event]))
 
-(defn log4j-reporter
+(defn logging-reporter
   [{:keys [level]}]
   (reify Reporter
     (report! [_ event]
