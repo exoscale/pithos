@@ -52,6 +52,10 @@
   set a large limit of chunks to retrieve from a block."
   524288)
 
+(def slice-width
+  "Provide a sensible default for fetching chunk slices."
+  1024)
+
 
 (defprotocol Blobstore
   "The blobstore protocol, provides methods to read and write data
@@ -145,6 +149,12 @@
                          [= :version version]
                          [= :block block]])))
 
+(defn next-offset
+  [slice]
+  (let [{:keys [offset chunksize]} (last slice)]
+    (when (and offset chunksize)
+      (+ offset chunksize))))
+
 (defn cassandra-blob-store
   "cassandra-blob-store, given a maximum chunk size and maximum
    number of chunks per block and cluster configuration details,
@@ -182,10 +192,12 @@
         max-chunk)
 
       (chunks [this od block offset]
-        (let [ino (d/inode od)
-              ver (d/version od)]
-          (seq (read! (get-chunk-q ino ver block offset
-                                   absolute-chunk-limit)))))
+        (let [ino   (d/inode od)
+              ver   (d/version od)
+              slice (read! (get-chunk-q ino ver block offset slice-width))]
+          (if-let [offset (next-offset slice)]
+            (lazy-cat slice (chunks this od block offset))
+            slice)))
 
       (boundary? [this block offset]
         (>= offset (+ block bs)))
