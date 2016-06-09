@@ -213,13 +213,19 @@
                           :object)]
        (remove nil? (map ->prefix objects))))))
 
+(defn normalize-params
+  [{:keys [delimiter] :as params}]
+  (if (seq delimiter)
+    params
+    (dissoc params :delimiter)))
+
 (defn get-prefixes
   "Paging logic for keys"
   [fetcher {:keys [prefix delimiter max-keys marker]}]
   (loop [objects    (fetcher prefix (or marker prefix) max-keys)
          prefixes   #{}
          keys       []]
-    (let [prefixes (if (seq delimiter)
+    (let [prefixes (if delimiter
                      (union prefixes (filter-prefixes objects prefix delimiter))
                      #{})
           new-keys  (remove prefixes (filter-keys objects prefix delimiter))
@@ -273,7 +279,7 @@
          (fn [prefix marker limit]
            (when (and (number? limit) (pos? limit))
              (read! (fetch-object-q bucket prefix marker limit))))
-         params))
+         (normalize-params params)))
       (initiate-upload! [this bucket object upload metadata]
         (write! (initiate-upload-q bucket object upload metadata)))
       (abort-multipart-upload! [this bucket object upload]
