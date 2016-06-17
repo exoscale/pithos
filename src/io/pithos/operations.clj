@@ -462,9 +462,10 @@
         (status 200)
         (cond-> has-range? (status 206)
                 has-range? (header "Content-Range"
-                                   (format "bytes=%s-%s/%s"
+                                   (format "bytes %s-%s/%s"
                                            (first range)
-                                           (last range)
+                                           (dec
+                                            (last range))
                                            (desc/size od))))
         (content-type (desc/content-type od))
         (header "Content-Length" (- (last range) (first range)))
