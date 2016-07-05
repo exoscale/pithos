@@ -47,6 +47,11 @@
 ;; All storage protocols expose functions to produce side-effects
 ;; and a `converge!` function whose role is to apply the schema
 
+(def absolute-chunk-limit
+  "max block per chunk can be exceeded when small chunks are uploaded.
+  set a large limit of chunks to retrieve from a block."
+  524288)
+
 (def slice-width
   "Provide a sensible default for fetching chunk slices."
   1024)
