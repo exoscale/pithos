@@ -150,7 +150,6 @@
                          [= :block block]])))
 
 (defn next-offset
-  "Given a range of chunks, fetch the next probable offset"
   [slice]
   (let [{:keys [offset chunksize]} (last slice)]
     (when (and offset chunksize)
