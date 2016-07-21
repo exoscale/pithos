@@ -799,9 +799,9 @@ Sample Request::
   Date: <date>
   Authorization: AWS <key>:<signature>
 
-Sample Response::
+Sample Response:
 
-.. sourcecode: xml
+.. sourcecode:: xml
 
   <?xml version="1.0" encoding="UTF-8"?>
   <InitiateMultipartUploadResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
