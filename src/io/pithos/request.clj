@@ -6,7 +6,7 @@
             [clojure.pprint                   :refer [pprint]]
             [io.pithos.sig                    :refer [validate check-sig anonymous]]
             [io.pithos.system                 :refer [service-uri keystore]]
-            [io.pithos.util                   :refer [string->pattern]]
+            [io.pithos.util                   :refer [string->pattern uri-decode]]
             [clout.core                       :as c]
             [ring.middleware.multipart-params :as mp]
             [ring.util.request                :as req]
@@ -97,11 +97,6 @@
    :versioning "versioning"
    :versions "versions"
    :website "website"})
-
-(defn uri-decode
-  [s]
-  (when s
-    (java.net.URLDecoder/decode s "UTF-8")))
 
 (defn action-routes
   "Really simple router, extracts target (service, bucket or object)"

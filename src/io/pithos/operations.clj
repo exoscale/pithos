@@ -91,20 +91,22 @@
                                                    (str "/" source))
                                                  #"/"
                                                  3)]
-        (if (seq prefix)
-          (throw (ex-info "invalid" {:type :invalid-request :status-code 400}))
-          (when (perms/authorize {:bucket s-bucket
-                                  :object s-object
-                                  :authorization authorization}
-                                 [[:bucket :READ]]
-                                 system)
-            (let [src (desc/object-descriptor system s-bucket s-object)]
-              (when-not (desc/init-version src)
-                (throw (ex-info "no such key" {:type :no-such-key
-                                               :key  s-object})))
-              [src (if update-metadata?
-                     (get-metadata headers)
-                     (:metadata src))])))
+        (let [s-bucket (util/uri-decode s-bucket)
+              s-object (util/uri-decode s-object)]
+          (if (seq prefix)
+            (throw (ex-info "invalid" {:type :invalid-request :status-code 400}))
+            (when (perms/authorize {:bucket s-bucket
+                                    :object s-object
+                                    :authorization authorization}
+                                   [[:bucket :READ]]
+                                   system)
+              (let [src (desc/object-descriptor system s-bucket s-object)]
+                (when-not (desc/init-version src)
+                  (throw (ex-info "no such key" {:type :no-such-key
+                                                 :key  s-object})))
+                [src (if update-metadata?
+                       (get-metadata headers)
+                       (:metadata src))]))))
         (throw (ex-info "invalid" {:type :invalid-request :status-code 400})))
       [nil (get-metadata headers)])))
 

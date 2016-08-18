@@ -8,6 +8,11 @@
             [clj-time.core   :refer [now]]
             [clj-time.format :refer [formatters parse unparse formatter]]))
 
+(defn uri-decode
+  [s]
+  (when s
+    (java.net.URLDecoder/decode s "UTF-8")))
+
 (defn md5-init
   "Yield an MD5 MessageDigest instance"
   []
