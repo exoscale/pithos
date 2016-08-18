@@ -47,9 +47,10 @@
 ;; All storage protocols expose functions to produce side-effects
 ;; and a `converge!` function whose role is to apply the schema
 
-(def slice-width
-  "Provide a sensible default for fetching chunk slices."
-  1024)
+(def absolute-chunk-limit
+  "max block per chunk can be exceeded when small chunks are uploaded.
+  set a large limit of chunks to retrieve from a block."
+  524288)
 
 
 (defprotocol Blobstore
@@ -144,13 +145,6 @@
                          [= :version version]
                          [= :block block]])))
 
-(defn next-offset
-  "Given a range of chunks, fetch the next probable offset"
-  [slice]
-  (let [{:keys [offset chunksize]} (last slice)]
-    (when (and offset chunksize)
-      (+ offset chunksize))))
-
 (defn cassandra-blob-store
   "cassandra-blob-store, given a maximum chunk size and maximum
    number of chunks per block and cluster configuration details,
@@ -188,12 +182,10 @@
         max-chunk)
 
       (chunks [this od block offset]
-        (let [ino   (d/inode od)
-              ver   (d/version od)
-              slice (read! (get-chunk-q ino ver block offset slice-width))]
-          (if-let [offset (next-offset slice)]
-            (lazy-cat slice (chunks this od block offset))
-            slice)))
+        (let [ino (d/inode od)
+              ver (d/version od)]
+          (seq (read! (get-chunk-q ino ver block offset
+                                   absolute-chunk-limit)))))
 
       (boundary? [this block offset]
         (>= offset (+ block bs)))
