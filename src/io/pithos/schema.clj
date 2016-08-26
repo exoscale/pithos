@@ -20,11 +20,10 @@
          (doseq [[storage-class blobstore] storage-classes]
            (info "converging blobstore for region and storage-class "
                  region storage-class)
-           (store/converge! blobstore)))
-
+           (store/converge! blobstore))
+         (when exit? (System/exit 0)))
        (catch Exception e
-         (error e "cannot create schema"))
-       (finally
-         (when exit? (System/exit 0)))))
+          (error e "cannot create schema")
+          (when exit? (System/exit 1)))))
   ([system]
      (converge-schema system true)))
