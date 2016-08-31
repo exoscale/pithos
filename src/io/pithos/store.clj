@@ -25,7 +25,7 @@
         cluster (if (sequential? cluster) cluster [cluster])
         session (-> {:contact-points cluster}
                     (cond-> (and username password)
-                      (assoc :credentials {:username username
+                      (assoc :credentials {:user username
                                            :password password}))
                     (alia/cluster)
                     (alia/connect))]
