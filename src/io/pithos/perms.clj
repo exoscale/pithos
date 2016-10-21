@@ -108,8 +108,10 @@
 
 (defn header-acl
   [owner tenant headers]
-  (let [init          {:FULL_CONTROL [{:ID owner
-                                       :DisplayName owner}]}
+  (let [init          (if (= owner tenant)
+                        {:FULL_CONTROL [{:ID owner :DisplayName owner}]}
+                        {:FULL_CONTROL [{:ID owner :DisplayName owner}
+                                        {:ID tenant :DisplayName tenant}]})
         canned-acl    (get headers "x-amz-acl")
         acl-read      (some-> (get headers "x-amz-grant-read")
                               (split #","))
