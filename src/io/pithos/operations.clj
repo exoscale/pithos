@@ -492,7 +492,7 @@
   (let [dst         od
         previous    (desc/init-version dst)
         ctype       (get (:headers request) "content-type")
-        target-acl  (perms/header-acl (-> request :bd :tenant)
+        target-acl  (perms/header-acl (-> request :od :tenant)
                                       (:tenant authorization)
                                       (:headers request))
         [src meta]  (get-source request system)]
