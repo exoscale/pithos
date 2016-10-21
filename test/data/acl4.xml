@@ -14,6 +14,7 @@
     <Grant>
       <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Group">
         <URI>bar</URI>
+        <DisplayName>bar</DisplayName>
       </Grantee>
       <Permission>FULL_CONTROL</Permission>
     </Grant>
@@ -27,6 +28,7 @@
     <Grant>
       <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Group">
         <URI>baz</URI>
+        <DisplayName>baz</DisplayName>
       </Grantee>
       <Permission>READ_ACP</Permission>
     </Grant>

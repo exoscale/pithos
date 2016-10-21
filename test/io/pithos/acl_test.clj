@@ -7,10 +7,11 @@
 (deftest xml-to-acl-test
   (let [repr {:acl1 {:FULL_CONTROL [{:ID "foo" :DisplayName "bar"}]}
               :acl4 {:FULL_CONTROL [{:ID "foo" :DisplayName "bar"}
-                                    {:URI "bar"}]
+                                    {:URI "bar" :DisplayName "bar"}]
                      :READ_ACP [{:ID "foo" :DisplayName "baz"}
-                                {:URI "baz"}]}
-              :acl5 {:READ [{:URI "anonymous"}]}}]
+                                {:URI "baz" :DisplayName "baz"}]}
+              :acl5 {:READ [{:URI "anonymous"
+                             :DisplayName "anonymous"}]}}]
 
     (doseq [[src int-repr] repr
             :let [path (format "%s.xml" (name src))
