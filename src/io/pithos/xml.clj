@@ -411,7 +411,7 @@ Will produce an XML AST equivalent to:
         [:Code "NoSuchCORSConfiguration"]
         [:BucketName (:bucket payload)]
         [:Message "The CORS configuration does not exist"]]
-       :no-such-lifecycle-configuration
+       :no-such-lifecycle-config
        [:Error
         [:Code "NoSuchLifecycleConfiguration"]
         [:Message "The lifecycle configuration does not exist"]
