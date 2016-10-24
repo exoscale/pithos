@@ -18,6 +18,17 @@
                      nil
                      false
 
+                     "object shows up"
+                     [{:object "foo.txt"}]
+                     "foo.txt"
+                     "/"
+                     #{}
+                     [{:object "foo.txt"}]
+                     10
+                     nil
+                     false
+
+
                      "no delimiter"
                      [{:object "foo/bar.txt"}
                       {:object "foo/baz.txt"}]
@@ -71,7 +82,7 @@
   "Provide a simulation of cassandra's wide row storage for testing
    Alternate store implementations will need to provide the same properties"
   [input]
-  (fn [prefix marker limit]
+  (fn [prefix marker limit init?]
     (let [>pred   #(or (= (:object %) (or marker prefix))
                        (not (.startsWith (or (:object %) "")
                                          (or marker prefix ""))))
