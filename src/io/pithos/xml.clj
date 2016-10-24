@@ -267,6 +267,12 @@ Will produce an XML AST equivalent to:
      (for [object objects]
        [:Deleted [:Key (str object)]])]))
 
+(defn bucket-requestpayment
+  []
+  (seq->xmlstr
+   [:RequestPaymentConfiguration xml-ns
+    [:Payer "BucketOwner"]]))
+
 (defn get-bucket-versioning
   "Template for the get bucket versioning response"
   [versioned?]

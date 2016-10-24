@@ -390,6 +390,10 @@
   (-> (xml/bucket-lifecycle)
       (xml-response)))
 
+(defn get-bucket-requestpayment
+  [request system]
+  (xml-response (xml/bucket-requestpayment)))
+
 (defn put-bucket-versioning
   "No versioning support for now even though versions are stored"
   [{:keys [bucket] :as request} system]
@@ -823,6 +827,9 @@
    :get-bucket-uploads      {:handler get-bucket-uploads
                              :perms   [[:bucket :READ]]
                              :target  :bucket}
+   :get-bucket-requestpayment {:handler get-bucket-requestpayment
+                               :perms [[:bucket :READ]]
+                               :target :bucket}
    :options-object          {:handler options-object
                              :target  :bucket
                              :cors?   true
