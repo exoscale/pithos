@@ -245,7 +245,8 @@
   (let [cors (or (some-> (bucket/by-name (system/bucketstore system) bucket)
                          :cors
                          read-string)
-                 [])]
+                 (throw (ex-info "The CORS configuration does not exist"
+                                 {:status-code 404 :type :no-such-cors})))]
     (-> cors
         (cors/as-xml)
         (xml-response))))
