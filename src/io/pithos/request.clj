@@ -192,7 +192,7 @@
 (defn yield-rewrite-bucket
   "Move from a vhost based access method to a full resource access path"
   [service-uri]
-  (let [pattern-str (str "^(.*)." (string->pattern service-uri) "$")
+  (let [pattern-str (str "^(.*)\\." (string->pattern service-uri) "$")
         pattern     (re-pattern pattern-str)
         transformer (fn [bucket uri] (str "/" bucket (if (seq uri) uri "/")))]
     (fn [{:keys [uri] {:strs [host] :or {host ""}} :headers :as request}]
