@@ -345,7 +345,7 @@ Will produce an XML AST equivalent to:
         [:Message "The bucket policy does not exist"]
         [:RequestId reqid]
         [:HostId reqid]
-        [:Bucket (:bucket payload)]]
+        [:BucketName (:bucket payload)]]
        :bucket-not-empty
        [:Error
         [:Code "BucketNotEmpty"]
@@ -405,6 +405,11 @@ Will produce an XML AST equivalent to:
         [:Code "NoSuchCORSConfiguration"]
         [:BucketName (:bucket payload)]
         [:Message "The CORS configuration does not exist"]]
+       :no-such-lifecycle-configuration
+       [:Error
+        [:Code "NoSuchLifecycleConfiguration"]
+        [:Message "The lifecycle configuration does not exist"]
+        [:BucketName (:bucket payload)]]
        :forbidden
        [:Error
         [:Code "Forbidden"]
