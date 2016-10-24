@@ -245,7 +245,10 @@
   (let [cors (or (some-> (bucket/by-name (system/bucketstore system) bucket)
                          :cors
                          read-string)
-                 [])]
+                 (throw (ex-info "The CORS configuration does not exist"
+                                 {:status-code 404
+                                  :type        :no-such-cors
+                                  :bucket      bucket})))]
     (-> cors
         (cors/as-xml)
         (xml-response))))
@@ -365,8 +368,8 @@
 (defn get-bucket-policy
   "Retrieve object policy: always fails for now"
   [request system]
-  (throw (ex-info "no such bucket policy" {:type :no-such-bucket-policy
-                                           :bucket (:bucket request)
+  (throw (ex-info "no such bucket policy" {:type        :no-such-bucket-policy
+                                           :bucket      (:bucket request)
                                            :status-code 404})))
 
 (defn get-bucket-versioning
@@ -386,9 +389,10 @@
       (status 204)))
 
 (defn get-bucket-lifecycle
-  [request system]
-  (-> (xml/bucket-lifecycle)
-      (xml-response)))
+  [{:keys [bucket]} system]
+  (throw (ex-info "no lifecycle" {:status-code 404
+                                  :type        :no-such-lifecycle-config
+                                  :bucket      bucket})))
 
 (defn get-bucket-requestpayment
   [request system]
@@ -403,10 +407,10 @@
   "Retrieve object information"
   [{:keys [bucket object od] :as request} system]
   (when-not (desc/init-version od)
-    (throw (ex-info "no such key" {:type :no-such-key
+    (throw (ex-info "no such key" {:type        :no-such-key
                                    :status-code 404
-                                   :bucket bucket
-                                   :key object})))
+                                   :bucket      bucket
+                                   :key         object})))
   (-> (response)
       (content-type (desc/content-type od))
       (header "ETag" (str "\"" (desc/checksum od) "\""))
