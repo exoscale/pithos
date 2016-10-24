@@ -246,7 +246,9 @@
                          :cors
                          read-string)
                  (throw (ex-info "The CORS configuration does not exist"
-                                 {:status-code 404 :type :no-such-cors})))]
+                                 {:status-code 404
+                                  :type        :no-such-cors
+                                  :bucket      bucket})))]
     (-> cors
         (cors/as-xml)
         (xml-response))))

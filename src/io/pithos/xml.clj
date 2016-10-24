@@ -403,6 +403,7 @@ Will produce an XML AST equivalent to:
        :no-such-cors
        [:Error
         [:Code "NoSuchCORSConfiguration"]
+        [:BucketName (:bucket payload)]
         [:Message "The CORS configuration does not exist"]]
        :forbidden
        [:Error
