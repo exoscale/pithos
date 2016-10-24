@@ -103,10 +103,11 @@
       [:Grant
        (if URI
          [:Grantee {:xmlns:xsi xmlns-xsi :xsi:type "Group"}
-          [:URI (or (known-groups URI) URI)]]
+          [:URI (or (known-groups URI) URI)]
+          [:DisplayName (or DisplayName URI)]]
          [:Grantee {:xmlns:xsi xmlns-xsi :xsi:type "CanonicalUser"}
           [:ID ID]
-          [:DisplayName DisplayName]])
+          [:DisplayName (or DisplayName ID)]])
        [:Permission (name permission)]])))
 
 (defn as-xml
