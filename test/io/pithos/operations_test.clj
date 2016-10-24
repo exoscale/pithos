@@ -91,7 +91,7 @@
     meta/Metastore
     (prefixes [this bucket params]
       (meta/get-prefixes
-       (fn [prefix marker limit]
+       (fn [prefix marker limit init?]
          (let [>pred   #(or (= (:object %) (or marker prefix))
                             (not (.startsWith (or (:object %) "")
                                               (or marker prefix ""))))

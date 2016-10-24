@@ -152,16 +152,24 @@
 
 (defn fetch-object-q
   "List objects"
-  [bucket prefix marker max]
+  [bucket prefix marker max init?]
   (let [object-def  [[= :bucket bucket]]
         next-prefix (when (seq prefix) (inc-prefix prefix))]
     (select :object
-            (if (seq prefix)
+            (cond
+              (empty? prefix)
+              (where [[= :bucket bucket]
+                      [> :object (or marker "")]])
+
+              init?
+              (where [[= :bucket bucket]
+                      [>= :object marker]
+                      [< :object next-prefix]])
+
+              :else
               (where [[= :bucket bucket]
                       [> :object marker]
-                      [< :object next-prefix]])
-              (where [[= :bucket bucket]
-                      [> :object (or marker "")]]))
+                      [< :object next-prefix]]))
             (limit max))))
 
 (defn get-object-q
@@ -222,7 +230,7 @@
 (defn get-prefixes
   "Paging logic for keys"
   [fetcher {:keys [prefix delimiter max-keys marker]}]
-  (loop [objects    (fetcher prefix (or marker prefix) max-keys)
+  (loop [objects    (fetcher prefix (or marker prefix) max-keys true)
          prefixes   #{}
          keys       []]
     (let [prefixes (if delimiter
@@ -240,7 +248,7 @@
             (cond-> (and delimiter trunc?)
                     (assoc :next-marker next
                            :marker (or marker ""))))
-        (recur (fetcher prefix next max-keys) prefixes keys)))))
+        (recur (fetcher prefix next max-keys false) prefixes keys)))))
 
 (defn cassandra-meta-store
   "Given a cluster configuration, reify an instance of Metastore"
@@ -276,9 +284,9 @@
       Metastore
       (prefixes [this bucket params]
         (get-prefixes
-         (fn [prefix marker limit]
+         (fn [prefix marker limit init?]
            (when (and (number? limit) (pos? limit))
-             (read! (fetch-object-q bucket prefix marker limit))))
+             (read! (fetch-object-q bucket prefix marker limit init?))))
          (normalize-params params)))
       (initiate-upload! [this bucket object upload metadata]
         (write! (initiate-upload-q bucket object upload metadata)))
