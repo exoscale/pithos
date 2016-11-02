@@ -103,15 +103,14 @@
           (when (not= tenant (:tenant details))
             (throw (ex-info
                     "bucket already exists"
-                    {:type :bucket-already-exists
-                     :bucket bucket
+                    {:type        :bucket-already-exists
+                     :bucket      bucket
                      :status-code 409})))
           (let [acl {:FULL_CONTROL [{:ID tenant}]}]
             (write!
              (update-bucket-q bucket
-                              (merge {:region default-region
-                                      :created (iso8601-timestamp)
-                                      :acl     (pr-str acl)}
+                              (merge {:region  default-region
+                                      :created (iso8601-timestamp)}
                                      columns
                                      {:tenant tenant}))))))
       (update! [this bucket columns]
