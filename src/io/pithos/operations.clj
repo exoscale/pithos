@@ -531,6 +531,7 @@
                                            (:headers request))
         [src range meta] (get-source request system)]
 
+    (desc/clear! dst)
     (cond
       (and src (same-object? src dst previous))
       ::nothing-to-stream
@@ -558,7 +559,6 @@
                              :size   (desc/init-size dst)})
       (store/delete! (desc/blobstore dst) dst previous))
 
-    (desc/clear! dst)
     (doseq [[k v] meta]
       (desc/col! dst k v))
     (desc/col! dst :acl target-acl)
