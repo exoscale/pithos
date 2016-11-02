@@ -23,8 +23,7 @@
   (versioned? [this]))
 
 (defprotocol RegionDescriptor
-  (metastore [this])
-  (storage-classes [this]))
+  (metastore [this]))
 
 ;; ring-global metastore
 
@@ -104,17 +103,15 @@
           (when (not= tenant (:tenant details))
             (throw (ex-info
                     "bucket already exists"
-                    {:type :bucket-already-exists
-                     :bucket bucket
+                    {:type        :bucket-already-exists
+                     :bucket      bucket
                      :status-code 409})))
-          (let [acl {:FULL_CONTROL [{:ID tenant}]}]
-            (write!
-             (update-bucket-q bucket
-                              (merge {:region default-region
-                                      :created (iso8601-timestamp)
-                                      :acl     (pr-str acl)}
-                                     columns
-                                     {:tenant tenant}))))))
+          (write!
+           (update-bucket-q bucket
+                            (merge {:region  default-region
+                                    :created (iso8601-timestamp)}
+                                   columns
+                                   {:tenant tenant})))))
       (update! [this bucket columns]
         (write! (update-bucket-q bucket columns)))
       (delete! [this bucket]
@@ -140,24 +137,23 @@
 
 (defn bucket-descriptor
   [system bucket]
-  (let [bucketstore                         (system/bucketstore system)
-        details                             (by-name bucketstore bucket)]
+  (let [bucketstore (system/bucketstore system)
+        details     (by-name bucketstore bucket)]
     (if details
-      (let [{:keys [versioned region bucket]}   details
-            {:keys [metastore storage-classes]} (get-region system region)]
+      (let [{:keys [versioned region bucket]} details
+            {:keys [metastore]}               (get-region system region)]
         (reify
           BucketDescriptor
           (versioned? [this] versioned)
           (region [this] region)
           RegionDescriptor
           (metastore [this] metastore)
-          (storage-classes [this] storage-classes)
           clojure.lang.ILookup
           (valAt [this k]
             (get details k))
           (valAt [this k def]
             (get details k def))))
       (throw (ex-info "bucket not found"
-                      {:type :no-such-bucket
+                      {:type        :no-such-bucket
                        :status-code 404
-                       :bucket bucket})))))
+                       :bucket      bucket})))))
