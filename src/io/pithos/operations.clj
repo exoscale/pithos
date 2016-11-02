@@ -700,7 +700,7 @@
 
     (debug "uploading part: " partnumber)
     (cond
-      (and src range) (stream/stream-copy-range src pd)
+      (and src range) (stream/stream-copy-range src pd range)
       src             (stream/stream-copy src pd)
       :else           (stream/stream-from body pd))
     (desc/save! pd)

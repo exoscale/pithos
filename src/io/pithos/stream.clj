@@ -118,7 +118,6 @@
         (when (>= block offset)
           (debug "marking new block")
           (b/start-block! blob od block))
-
         (let [chunk-size (b/max-chunk blob)
               ba         (byte-array chunk-size)
               br         (.read stream ba)]
@@ -141,12 +140,50 @@
         (debug "closing after write")
         (.close stream)))))
 
+(defn validate-range
+  [src start end]
+  (when-not (<= 0 start end (d/size src))
+    (throw (IllegalArgumentException. "Invalid range supplied"))))
+
+(defn stream-copy-range-block
+  "I have seen prouder days."
+  [offset dblob dst sblob src start end block]
+  (b/start-block! dblob dst (- block start))
+  (if-let [chunks (seq (b/chunks sblob src block offset))]
+    (do
+      (doseq [chunk chunks]
+        (when-let [chunk (crop-chunk chunk start end)]
+          (let [offset (:offset chunk)]
+            (b/chunk! dblob dst block (- offset start) (:payload chunk)))))
+      (let [{:keys [offset chunksize]} (last chunks)]
+        (- (+ offset chunksize) start)))
+    offset))
+
+(defn block-range-exceeded?
+  [block end]
+  (>)
+  )
 (defn stream-copy-range
-  [src dst range]
+  [src dst [start end]]
+  (debug "copying from range: " start end)
   (let [sblob  (d/blobstore src)
         dblob  (d/blobstore dst)
         blocks (b/blocks sblob src)]
-    ::i-should-copy-stuff-here))
+    (validate-range sblob start end)
+    (loop [[block & blocks] (b/blocks sblob src)
+           offset 0]
+      (cond
+        (or (nil? block) (> block end))
+        ::recur-finished
+
+        ;; look-ahead to see if it's worth skipping a whole block
+        (and (seq blocks) (< start (first blocks)))
+        (recur blocks offset)
+
+        ::else
+        (do
+          (recur blocks
+                 (stream-copy-range-block offset dblob dst sblob src start end block)))))))
 
 (defn stream-copy
   "Copy from one object descriptor to another."
