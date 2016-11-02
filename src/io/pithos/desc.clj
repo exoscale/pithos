@@ -47,7 +47,6 @@
          (region [this] (get regions region))
          bucket/RegionDescriptor
          (metastore [this] metastore)
-         (storage-classes [this] storage-classes)
          PartDescriptor
          (part [this] (:partno part))
          BlobDescriptor
@@ -80,7 +79,6 @@
       (region [this] (get regions region))
       bucket/RegionDescriptor
       (metastore [this] metastore)
-      (storage-classes [this] storage-classes)
       BlobDescriptor
       (size [this] (or (:size @cols) (:size meta)))
       (checksum [this] (or (:checksum @cols) (:checksum meta)))
@@ -151,7 +149,6 @@
       (region [this] (get regions region))
       bucket/RegionDescriptor
       (metastore [this] metastore)
-      (storage-classes [this] storage-classes)
       BlobDescriptor
       (size [this] (or (:size @cols) (:size meta)))
       (checksum [this] (or (:checksum @cols) (:checksum meta)))
