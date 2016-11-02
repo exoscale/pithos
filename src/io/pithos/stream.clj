@@ -141,6 +141,13 @@
         (debug "closing after write")
         (.close stream)))))
 
+(defn stream-copy-range
+  [src dst range]
+  (let [sblob  (d/blobstore src)
+        dblob  (d/blobstore dst)
+        blocks (b/blocks sblob src)]
+    ::i-should-copy-stuff-here))
+
 (defn stream-copy
   "Copy from one object descriptor to another."
   [src dst]
