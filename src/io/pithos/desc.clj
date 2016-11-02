@@ -64,7 +64,12 @@
         {:keys [region tenant]}   (bucket/by-name bucketstore bucket)
         {:keys [metastore
                 storage-classes]} (bucket/get-region system region)
-        meta                      (store/fetch metastore bucket object false)
+        meta                      (or (store/fetch metastore bucket object false)
+                                      ; when the object doesn't exist, inherit
+                                      ; from the bucket ACL to avoid returning
+                                      ; unexpected 403s
+                                      {:acl (:acl (bucket/bucket-descriptor
+                                                    system bucket))})
         inode                     (or (:inode meta) (uuid/random))
         version                   (or (:version meta) (uuid/time-based))
         ;; XXX: should support several storage classes
