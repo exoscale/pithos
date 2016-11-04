@@ -95,7 +95,7 @@
 
 (defn make-source-range
   [[start end]]
-  [(parse-int "src-range-start" start) (parse-int "src-range-end" start)])
+  [(parse-int "src-range-start" start) (parse-int "src-range-end" end)])
 
 (defn get-source-range
   "Extract byte range from x-amz-copy-source-range"

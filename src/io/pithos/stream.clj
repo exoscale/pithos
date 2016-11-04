@@ -183,7 +183,8 @@
         ::else
         (do
           (recur blocks
-                 (stream-copy-range-block hash offset dblob dst sblob src start end block)))))))
+                 (stream-copy-range-block hash offset dblob dst sblob
+                                          src start end block)))))))
 
 (defn stream-copy
   "Copy from one object descriptor to another."
