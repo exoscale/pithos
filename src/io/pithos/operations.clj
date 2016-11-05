@@ -537,7 +537,10 @@
       ::nothing-to-stream
 
       (and src range)
-      (stream/stream-copy-range src dst range)
+      (throw (ex-info "illegal argument" {:type :invalid-argument
+                                          :status-code 400
+                                          :arg "x-amz-copy-source-range"
+                                          :val (get-in request [:headers "x-amz-copy-source-range"])}))
 
       src
       (stream/stream-copy src dst)
