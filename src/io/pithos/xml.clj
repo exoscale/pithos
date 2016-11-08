@@ -231,6 +231,13 @@ Will produce an XML AST equivalent to:
              [:ETag (str "\"" checksum "\"")]
              [:Size (str size)]]))))
 
+(defn multipart-upload-part-copy
+  [etag atime]
+  (seq->xmlstr
+   [:CopyPartResult
+    [:ETag etag]
+    [:LastModified atime]]))
+
 (defn complete-multipart-upload
   "Template for the complete multipart upload response"
   [bucket object etag]

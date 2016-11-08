@@ -707,8 +707,14 @@
       src             (stream/stream-copy src pd)
       :else           (stream/stream-from body pd))
     (desc/save! pd)
-    (-> (response)
-        (header "ETag" (str "\"" (desc/checksum pd) "\"")))))
+
+    (if src
+      (-> (xml/multipart-upload-part-copy (desc/checksum pd)
+                                          (str (util/iso8601-timestamp)))
+          (xml-response)
+          (header "ETag" (str "\"" (desc/checksum pd) "\"")))
+      (-> (response)
+          (header "ETag" (str "\"" (desc/checksum pd) "\""))))))
 
 (defn complete-upload
   "To complete an upload, all parts are read and streamed to
