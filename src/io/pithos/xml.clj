@@ -204,7 +204,7 @@ Will produce an XML AST equivalent to:
 
 (defn list-multipart-uploads
   "Template for the list-multipart-uploads response"
-  [uploads bucket]
+  [uploads bucket prefix]
   (seq->xmlstr
    [:ListMultipartUploadsResult xml-ns
     [:Bucket bucket]
@@ -212,6 +212,7 @@ Will produce an XML AST equivalent to:
     [:UploadIdMarker]
     [:MaxUploads 1000]
     [:IsTruncated "false"]
+    [:Prefix prefix]
     (for [{:keys [object upload metadata]} uploads]
       [:Upload
        [:Key object]

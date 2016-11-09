@@ -320,10 +320,12 @@
 
 (defn get-bucket-uploads
   "List current uploads"
-  [{:keys [bucket bd] :as request} system]
-  (-> (meta/list-uploads (bucket/metastore bd) bucket)
-      (xml/list-multipart-uploads bucket)
-      (xml-response)))
+  [{:keys [bucket bd params] :as request} system]
+
+  (let [prefix (get params :prefix "")]
+    (-> (meta/list-uploads (bucket/metastore bd) bucket prefix)
+        (xml/list-multipart-uploads bucket prefix)
+        (xml-response))))
 
 (defn options-object
   "Answer an empty object for any OPTIONS request"
