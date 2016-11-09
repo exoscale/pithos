@@ -235,7 +235,7 @@ Will produce an XML AST equivalent to:
   [etag atime]
   (seq->xmlstr
    [:CopyPartResult
-    [:ETag etag]
+    [:ETag (str "\"" etag "\"")]
     [:LastModified atime]]))
 
 (defn complete-multipart-upload
