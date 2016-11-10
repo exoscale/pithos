@@ -20,7 +20,7 @@
   (update-part! [this bucket object upload partno columns])
   (initiate-upload! [this bucket object upload metadata])
   (get-upload-details [this bucket object upload])
-  (list-uploads [this bucket])
+  (list-uploads [this bucket prefix])
   (list-object-uploads [this bucket object])
   (list-upload-parts [this bucket object upload]))
 
@@ -298,8 +298,9 @@
       (get-upload-details [this bucket object upload]
         (first
          (read! (get-upload-details-q bucket object upload))))
-      (list-uploads [this bucket]
-        (read! (list-uploads-q bucket)))
+      (list-uploads [this bucket prefix]
+        (filter #(.startsWith (:object %) prefix)
+                (read! (list-uploads-q bucket))))
       (list-object-uploads [this bucket object]
         (read! (list-object-uploads-q bucket object)))
       (list-upload-parts [this bucket object upload]

@@ -31,6 +31,23 @@
             [io.pithos.reporter     :as reporter]
             [qbits.alia.uuid        :as uuid]))
 
+(defn parse-int
+  "When integers are supplied as arguments, parse them or
+   error out"
+  ([nickname default val]
+     (if val
+       (try
+         (Long/parseLong val)
+         (catch NumberFormatException e
+           (throw (ex-info (str  "invalid value for " (name nickname))
+                           {:type :invalid-argument
+                            :arg (name nickname)
+                            :val val
+                            :status-code 400}))))
+       default))
+    ([nickname val]
+     (parse-int nickname nil val)))
+
 (defn assoc-targets
   "Each operation has a primary target, fetch details early on has assoc
    them in the operations map"
@@ -76,6 +93,25 @@
             {"content-type" "application/binary"}
             (filter (comp valid? key) headers))))
 
+(defn make-source-range
+  [[start end]]
+  [(parse-int "src-range-start" start) (parse-int "src-range-end" end)])
+
+(defn get-source-range
+  "Extract byte range from x-amz-copy-source-range"
+  [headers]
+  (when-let [range (get headers "x-amz-copy-source-range")]
+    (->> range
+         (re-find #"^bytes[ =](\d+)-(\d+)?(/\d+)?[ \t;]*$")
+         (#(or % (throw (ex-info "unsatisfiable range"
+                                 {:type :invalid-argument
+                                  :arg "range"
+                                  :val range
+                                  :status-code 416}))))
+         (drop 1)
+         (make-source-range))))
+
+
 (defn get-source
   "The AWS API provides a way to specify an object's source in
    headers. This function isolates the handling of extracting
@@ -104,28 +140,13 @@
                 (when-not (desc/init-version src)
                   (throw (ex-info "no such key" {:type :no-such-key
                                                  :key  s-object})))
-                [src (if update-metadata?
-                       (get-metadata headers)
-                       (:metadata src))]))))
+                [src
+                 (get-source-range headers)
+                 (if update-metadata?
+                   (get-metadata headers)
+                   (:metadata src))]))))
         (throw (ex-info "invalid" {:type :invalid-request :status-code 400})))
-      [nil (get-metadata headers)])))
-
-(defn parse-int
-  "When integers are supplied as arguments, parse them or
-   error out"
-  ([nickname default val]
-     (if val
-       (try
-         (Long/parseLong val)
-         (catch NumberFormatException e
-           (throw (ex-info (str  "invalid value for " (name nickname))
-                           {:type :invalid-argument
-                            :arg (name nickname)
-                            :val val
-                            :status-code 400}))))
-       default))
-    ([nickname val]
-     (parse-int nickname nil val)))
+      [nil nil (get-metadata headers)])))
 
 (defn check-range
   [max [has-range? start end]]
@@ -299,10 +320,12 @@
 
 (defn get-bucket-uploads
   "List current uploads"
-  [{:keys [bucket bd] :as request} system]
-  (-> (meta/list-uploads (bucket/metastore bd) bucket)
-      (xml/list-multipart-uploads bucket)
-      (xml-response)))
+  [{:keys [bucket bd params] :as request} system]
+
+  (let [prefix (get params :prefix "")]
+    (-> (meta/list-uploads (bucket/metastore bd) bucket prefix)
+        (xml/list-multipart-uploads bucket prefix)
+        (xml-response))))
 
 (defn options-object
   "Answer an empty object for any OPTIONS request"
@@ -483,6 +506,11 @@
         (header "Last-Modified" (iso8601->rfc822 (str (:atime od))))
         (update-in [:headers] (partial merge (:metadata od))))))
 
+(defn same-object?
+  [src dst previous]
+  (and (= (desc/inode src) (desc/inode dst))
+       (= (desc/version src) previous)))
+
 (defn put-object
   "Accept data for storage. The body of this function is a bit messy and
    needs to be reworked.
@@ -497,23 +525,35 @@
 
    Otherwise, data is streamed in."
   [{:keys [od body bucket object authorization] :as request} system]
-  (let [dst         od
-        previous    (desc/init-version dst)
-        ctype       (get (:headers request) "content-type")
-        target-acl  (perms/header-acl (-> request :od :tenant)
-                                      (:tenant authorization)
-                                      (:headers request))
-        [src meta]  (get-source request system)]
+  (let [dst              od
+        previous         (desc/init-version dst)
+        ctype            (get (:headers request) "content-type")
+        target-acl       (perms/header-acl (-> request :od :tenant)
+                                           (:tenant authorization)
+                                           (:headers request))
+        [src range meta] (get-source request system)]
 
-    (if src
-      ;; avoid copies when source and dest are the same
-      (when (or (not= (desc/inode src) (desc/inode dst))
-                (not= (desc/version src) previous))
-        (stream/stream-copy src dst))
+    (desc/clear! dst)
+    (cond
+      (and src (same-object? src dst previous))
+      ::nothing-to-stream
+
+      (and src range)
+      (throw (ex-info "illegal argument" {:type :invalid-argument
+                                          :status-code 400
+                                          :arg "x-amz-copy-source-range"
+                                          :val (get-in request [:headers "x-amz-copy-source-range"])}))
+
+      src
+      (stream/stream-copy src dst)
+
+      previous
       (do
-        (when previous
-          (desc/increment! dst))
-        (stream/stream-from body od)))
+        (desc/increment! dst)
+        (stream/stream-from body od))
+
+      :else
+      (stream/stream-from body od))
 
     ;; if a previous copy existed, kill it
     (when (and previous (not= previous (desc/version dst)))
@@ -524,7 +564,6 @@
                              :size   (desc/init-size dst)})
       (store/delete! (desc/blobstore dst) dst previous))
 
-    (desc/clear! dst)
     (doseq [[k v] meta]
       (desc/col! dst k v))
     (desc/col! dst :acl target-acl)
@@ -662,16 +701,22 @@
   (let [{:keys [partnumber]} (:params request)
         pd                   (desc/part-descriptor system bucket object
                                                    upload-id partnumber)
-        [src _]              (get-source request system)]
+        [src range _]        (get-source request system)]
 
     (debug "uploading part: " partnumber)
-    (if src
-      (stream/stream-copy src pd)
-      (stream/stream-from body pd))
-
+    (cond
+      (and src range) (stream/stream-copy-range src pd range)
+      src             (stream/stream-copy src pd)
+      :else           (stream/stream-from body pd))
     (desc/save! pd)
-    (-> (response)
-        (header "ETag" (str "\"" (desc/checksum pd) "\"")))))
+
+    (if src
+      (-> (xml/multipart-upload-part-copy (desc/checksum pd)
+                                          (str (util/iso8601-timestamp)))
+          (xml-response)
+          (header "ETag" (str "\"" (desc/checksum pd) "\"")))
+      (-> (response)
+          (header "ETag" (str "\"" (desc/checksum pd) "\""))))))
 
 (defn complete-upload
   "To complete an upload, all parts are read and streamed to
