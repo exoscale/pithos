@@ -152,7 +152,7 @@
   (if-let [chunks (seq (b/chunks sblob src block offset))]
     (do
       (doseq [chunk chunks
-              :when chunk
+              :when (and chunk (within-range? chunk start end))
               :let [[ba offset len] (crop-chunk chunk start end)]]
         (b/chunk! dblob dst block (- offset start) (ByteBuffer/wrap ba offset len))
         (u/md5-update hash ba offset len))
