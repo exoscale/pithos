@@ -115,5 +115,6 @@
                              :status-code 403
                              :request request
                              :expires (date->rfc822 expires)})))))
-      (update-in authorization [:memberof] concat ["authenticated-users"]))
+      (update-in authorization [:memberof] concat ["authenticated-users"
+                                                   "anonymous"]))
     anonymous))
