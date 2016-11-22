@@ -35,11 +35,6 @@ When testing locally, the following configuration can be used::
     proxy_port = 8080
     
 
-boto
-----
-
-Fully tested with the current API coverage.
-
 libcloud
 --------
 
@@ -155,3 +150,108 @@ per-repository::
     }'
 
 .. _AWS Cloud Plugin: https://github.com/elasticsearch/elasticsearch-cloud-aws
+
+AWS Languages SDKs
+------------------
+
+In general, AWS Language SDKs can work with Pithos with the following
+configuration:
+
+* In ``~/.aws/config``::
+
+      [default]
+      s3 =
+          signature_version = s3
+
+* In ``~/.aws/credentials``::
+
+      [default]
+      aws_access_key_id = <your key>
+      aws_secret_access_key = <your secret>
+
+You can have multiple profiles instead of altering the ``[default]``
+configuration. Simply repeat configuration sections and name them ``[profile
+<profile name>]``
+
+Shell (awscli)
+``````````````
+
+Install `awscli`_, then::
+
+    aws s3 ls --endpoint-url=https://your-endpoint
+
+To use a non-default profile::
+
+    aws s3 ls --endpoint-url=https://your-endpoint --profile=<profile-name>
+
+Python (boto3)
+``````````````
+
+Install `boto3`_ and create a Pithos client like this:
+
+.. code-block:: python
+
+    import boto3.session
+
+    session = boto3.session.Session()
+    client = session.client('s3', endpoint_url='https://pithos-endpoint')
+    client.list_buckets()
+
+To use a non-default profile:
+
+.. code-block:: python
+
+    import boto3.session
+    session = boto3.session.Session(profile_name='profile-name')
+    client = session.client('s3', endpoint_url='https://pithos-endpoint')
+
+Python (boto)
+`````````````
+
+`Boto`_ version 2 is boto3's ancestor but is still widely used. It doesn't
+take ``~/.aws/*`` configuration files into account.
+
+.. code-block:: python
+
+    from boto.s3.connection import S3Connection, OrdinaryCallingFormat
+
+    connection = S3Connection(key, secret, host='pithos-endpoint',
+                              port=443, is_secure=True,
+                              calling_format=OrdinaryCallingFormat())
+    bucket = connection.get_bucket('your-bucket')
+
+.NET
+````
+
+Install `AWSSDK.S3`_, then:
+
+.. code-block:: csharp
+
+    Amazon.AWSConfigsS3.UseSignatureVersion4 = false;
+    var config = new Amazon.S3.AmazonS3Config()
+    {
+        ServiceURL = host,
+        SignatureVersion = "s3",
+    };
+    var client = new Amazon.S3.AmazonS3Client(apikey, secretKey, config);
+
+Java
+````
+
+Install `AWS SDK for Java`_, then:
+
+.. code-block:: java
+
+    import com.amazonaws.ClientConfiguration;
+    import com.amazonaws.services.s3.AmazonS3Client;
+
+    ClientConfiguration config = new ClientConfiguration();
+    config.setSignerOverride("S3SignerType");
+    AmazonS3Client s3 = new AmazonS3Client(config);
+    s3.setEndpoint("https://your-endpoint");
+
+.. _awscli: https://aws.amazon.com/cli/
+.. _boto3: https://boto3.readthedocs.io/en/latest/
+.. _Boto: http://boto.cloudhackers.com/en/latest/
+.. _AWSSDK.S3: https://www.nuget.org/packages/AWSSDK.S3/
+.. _AWS SDK for Java: https://aws.amazon.com/sdk-for-java/
