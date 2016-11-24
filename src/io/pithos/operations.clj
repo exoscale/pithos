@@ -398,7 +398,9 @@
 (defn get-bucket-tagging
   "Retrieve object policy: always fails for now"
   [request system]
-  (xml-response (xml/empty-tag-list)))
+  (throw (ex-info "NoSuchTagSet" {:type        :no-such-tag-set
+                                  :bucket      (:bucket request)
+                                  :status-code 400})))
 
 (defn get-bucket-versioning
   "Retrieve bucket versioning configuration"

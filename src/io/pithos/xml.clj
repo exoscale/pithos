@@ -288,13 +288,6 @@ Will produce an XML AST equivalent to:
    [:VersioningConfiguration xml-ns
     [:Status (if versioned? "Enabled" "Suspended")]]))
 
-(defn empty-tag-list
-  "Placeholder tag list"
-  []
-  (seq->xmlstr
-   [:Tagging
-    [:TagSet]]))
-
 (defn exception
   "Dispatch on the type of exception we got and apply appropriate template.
    Thankfully, we have a nice error message list in the S3 documentation:
@@ -430,6 +423,12 @@ Will produce an XML AST equivalent to:
        [:Error
         [:Code "NoSuchLifecycleConfiguration"]
         [:Message "The lifecycle configuration does not exist"]
+        [:BucketName (:bucket payload)]]
+       :no-such-tag-set
+       [:Error
+        [:Code "NoSuchTagSet"]
+
+        [:Message "NoSuchTagSet"]
         [:BucketName (:bucket payload)]]
        :forbidden
        [:Error
