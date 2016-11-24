@@ -400,7 +400,7 @@
   [request system]
   (throw (ex-info "NoSuchTagSet" {:type        :no-such-tag-set
                                   :bucket      (:bucket request)
-                                  :status-code 400})))
+                                  :status-code 404})))
 
 (defn get-bucket-versioning
   "Retrieve bucket versioning configuration"
