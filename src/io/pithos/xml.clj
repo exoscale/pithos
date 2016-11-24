@@ -428,8 +428,7 @@ Will produce an XML AST equivalent to:
        [:Error
         [:Code "NoSuchTagSet"]
 
-        [:Message "The TagSet does not
-exist"]
+        [:Message "The TagSet does not exist"]
         [:BucketName (:bucket payload)]]
        :forbidden
        [:Error

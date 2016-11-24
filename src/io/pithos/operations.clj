@@ -396,7 +396,7 @@
                                            :status-code 404})))
 
 (defn get-bucket-tagging
-  "Retrieve object policy: always fails for now"
+  "Retrieve bucket tagging: always empty for now"
   [request system]
   (throw (ex-info "NoSuchTagSet" {:type        :no-such-tag-set
                                   :bucket      (:bucket request)
