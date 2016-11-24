@@ -395,6 +395,11 @@
                                            :bucket      (:bucket request)
                                            :status-code 404})))
 
+(defn get-bucket-tagging
+  "Retrieve object policy: always fails for now"
+  [request system]
+  (xml-response (xml/empty-tag-list)))
+
 (defn get-bucket-versioning
   "Retrieve bucket versioning configuration"
   [{:keys [bucket bd] :as request} system]
@@ -844,6 +849,9 @@
                              :target  :bucket
                              :perms [[:bucket :READ]]}
    :get-bucket              {:handler get-bucket
+                             :target  :bucket
+                             :perms   [[:bucket :READ]]}
+   :get-bucket-tagging      {:handler get-bucket-tagging
                              :target  :bucket
                              :perms   [[:bucket :READ]]}
    :get-bucket-cors         {:handler get-bucket-cors
