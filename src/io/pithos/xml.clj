@@ -424,6 +424,12 @@ Will produce an XML AST equivalent to:
         [:Code "NoSuchLifecycleConfiguration"]
         [:Message "The lifecycle configuration does not exist"]
         [:BucketName (:bucket payload)]]
+       :no-such-tag-set
+       [:Error
+        [:Code "NoSuchTagSet"]
+
+        [:Message "The TagSet does not exist"]
+        [:BucketName (:bucket payload)]]
        :forbidden
        [:Error
         [:Code "Forbidden"]

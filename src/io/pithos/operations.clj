@@ -395,6 +395,13 @@
                                            :bucket      (:bucket request)
                                            :status-code 404})))
 
+(defn get-bucket-tagging
+  "Retrieve bucket tagging: always empty for now"
+  [request system]
+  (throw (ex-info "NoSuchTagSet" {:type        :no-such-tag-set
+                                  :bucket      (:bucket request)
+                                  :status-code 404})))
+
 (defn get-bucket-versioning
   "Retrieve bucket versioning configuration"
   [{:keys [bucket bd] :as request} system]
@@ -844,6 +851,9 @@
                              :target  :bucket
                              :perms [[:bucket :READ]]}
    :get-bucket              {:handler get-bucket
+                             :target  :bucket
+                             :perms   [[:bucket :READ]]}
+   :get-bucket-tagging      {:handler get-bucket-tagging
                              :target  :bucket
                              :perms   [[:bucket :READ]]}
    :get-bucket-cors         {:handler get-bucket-cors
