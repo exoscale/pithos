@@ -424,6 +424,10 @@ Will produce an XML AST equivalent to:
         [:Code "NoSuchLifecycleConfiguration"]
         [:Message "The lifecycle configuration does not exist"]
         [:BucketName (:bucket payload)]]
+       :incomplete-metadata
+       [:Error
+        [:Code "IncompleteMetadata"]
+        [:Message (str "Incomplete metadata: " (:meta payload))]]
        :no-such-tag-set
        [:Error
         [:Code "NoSuchTagSet"]
