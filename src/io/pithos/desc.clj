@@ -112,6 +112,15 @@
                                :atime ts})
                        (merge @cols)
                        (dissoc :bucket :object))]
+          (when-not (and (:inode meta)
+                         (:version meta)
+                         (:size meta)
+                         (:checksum meta))
+            (error "trying to write incomplete metadata"
+                   (pr-str meta))
+            (throw (ex-info "bad metadata" {:type :incomplete-metadata
+                                            :status-code 500
+                                            :meta (pr-str meta)})))
           (store/update! metastore bucket object meta)
           (swap! cols assoc :atime ts)))
       clojure.lang.ILookup
