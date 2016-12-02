@@ -113,7 +113,7 @@
       (swap! state assoc-in [:uploads bucket object upload :meta] metadata))
     (get-upload-details [this bucket object upload]
       (get-in @state [:uploads bucket object upload]))
-    (list-uploads [this bucket]
+    (list-uploads [this bucket prefix]
       (get-in @state [:uploads bucket]))
     (list-object-uploads [this bucket object]
       (get-in @state [:uploads bucket object]))

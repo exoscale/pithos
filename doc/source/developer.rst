@@ -166,7 +166,7 @@ The metastore exposes methods to handle bucket metadata:
     (update-part! [this bucket object upload partno columns])
     (initiate-upload! [this bucket object upload metadata])
     (get-upload-details [this bucket object upload])
-    (list-uploads [this bucket])
+    (list-uploads [this bucket prefix])
     (list-object-uploads [this bucket object])
     (list-upload-parts [this bucket object upload]))
 

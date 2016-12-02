@@ -6,7 +6,7 @@
             [io.pithos.store   :as store]
             [io.pithos.util    :as util]
             [qbits.alia.uuid   :as uuid]
-            [clojure.tools.logging :refer [debug]]))
+            [clojure.tools.logging :refer [debug error]]))
 
 (defprotocol BlobDescriptor
   (size [this])
