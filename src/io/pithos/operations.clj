@@ -1002,6 +1002,7 @@
    {:keys [sentry] :as system}]
   (with-context {:pithos-request-id (or reqid "none")
                  :pithos-operation (or operation "none")
+                 :pithos-bucket (or (:bucket request) "none")
                  :pithos-uri (or uri "none")}
     (when (not= operation :options-service)
       (debug "handling operation: " operation))
