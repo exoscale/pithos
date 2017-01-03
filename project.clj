@@ -26,7 +26,7 @@
                  [ring/ring-core                "1.3.2"
                   :exclusions [org.clojure/tools.reader]]
                  [ring/ring-codec               "1.0.0"]
-                 [cc.qbits/alia                 "3.1.8"]
+                 [cc.qbits/alia                 "3.1.10"]
                  [cc.qbits/hayt                 "3.0.1"]
                  [cc.qbits/jet                  "0.7.9"
                   :exclusions [org.clojure/tools.reader]]
