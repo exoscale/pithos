@@ -8,7 +8,7 @@
   :main io.pithos
   :jvm-opts ["-Xmx2g"]
   :profiles {:dev {:resource-paths ["test/data"]}}
-  :dependencies [[org.clojure/clojure           "1.8.0"]
+  :dependencies [[org.clojure/clojure           "1.9.0-alpha14"]
                  [org.clojure/data.codec        "0.1.0"]
                  [org.clojure/data.xml          "0.0.8"]
                  [org.clojure/data.zip          "0.1.1"]
