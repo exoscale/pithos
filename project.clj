@@ -15,7 +15,7 @@
                  [org.clojure/tools.cli         "0.3.5"]
                  [org.clojure/tools.logging     "0.3.1"]
                  [org.clojure/core.async        "0.2.374"]
-                 [spootnik/unilog               "0.7.13"]
+                 [spootnik/unilog               "0.7.17"]
                  [spootnik/constance            "0.5.3"]
                  [spootnik/raven                "0.1.1"]
                  [spootnik/uncaught             "0.5.3"]
