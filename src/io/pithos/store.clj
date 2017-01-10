@@ -17,13 +17,14 @@
 (defn cassandra-store
   "Connect to a cassandra cluster, and use a specific keyspace.
    When the keyspace is not found, try creating it"
-  [{:keys [cluster keyspace hints repfactor username password]}]
+  [{:keys [cluster keyspace hints repfactor username password] :as opts}]
   (debug "building cassandra store for: " cluster keyspace hints)
   (let [hints   (or hints
                     {:replication {:class             "SimpleStrategy"
                                    :replication_factor (or repfactor 1)}})
+        copts   (dissoc opts :cluster :keyspace :hints :repfactor :username :password)
         cluster (if (sequential? cluster) cluster [cluster])
-        session (-> {:contact-points cluster}
+        session (-> (assoc copts :contact-points cluster)
                     (cond-> (and username password)
                       (assoc :credentials {:user username
                                            :password password}))
