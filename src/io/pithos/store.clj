@@ -22,7 +22,7 @@
   (let [hints   (or hints
                     {:replication {:class             "SimpleStrategy"
                                    :replication_factor (or repfactor 1)}})
-        copts   (dissoc opts :cluster :keyspace :hints :repfactor :username :password :use)
+        copts   (dissoc opts :cluster :keyspace :hints :repfactor :username :password :use :default-region)
         cluster (if (sequential? cluster) cluster [cluster])
         session (-> (assoc copts :contact-points cluster)
                     (cond-> (and username password)
