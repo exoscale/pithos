@@ -21,7 +21,7 @@
                  [spootnik/uncaught             "0.5.3"]
                  [clj-yaml                      "0.4.0"]
                  [clout                         "2.1.2"]
-                 [cheshire                      "5.5.0"]
+                 [cheshire                      "5.6.3"]
                  [clj-time                      "0.9.0"]
                  [ring/ring-core                "1.3.2"
                   :exclusions [org.clojure/tools.reader]]
