@@ -8,7 +8,7 @@
   :main io.pithos
   :jvm-opts ["-Xmx2g"]
   :profiles {:dev {:resource-paths ["test/data"]}}
-  :dependencies [[org.clojure/clojure           "1.8.0"]
+  :dependencies [[org.clojure/clojure           "1.9.0-alpha14"]
                  [org.clojure/data.codec        "0.1.0"]
                  [org.clojure/data.xml          "0.0.8"]
                  [org.clojure/data.zip          "0.1.1"]
@@ -21,12 +21,12 @@
                  [spootnik/uncaught             "0.5.3"]
                  [clj-yaml                      "0.4.0"]
                  [clout                         "2.1.2"]
-                 [cheshire                      "5.5.0"]
+                 [cheshire                      "5.6.3"]
                  [clj-time                      "0.9.0"]
                  [ring/ring-core                "1.3.2"
                   :exclusions [org.clojure/tools.reader]]
                  [ring/ring-codec               "1.0.0"]
-                 [cc.qbits/alia                 "3.1.10"]
+                 [cc.qbits/alia-all             "3.3.0"]
                  [cc.qbits/hayt                 "3.0.1"]
                  [cc.qbits/jet                  "0.7.9"
                   :exclusions [org.clojure/tools.reader]]
