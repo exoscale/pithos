@@ -249,9 +249,37 @@ Install `AWS SDK for Java`_, then:
     config.setSignerOverride("S3SignerType");
     AmazonS3Client s3 = new AmazonS3Client(config);
     s3.setEndpoint("https://your-endpoint");
+    
+PHP
+```
+
+Install `PHP AWS SDK`_ - important: Only Version2 is suitable (Version 3 only supports SignatureVersion 4, which is not yet implemented). After install, use something like this:
+
+.. code-block:: php
+
+    // connect
+    $s3Client=Aws\S3\S3Client::factory([
+        'base_url'=>'https://your-endpoint.com',
+        'key'=>'your-key',
+        'secret'=>'your-secret',
+        'region'=>'region', // must be filled with something, even if you have no regions
+    ]);
+   
+    // list all files in bucket
+    $iterator = $s3Client->getIterator('ListObjects', array(
+        'Bucket' => $bucket,
+        'Prefix' => 'foo'
+    ));
+
+    foreach ($iterator as $object) {
+        echo $object['Key'] . "\n";
+    }
 
 .. _awscli: https://aws.amazon.com/cli/
 .. _boto3: https://boto3.readthedocs.io/en/latest/
 .. _Boto: http://boto.cloudhackers.com/en/latest/
 .. _AWSSDK.S3: https://www.nuget.org/packages/AWSSDK.S3/
 .. _AWS SDK for Java: https://aws.amazon.com/sdk-for-java/
+.. _PHP AWS SDK: http://docs.aws.amazon.com/aws-sdk-php/v2/guide/installation.html
+
+
