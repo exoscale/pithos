@@ -250,8 +250,30 @@ Install `AWS SDK for Java`_, then:
     AmazonS3Client s3 = new AmazonS3Client(config);
     s3.setEndpoint("https://your-endpoint");
 
+Clojure
+```````
+
+Install `AWS SDK for Java`_, then:
+
+.. code-block:: clojure
+
+  (ns sos.core
+  (:import com.amazonaws.ClientConfiguration
+           com.amazonaws.services.s3.AmazonS3Client
+           java.util.Date))
+
+  (defn test-s3
+    []
+    (let [opts   (doto (ClientConfiguration.)
+                   (.setSignerOverride "S3SignerType"))
+          client (doto (AmazonS3Client. opts)
+                   (.setEndpoint "https://your-endpoint"))]
+      (.generatePresignedUrl client "batman" "foo.txt" (Date.))))
+
+
 .. _awscli: https://aws.amazon.com/cli/
 .. _boto3: https://boto3.readthedocs.io/en/latest/
 .. _Boto: http://boto.cloudhackers.com/en/latest/
 .. _AWSSDK.S3: https://www.nuget.org/packages/AWSSDK.S3/
 .. _AWS SDK for Java: https://aws.amazon.com/sdk-for-java/
+
