@@ -30,6 +30,9 @@
   
 
   
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="pithos strong-poseidon documentation" href="index.html"/>
         <link rel="next" title="Design and Concepts" href="concepts.html"/>
         <link rel="prev" title="The Pithos Guide" href="index.html"/> 
@@ -41,21 +44,32 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-        
-          <a href="index.html" class="icon icon-home"> pithos
-        
+          
+            <a href="index.html" class="icon icon-home"> pithos
+          
 
-        
-        </a>
+          
+          </a>
 
-        
+          
+            
+            
+              <div class="version">
+                0.6.0
+              </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -64,15 +78,15 @@
   </form>
 </div>
 
-        
-      </div>
+          
+        </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
-          
-              <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="">Quickstart Guide</a><ul>
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#obtaining-pithos">Obtaining pithos</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#binary-releases">Binary releases</a></li>
 </ul>
@@ -91,156 +105,73 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="concepts.html">Design and Concepts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#s3-concepts">S3 Concepts</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#terminology">Terminology</a></li>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#a-global-bucket-namespace">A global bucket namespace</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#cassandra-concepts">Cassandra concepts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#pithos-properties">Pithos properties</a></li>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#pithos-architecture">Pithos Architecture</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-keystore">The Keystore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-bucketstore">The Bucketstore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-metastore">The Metastore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-blobstore">The Blobstore</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="administrator.html">Administrator Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#overview-of-configuration">Overview of configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#choosing-your-topology">Choosing your topology</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuration-file">Configuration file</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#logging-configuration">Logging configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#global-options">Global options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#keystore-configuration">Keystore configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#bucketstore-configuration">Bucketstore configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#metastore-configuration">Metastore configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#blobstore-configuration">Blobstore configuration</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#reporter-configuration">Reporter Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#using-non-default-stores">Using non-default stores</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuring-apache-cassandra">Configuring Apache Cassandra</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#bucketstore-and-metastore-clusters">Bucketstore and Metastore Clusters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#blobstore-clusters">Blobstore clusters</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#enabling-ssl">Enabling SSL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#reverse-proxying-pithos">Reverse proxying pithos</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">S3 API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#soap-vs-rest">Soap vs. Rest</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#api-feature-matrix">API Feature matrix</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#common-headers">Common Headers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#operations-overview">Operations Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-service">GET Service</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket">GET Bucket</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#head-bucket">HEAD Bucket</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket">PUT Bucket</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket">DELETE Bucket</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-cors">GET Bucket CORS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-cors">PUT Bucket CORS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket-cors">DELETE Bucket CORS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-acl">GET Bucket ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-acl">PUT Bucket ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket-acl">DELETE Bucket ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-lifecycle">GET Bucket lifecycle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-lifecycle">PUT Bucket lifecycle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket-lifecycle">DELETE Bucket lifecycle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-versioning">PUT Bucket versioning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-versioning">GET Bucket versioning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-location">GET Bucket location</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-policy">GET Bucket policy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-uploads">GET Bucket uploads</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#post-bucket-delete">POST Bucket delete</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-object">GET Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#head-object">HEAD Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-object">PUT Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-object">DELETE Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-object-acl">GET Object ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-object-acl">PUT Object ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#post-object-uploads">POST Object uploads</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-object-upload">PUT Object upload</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-object-upload">DELETE Object upload</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#post-object-upload">POST Object upload</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#specifying-acls">Specifying ACLs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api.html#acl-headers">ACL Headers</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#request-signature">Request Signature</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#building-pithos-from-source">Building Pithos from source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#contributing-to-pithos">Contributing to pithos</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#creating-alternative-store-implementations">Creating alternative store implementations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#convergeable">Convergeable</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#crudable">Crudable</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#clojure-lang-ilookup">clojure.lang.ILookup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#bucketstore">Bucketstore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#metastore">Metastore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#blobstore">Blobstore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#reporter">Reporter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#an-alternative-keystore">An alternative keystore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#an-alternative-reporter">An alternative reporter</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="clients.html">Client compatibility list</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#s3cmd">s3cmd</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#boto">boto</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#libcloud">libcloud</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#cyberduck">cyberduck</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#owncloud">owncloud</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#s3fs-s3-fuse-support">s3fs - s3 fuse support</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#wal-e-continuous-archiving-for-postgres">WAL-E - continuous archiving for Postgres</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="clients.html#archiving-wal-files">Archiving WAL files</a></li>
-<li class="toctree-l3"><a class="reference internal" href="clients.html#restoring-from-archived-wal-files">Restoring from archived WAL files</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#elasticsearch-index-backup-and-restore">elasticsearch - index backup and restore</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Design and Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="administrator.html">Administrator Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">S3 API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clients.html">Client compatibility list</a></li>
 </ul>
 
+            
           
-        
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">pithos</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pithos</a>
+        
       </nav>
 
 
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Quickstart Guide</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Quickstart Guide</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/quickstart.txt" rel="nofollow"> View page source</a>
+            
+            <a href="_sources/quickstart.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
-          <div role="main" class="document">
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="quickstart-guide">
 <h1>Quickstart Guide<a class="headerlink" href="#quickstart-guide" title="Permalink to this headline">¶</a></h1>
@@ -286,7 +217,7 @@ two flavors: standard and standalone with embedded cassandra.</p>
 <div class="section" id="minimal-configuration">
 <h2>Minimal configuration<a class="headerlink" href="#minimal-configuration" title="Permalink to this headline">¶</a></h2>
 <p>Pithos is configured with a single configuration file, formatted in <a class="reference external" href="http://yaml.org">YAML</a>.</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span class="c1">#</span>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="c1">#</span>
 <span class="c1">## pithos main configuration</span>
 <span class="c1">## =========================</span>
 <span class="c1">#</span>
@@ -303,32 +234,32 @@ two flavors: standard and standalone with embedded cassandra.</p>
 <span class="c1">## ---------------------</span>
 <span class="c1">#</span>
 <span class="c1"># indicates</span>
-<span class="l-Scalar-Plain">service</span><span class="p-Indicator">:</span>
-  <span class="l-Scalar-Plain">host</span><span class="p-Indicator">:</span> <span class="s">&#39;127.0.0.1&#39;</span>
-  <span class="l-Scalar-Plain">port</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">8080</span>
+<span class="l l-Scalar l-Scalar-Plain">service</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">host</span><span class="p p-Indicator">:</span> <span class="s">&#39;127.0.0.1&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">port</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">8080</span>
 
 
 <span class="c1">## logging configuration</span>
 <span class="c1">## ---------------------</span>
-<span class="l-Scalar-Plain">logging</span><span class="p-Indicator">:</span>
-  <span class="l-Scalar-Plain">level</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">info</span>
-  <span class="l-Scalar-Plain">console</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
-  <span class="l-Scalar-Plain">files</span><span class="p-Indicator">:</span>
-    <span class="p-Indicator">-</span> <span class="s">&quot;/tmp/pithos.log&quot;</span>
+<span class="l l-Scalar l-Scalar-Plain">logging</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">level</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">info</span>
+  <span class="l l-Scalar l-Scalar-Plain">console</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="l l-Scalar l-Scalar-Plain">files</span><span class="p p-Indicator">:</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;/tmp/pithos.log&quot;</span>
 <span class="c1"># overrides:</span>
 <span class="c1">#   io.exo.pithos: debug</span>
 
 
 <span class="c1">## global options</span>
 <span class="c1">## --------------</span>
-<span class="l-Scalar-Plain">options</span><span class="p-Indicator">:</span>
-  <span class="l-Scalar-Plain">service-uri</span><span class="p-Indicator">:</span> <span class="s">&#39;s3.example.com&#39;</span>
-  <span class="l-Scalar-Plain">reporting</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
-  <span class="l-Scalar-Plain">server-side-encryption</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
-  <span class="l-Scalar-Plain">multipart-upload</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
-  <span class="l-Scalar-Plain">masterkey-provisioning</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
-  <span class="l-Scalar-Plain">masterkey-access</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
-  <span class="l-Scalar-Plain">default-region</span><span class="p-Indicator">:</span> <span class="s">&#39;CH-GV1&#39;</span>
+<span class="l l-Scalar l-Scalar-Plain">options</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">service-uri</span><span class="p p-Indicator">:</span> <span class="s">&#39;s3.example.com&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">reporting</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="l l-Scalar l-Scalar-Plain">server-side-encryption</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="l l-Scalar l-Scalar-Plain">multipart-upload</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="l l-Scalar l-Scalar-Plain">masterkey-provisioning</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="l l-Scalar l-Scalar-Plain">masterkey-access</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="l l-Scalar l-Scalar-Plain">default-region</span><span class="p p-Indicator">:</span> <span class="s">&#39;CH-GV1&#39;</span>
 
 
 <span class="c1">## keystore configuration</span>
@@ -340,19 +271,19 @@ two flavors: standard and standalone with embedded cassandra.</p>
 <span class="c1"># They may offer provisioning capacities with the</span>
 <span class="c1"># masterkey. The default provider relies on keys</span>
 <span class="c1"># being defined inline.</span>
-<span class="l-Scalar-Plain">keystore</span><span class="p-Indicator">:</span>
-  <span class="l-Scalar-Plain">keys</span><span class="p-Indicator">:</span>
-    <span class="l-Scalar-Plain">AKIAIOSFODNN7EXAMPLE</span><span class="p-Indicator">:</span>
+<span class="l l-Scalar l-Scalar-Plain">keystore</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">keys</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">AKIAIOSFODNN7EXAMPLE</span><span class="p p-Indicator">:</span>
 <span class="c1"># The master key allows provisinning operations</span>
 <span class="c1"># when the masterkey-provisioning feature is</span>
 <span class="c1"># set to true and will allow access to all</span>
 <span class="c1"># buckets when masterkey-access is set to true</span>
-      <span class="l-Scalar-Plain">master</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
-      <span class="l-Scalar-Plain">tenant</span><span class="p-Indicator">:</span> <span class="s">&#39;pyr@spootnik.org&#39;</span>
-      <span class="l-Scalar-Plain">secret</span><span class="p-Indicator">:</span> <span class="s">&#39;wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY&#39;</span>
-    <span class="l-Scalar-Plain">BKIAIOSFODNN7EXAMPLE</span><span class="p-Indicator">:</span>
-      <span class="l-Scalar-Plain">tenant</span><span class="p-Indicator">:</span> <span class="s">&#39;exoscale&#39;</span>
-      <span class="l-Scalar-Plain">secret</span><span class="p-Indicator">:</span> <span class="s">&#39;wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY&#39;</span>
+      <span class="l l-Scalar l-Scalar-Plain">master</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+      <span class="l l-Scalar l-Scalar-Plain">tenant</span><span class="p p-Indicator">:</span> <span class="s">&#39;pyr@spootnik.org&#39;</span>
+      <span class="l l-Scalar l-Scalar-Plain">secret</span><span class="p p-Indicator">:</span> <span class="s">&#39;wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY&#39;</span>
+    <span class="l l-Scalar l-Scalar-Plain">BKIAIOSFODNN7EXAMPLE</span><span class="p p-Indicator">:</span>
+      <span class="l l-Scalar l-Scalar-Plain">tenant</span><span class="p p-Indicator">:</span> <span class="s">&#39;exoscale&#39;</span>
+      <span class="l l-Scalar l-Scalar-Plain">secret</span><span class="p p-Indicator">:</span> <span class="s">&#39;wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY&#39;</span>
 
 
 <span class="c1">## bucketstore configuration</span>
@@ -365,10 +296,10 @@ two flavors: standard and standalone with embedded cassandra.</p>
 <span class="c1"># information.</span>
 <span class="c1">#</span>
 <span class="c1"># The default provider relies on cassandra.</span>
-<span class="l-Scalar-Plain">bucketstore</span><span class="p-Indicator">:</span>
-  <span class="l-Scalar-Plain">default-region</span><span class="p-Indicator">:</span> <span class="s">&#39;CH-GV1&#39;</span>
-  <span class="l-Scalar-Plain">cluster</span><span class="p-Indicator">:</span> <span class="s">&#39;localhost&#39;</span>
-  <span class="l-Scalar-Plain">keyspace</span><span class="p-Indicator">:</span> <span class="s">&#39;storage&#39;</span>
+<span class="l l-Scalar l-Scalar-Plain">bucketstore</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">default-region</span><span class="p p-Indicator">:</span> <span class="s">&#39;CH-GV1&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">cluster</span><span class="p p-Indicator">:</span> <span class="s">&#39;localhost&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">keyspace</span><span class="p p-Indicator">:</span> <span class="s">&#39;storage&#39;</span>
 
 
 <span class="c1">## regions</span>
@@ -383,17 +314,17 @@ two flavors: standard and standalone with embedded cassandra.</p>
 <span class="c1"># The default implementation of both metastore and blobstore</span>
 <span class="c1"># rely on cassandra.</span>
 <span class="c1">#</span>
-<span class="l-Scalar-Plain">regions</span><span class="p-Indicator">:</span>
-  <span class="l-Scalar-Plain">CH-GV1</span><span class="p-Indicator">:</span>
-    <span class="l-Scalar-Plain">metastore</span><span class="p-Indicator">:</span>
-      <span class="l-Scalar-Plain">cluster</span><span class="p-Indicator">:</span> <span class="s">&#39;localhost&#39;</span>
-      <span class="l-Scalar-Plain">keyspace</span><span class="p-Indicator">:</span> <span class="s">&#39;storage&#39;</span>
-    <span class="l-Scalar-Plain">storage-classes</span><span class="p-Indicator">:</span>
-      <span class="l-Scalar-Plain">standard</span><span class="p-Indicator">:</span>
-        <span class="l-Scalar-Plain">cluster</span><span class="p-Indicator">:</span> <span class="s">&#39;localhost&#39;</span>
-        <span class="l-Scalar-Plain">keyspace</span><span class="p-Indicator">:</span> <span class="s">&#39;storage&#39;</span>
-        <span class="l-Scalar-Plain">max-chunk</span><span class="p-Indicator">:</span> <span class="s">&#39;128k&#39;</span>
-        <span class="l-Scalar-Plain">max-block-chunks</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1024</span>
+<span class="l l-Scalar l-Scalar-Plain">regions</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">CH-GV1</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">metastore</span><span class="p p-Indicator">:</span>
+      <span class="l l-Scalar l-Scalar-Plain">cluster</span><span class="p p-Indicator">:</span> <span class="s">&#39;localhost&#39;</span>
+      <span class="l l-Scalar l-Scalar-Plain">keyspace</span><span class="p p-Indicator">:</span> <span class="s">&#39;storage&#39;</span>
+    <span class="l l-Scalar l-Scalar-Plain">storage-classes</span><span class="p p-Indicator">:</span>
+      <span class="l l-Scalar l-Scalar-Plain">standard</span><span class="p p-Indicator">:</span>
+        <span class="l l-Scalar l-Scalar-Plain">cluster</span><span class="p p-Indicator">:</span> <span class="s">&#39;localhost&#39;</span>
+        <span class="l l-Scalar l-Scalar-Plain">keyspace</span><span class="p p-Indicator">:</span> <span class="s">&#39;storage&#39;</span>
+        <span class="l l-Scalar l-Scalar-Plain">max-chunk</span><span class="p p-Indicator">:</span> <span class="s">&#39;128k&#39;</span>
+        <span class="l l-Scalar l-Scalar-Plain">max-block-chunks</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1024</span>
 </pre></div>
 </div>
 </div>
@@ -402,12 +333,12 @@ two flavors: standard and standalone with embedded cassandra.</p>
 <div class="section" id="command-line-arguments">
 <h3>Command line arguments<a class="headerlink" href="#command-line-arguments" title="Permalink to this headline">¶</a></h3>
 <p>Pithos accepts the following arguments:</p>
-<div class="highlight-python"><div class="highlight"><pre>Switches                 Default  Desc
---------                 -------  ----
--h, --no-help, --help    false    Show Help
--f, --path                        Configuration file path
--q, --no-quiet, --quiet  false    Never output to stdout
--a, --action             api-run  Specify an action (api-run, install-schema)
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Switches</span>                 <span class="n">Default</span>  <span class="n">Desc</span>
+<span class="o">--------</span>                 <span class="o">-------</span>  <span class="o">----</span>
+<span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">help</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>    <span class="n">false</span>    <span class="n">Show</span> <span class="n">Help</span>
+<span class="o">-</span><span class="n">f</span><span class="p">,</span> <span class="o">--</span><span class="n">path</span>                        <span class="n">Configuration</span> <span class="n">file</span> <span class="n">path</span>
+<span class="o">-</span><span class="n">q</span><span class="p">,</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">quiet</span><span class="p">,</span> <span class="o">--</span><span class="n">quiet</span>  <span class="n">false</span>    <span class="n">Never</span> <span class="n">output</span> <span class="n">to</span> <span class="n">stdout</span>
+<span class="o">-</span><span class="n">a</span><span class="p">,</span> <span class="o">--</span><span class="n">action</span>             <span class="n">api</span><span class="o">-</span><span class="n">run</span>  <span class="n">Specify</span> <span class="n">an</span> <span class="n">action</span> <span class="p">(</span><span class="n">api</span><span class="o">-</span><span class="n">run</span><span class="p">,</span> <span class="n">install</span><span class="o">-</span><span class="n">schema</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The only non-standard option is the <cite>-a</cite> option which allows either starting
@@ -416,7 +347,7 @@ the service normally or converging a cassandra schema.</p>
 <div class="section" id="running-the-standalone-version">
 <h3>Running the standalone version<a class="headerlink" href="#running-the-standalone-version" title="Permalink to this headline">¶</a></h3>
 <p>The standalone version can just be run against a configuration file:</p>
-<div class="highlight-python"><div class="highlight"><pre>java -jar pithos-quickstart-VERSION-standalone.jar -f pithos.yaml
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">java</span> <span class="o">-</span><span class="n">jar</span> <span class="n">pithos</span><span class="o">-</span><span class="n">quickstart</span><span class="o">-</span><span class="n">VERSION</span><span class="o">-</span><span class="n">standalone</span><span class="o">.</span><span class="n">jar</span> <span class="o">-</span><span class="n">f</span> <span class="n">pithos</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
 </div>
@@ -424,12 +355,12 @@ the service normally or converging a cassandra schema.</p>
 <h3>Running against an existing cluster<a class="headerlink" href="#running-against-an-existing-cluster" title="Permalink to this headline">¶</a></h3>
 <p>The first time you run a standard pithos distribution, you will need
 to converge the necessary cassandra schema:</p>
-<div class="highlight-python"><div class="highlight"><pre>java -jar pithos-VERSION-standalone.jar -f pithos.yaml -a install-schema
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">java</span> <span class="o">-</span><span class="n">jar</span> <span class="n">pithos</span><span class="o">-</span><span class="n">VERSION</span><span class="o">-</span><span class="n">standalone</span><span class="o">.</span><span class="n">jar</span> <span class="o">-</span><span class="n">f</span> <span class="n">pithos</span><span class="o">.</span><span class="n">yaml</span> <span class="o">-</span><span class="n">a</span> <span class="n">install</span><span class="o">-</span><span class="n">schema</span>
 </pre></div>
 </div>
 <p>This will create the necessary keyspaces and column families in cassandra.
 Once finished, pithos can be started normally:</p>
-<div class="highlight-python"><div class="highlight"><pre>java -jar pithos-VERSION-standalone.jar -f pithos.yaml
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">java</span> <span class="o">-</span><span class="n">jar</span> <span class="n">pithos</span><span class="o">-</span><span class="n">VERSION</span><span class="o">-</span><span class="n">standalone</span><span class="o">.</span><span class="n">jar</span> <span class="o">-</span><span class="n">f</span> <span class="n">pithos</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
 </div>
@@ -437,15 +368,19 @@ Once finished, pithos can be started normally:</p>
 </div>
 
 
+           </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="concepts.html" class="btn btn-neutral float-right" title="Design and Concepts" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="concepts.html" class="btn btn-neutral float-right" title="Design and Concepts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="The Pithos Guide" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral" title="The Pithos Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -455,9 +390,10 @@ Once finished, pithos can be started normally:</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2014, exoscale.
+
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -478,7 +414,8 @@ Once finished, pithos can be started normally:</p>
             VERSION:'strong-poseidon',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>

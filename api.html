@@ -30,6 +30,9 @@
   
 
   
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="pithos strong-poseidon documentation" href="index.html"/>
         <link rel="next" title="Developer Guide" href="developer.html"/>
         <link rel="prev" title="Administrator Guide" href="administrator.html"/> 
@@ -41,21 +44,32 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-        
-          <a href="index.html" class="icon icon-home"> pithos
-        
+          
+            <a href="index.html" class="icon icon-home"> pithos
+          
 
-        
-        </a>
+          
+          </a>
 
-        
+          
+            
+            
+              <div class="version">
+                0.6.0
+              </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -64,74 +78,18 @@
   </form>
 </div>
 
-        
-      </div>
+          
+        </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
-          
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#obtaining-pithos">Obtaining pithos</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#binary-releases">Binary releases</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#requirements">Requirements</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#runtime-requirements">Runtime requirements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#build-requirements">Build requirements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#minimal-configuration">Minimal configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#running-pithos">Running pithos</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#command-line-arguments">Command line arguments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-the-standalone-version">Running the standalone version</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-against-an-existing-cluster">Running against an existing cluster</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="concepts.html">Design and Concepts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#s3-concepts">S3 Concepts</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#terminology">Terminology</a></li>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#a-global-bucket-namespace">A global bucket namespace</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#cassandra-concepts">Cassandra concepts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#pithos-properties">Pithos properties</a></li>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#pithos-architecture">Pithos Architecture</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-keystore">The Keystore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-bucketstore">The Bucketstore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-metastore">The Metastore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-blobstore">The Blobstore</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="administrator.html">Administrator Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#overview-of-configuration">Overview of configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#choosing-your-topology">Choosing your topology</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuration-file">Configuration file</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#logging-configuration">Logging configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#global-options">Global options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#keystore-configuration">Keystore configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#bucketstore-configuration">Bucketstore configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#metastore-configuration">Metastore configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#blobstore-configuration">Blobstore configuration</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#reporter-configuration">Reporter Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#using-non-default-stores">Using non-default stores</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuring-apache-cassandra">Configuring Apache Cassandra</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#bucketstore-and-metastore-clusters">Bucketstore and Metastore Clusters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#blobstore-clusters">Blobstore clusters</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#enabling-ssl">Enabling SSL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#reverse-proxying-pithos">Reverse proxying pithos</a></li>
-</ul>
-</li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">S3 API</a><ul>
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Design and Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="administrator.html">Administrator Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">S3 API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#soap-vs-rest">Soap vs. Rest</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#api-feature-matrix">API Feature matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#common-headers">Common Headers</a></li>
@@ -173,74 +131,70 @@
 <li class="toctree-l2"><a class="reference internal" href="#request-signature">Request Signature</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#building-pithos-from-source">Building Pithos from source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#contributing-to-pithos">Contributing to pithos</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#creating-alternative-store-implementations">Creating alternative store implementations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#convergeable">Convergeable</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#crudable">Crudable</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#clojure-lang-ilookup">clojure.lang.ILookup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#bucketstore">Bucketstore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#metastore">Metastore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#blobstore">Blobstore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#reporter">Reporter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#an-alternative-keystore">An alternative keystore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#an-alternative-reporter">An alternative reporter</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="clients.html">Client compatibility list</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#s3cmd">s3cmd</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#boto">boto</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#libcloud">libcloud</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#cyberduck">cyberduck</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#owncloud">owncloud</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#s3fs-s3-fuse-support">s3fs - s3 fuse support</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#wal-e-continuous-archiving-for-postgres">WAL-E - continuous archiving for Postgres</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="clients.html#archiving-wal-files">Archiving WAL files</a></li>
-<li class="toctree-l3"><a class="reference internal" href="clients.html#restoring-from-archived-wal-files">Restoring from archived WAL files</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#elasticsearch-index-backup-and-restore">elasticsearch - index backup and restore</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clients.html">Client compatibility list</a></li>
 </ul>
 
+            
           
-        
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">pithos</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pithos</a>
+        
       </nav>
 
 
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>S3 API</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>S3 API</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/api.txt" rel="nofollow"> View page source</a>
+            
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
-          <div role="main" class="document">
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="s3-api">
 <h1>S3 API<a class="headerlink" href="#s3-api" title="Permalink to this headline">¶</a></h1>
@@ -284,27 +238,27 @@ provided by pithos.</p>
 </tr>
 <tr class="row-even"><td>Bucket listing</td>
 <td>OK</td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-odd"><td>Bucket Creation</td>
 <td>OK</td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-even"><td>Bucket Deletion</td>
 <td>OK</td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-odd"><td>Bucket Info</td>
 <td>OK</td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-even"><td>Bucket ACLs</td>
 <td>OK</td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-odd"><td>Bucket CORS</td>
 <td>OK</td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-even"><td>Bucket Lifecycle</td>
 <td>OK</td>
@@ -316,15 +270,15 @@ provided by pithos.</p>
 </tr>
 <tr class="row-even"><td>Object creation</td>
 <td>OK</td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-odd"><td>Object deletion</td>
 <td>OK</td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-even"><td>Object multipart uploads</td>
 <td>OK</td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-odd"><td>Object ACLs</td>
 <td>OK</td>
@@ -332,23 +286,23 @@ provided by pithos.</p>
 </tr>
 <tr class="row-even"><td>Bucket Versioning</td>
 <td>Unfinished</td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-odd"><td>Object Torrent</td>
 <td>Not implemented</td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-even"><td>Bucket Logging</td>
 <td>Not implemented</td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-odd"><td>Bucket Website</td>
 <td>Not implemented</td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-even"><td>Bucket Requester Pays</td>
 <td>Not implemented</td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 </tbody>
 </table>
@@ -358,10 +312,10 @@ provided by pithos.</p>
 <dl class="docutils">
 <dt><code class="docutils literal"><span class="pre">Authorization</span></code></dt>
 <dd><p class="first">When provided, signs the request. The expected format is:</p>
-<div class="highlight-python"><div class="highlight"><pre>Authorization: AWS ACCESS_KEY:SIGNATURE
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Authorization</span><span class="p">:</span> <span class="n">AWS</span> <span class="n">ACCESS_KEY</span><span class="p">:</span><span class="n">SIGNATURE</span>
 </pre></div>
 </div>
-<p>See <a class="reference internal" href="#request-signature"><span>Request Signature</span></a> for details on how to generate the signature.</p>
+<p>See <a class="reference internal" href="#request-signature"><span class="std std-ref">Request Signature</span></a> for details on how to generate the signature.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last"><em>pithos</em> currently supports version 3 of the request signature method.</p>
@@ -378,7 +332,7 @@ automatic setting of <code class="docutils literal"><span class="pre">Date</span
 </div>
 <div class="section" id="operations-overview">
 <h2>Operations Overview<a class="headerlink" href="#operations-overview" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="docutils" id="id33">
+<table border="1" class="colwidths-given docutils" id="id33">
 <caption><span class="caption-text">Feature Matrix</span><a class="headerlink" href="#id33" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col width="9%" />
@@ -486,14 +440,14 @@ automatic setting of <code class="docutils literal"><span class="pre">Date</span
 The request <strong>must</strong> be authenticated.
 This request accepts <strong>no</strong> parameter.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>GET / HTTP/1.1
-Host: service.uri
-Date: &lt;date&gt;
-Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">GET</span> <span class="o">/</span> <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>
+<span class="n">Host</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">uri</span>
+<span class="n">Date</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">date</span><span class="o">&gt;</span>
+<span class="n">Authorization</span><span class="p">:</span> <span class="n">AWS</span> <span class="o">&lt;</span><span class="n">key</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">signature</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>Sample Response</p>
-<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
 <span class="nt">&lt;ListAllMyBucketsResult</span> <span class="na">xmlns=</span><span class="s">&quot;http://s3.amazonaws.com/doc/2006-03-01/&quot;</span><span class="nt">&gt;</span>
   <span class="nt">&lt;Owner&gt;</span>
     <span class="nt">&lt;ID&gt;</span>test@example.com<span class="nt">&lt;/ID&gt;</span>
@@ -527,14 +481,14 @@ and returned in the <cite>CommonPrefixes</cite> part of the reply.</li>
 </dd>
 </dl>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>GET /?delimiter=/ HTTP/1.1
+<div class="highlight-default"><div class="highlight"><pre><span></span>GET /?delimiter=/ HTTP/1.1
 Host: mybucket.service.uri
 Date: &lt;date&gt;
 Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
   <span class="nt">&lt;ListBucketResult</span> <span class="na">xmlns=</span><span class="s">&quot;http://s3.amazonaws.com/doc/2006-03-01/&quot;</span><span class="nt">&gt;</span>
     <span class="nt">&lt;Name&gt;</span>batman<span class="nt">&lt;/Name&gt;</span>
     <span class="nt">&lt;Prefix&gt;&lt;/Prefix&gt;</span>
@@ -560,14 +514,14 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 <span id="id3"></span><h2>HEAD Bucket<a class="headerlink" href="#head-bucket" title="Permalink to this headline">¶</a></h2>
 <p>Determine whether a bucket exists and you have permission to access it.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>HEAD / HTTP/1.1
-Host: mybucket.service.uri
-Date: &lt;date&gt;
-Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">HEAD</span> <span class="o">/</span> <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>
+<span class="n">Host</span><span class="p">:</span> <span class="n">mybucket</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">uri</span>
+<span class="n">Date</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">date</span><span class="o">&gt;</span>
+<span class="n">Authorization</span><span class="p">:</span> <span class="n">AWS</span> <span class="o">&lt;</span><span class="n">key</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">signature</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 200 OK
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">200</span> <span class="n">OK</span>
 </pre></div>
 </div>
 </div>
@@ -577,14 +531,14 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 The request <strong>must</strong> be authenticated.
 This request accepts <strong>no</strong> parameters.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>PUT / HTTP/1.1
-Host: mybucket.service.uri
-Date: &lt;date&gt;
-Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">PUT</span> <span class="o">/</span> <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>
+<span class="n">Host</span><span class="p">:</span> <span class="n">mybucket</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">uri</span>
+<span class="n">Date</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">date</span><span class="o">&gt;</span>
+<span class="n">Authorization</span><span class="p">:</span> <span class="n">AWS</span> <span class="o">&lt;</span><span class="n">key</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">signature</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 200 OK
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">200</span> <span class="n">OK</span>
 </pre></div>
 </div>
 </div>
@@ -593,14 +547,14 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 <p>Destroys a bucket.
 This request accepts <strong>no</strong> parameters.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>PUT / HTTP/1.1
-Host: mybucket.service.uri
-Date: &lt;date&gt;
-Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">PUT</span> <span class="o">/</span> <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>
+<span class="n">Host</span><span class="p">:</span> <span class="n">mybucket</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">uri</span>
+<span class="n">Date</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">date</span><span class="o">&gt;</span>
+<span class="n">Authorization</span><span class="p">:</span> <span class="n">AWS</span> <span class="o">&lt;</span><span class="n">key</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">signature</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 204 No Content
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">204</span> <span class="n">No</span> <span class="n">Content</span>
 </pre></div>
 </div>
 </div>
@@ -610,14 +564,14 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 A bucket&#8217;s CORS profile determines how pithos will treat
 <em>OPTIONS</em> request made to both buckets and objects.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>GET /?cors HTTP/1.1
+<div class="highlight-default"><div class="highlight"><pre><span></span>GET /?cors HTTP/1.1
 Host: mybucket.service.uri
 Date: &lt;date&gt;
 Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;CORSConfiguration&gt;</span>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;CORSConfiguration&gt;</span>
    <span class="nt">&lt;CORSRule&gt;</span>
      <span class="nt">&lt;AllowedOrigin&gt;</span>http://client.example.com<span class="nt">&lt;/AllowedOrigin&gt;</span>
      <span class="nt">&lt;AllowedMethod&gt;</span>GET<span class="nt">&lt;/AllowedMethod&gt;</span>
@@ -634,7 +588,7 @@ in <a class="reference internal" href="#put-bucket-cors">PUT Bucket CORS</a>.</p
 <p>Updates the stored CORS profile for the bucket. If a previous
 CORS profile existed it will be replaced with the provided one.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>PUT /?cors HTTP/1.1
+<div class="highlight-default"><div class="highlight"><pre><span></span>PUT /?cors HTTP/1.1
 Host: mybucket.service.uri
 Date: &lt;date&gt;
 Authorization: AWS &lt;key&gt;:&lt;signature&gt;
@@ -649,7 +603,7 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 200 OK
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">200</span> <span class="n">OK</span>
 </pre></div>
 </div>
 </div>
@@ -657,14 +611,14 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 <span id="id8"></span><h2>DELETE Bucket CORS<a class="headerlink" href="#delete-bucket-cors" title="Permalink to this headline">¶</a></h2>
 <p>Remove the stored CORS profile for the bucket.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>DELETE /?cors HTTP/1.1
+<div class="highlight-default"><div class="highlight"><pre><span></span>DELETE /?cors HTTP/1.1
 Host: mybucket.service.uri
 Date: &lt;date&gt;
 Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 204 No Content
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">204</span> <span class="n">No</span> <span class="n">Content</span>
 </pre></div>
 </div>
 </div>
@@ -672,14 +626,14 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 <span id="id9"></span><h2>GET Bucket ACL<a class="headerlink" href="#get-bucket-acl" title="Permalink to this headline">¶</a></h2>
 <p>Retrieve a bucket&#8217;s ACL.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>GET /?acl HTTP/1.1
+<div class="highlight-default"><div class="highlight"><pre><span></span>GET /?acl HTTP/1.1
 Host: mybucket.service.uri
 Date: &lt;date&gt;
 Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </pre></div>
 </div>
 <p>Sample Response</p>
-<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;AccessControlPolicy&gt;</span>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;AccessControlPolicy&gt;</span>
   <span class="nt">&lt;Owner&gt;</span>
     <span class="nt">&lt;ID&gt;</span>test@example.com<span class="nt">&lt;/ID&gt;</span>
     <span class="nt">&lt;DisplayName&gt;</span>test@example.com<span class="nt">&lt;/DisplayName&gt;</span>
@@ -711,7 +665,7 @@ Please refer to <a class="reference internal" href="#acl-headers">ACL Headers</a
 of Canned and Simple Header ACLs, which may also be used
 when initiating multipart uploads or uploading objects.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>PUT /?acl HTTP/1.1
+<div class="highlight-default"><div class="highlight"><pre><span></span>PUT /?acl HTTP/1.1
 Host: mybucket.service.uri
 Date: &lt;date&gt;
 Authorization: AWS &lt;key&gt;:&lt;signature&gt;
@@ -735,7 +689,7 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 200 OK
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">200</span> <span class="n">OK</span>
 </pre></div>
 </div>
 </div>
@@ -744,14 +698,14 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 <p>Deletes the ACL for a bucket, will revert to an ACL yielding
 full control to the bucket owner.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>DELETE /?acl HTTP/1.1
+<div class="highlight-default"><div class="highlight"><pre><span></span>DELETE /?acl HTTP/1.1
 Host: mybucket.service.uri
 Date: &lt;date&gt;
 Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 204 No Content
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">204</span> <span class="n">No</span> <span class="n">Content</span>
 </pre></div>
 </div>
 </div>
@@ -785,14 +739,14 @@ always reports a bucket as unversioned.</p>
 <span id="id17"></span><h2>GET Bucket location<a class="headerlink" href="#get-bucket-location" title="Permalink to this headline">¶</a></h2>
 <p>Retrieves the region a bucket is stored in.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>GET /?location HTTP/1.1
+<div class="highlight-default"><div class="highlight"><pre><span></span>GET /?location HTTP/1.1
 Host: mybucket.service.uri
 Date: &lt;date&gt;
 Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;LocationConstraint&gt;</span>myregion<span class="nt">&lt;/LocationConstraint&gt;</span>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;LocationConstraint&gt;</span>myregion<span class="nt">&lt;/LocationConstraint&gt;</span>
 </pre></div>
 </div>
 </div>
@@ -824,46 +778,40 @@ and returned in the <cite>CommonPrefixes</cite> part of the reply.</li>
 <p>Provide a list of objects to delete from a bucket.
 The list is given as an XML payload.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>POST /?delete HTTP/1.1
+<div class="highlight-default"><div class="highlight"><pre><span></span>POST /?delete HTTP/1.1
 Host: mybucket.service.uri
 Date: &lt;date&gt;
 Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </pre></div>
 </div>
 <p>Sample Request Body:</p>
-<div class="highlight-xml"><div class="highlight"><pre>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;Delete&gt;</span>
+    <span class="nt">&lt;Object&gt;</span>
+         <span class="nt">&lt;Key&gt;</span>Key1<span class="nt">&lt;/Key&gt;</span>
+    <span class="nt">&lt;/Object&gt;</span>
+    <span class="nt">&lt;Object&gt;</span>
+         <span class="nt">&lt;Key&gt;</span>Key2<span class="nt">&lt;/Key&gt;</span>
+    <span class="nt">&lt;/Object&gt;</span>
+<span class="nt">&lt;/Delete&gt;</span>
 </pre></div>
 </div>
-<p>&lt;?xml version=&#8221;1.0&#8221; encoding=&#8221;UTF-8&#8221;?&gt;
-&lt;Delete&gt;</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>&lt;Object&gt;</dt>
-<dd>&lt;Key&gt;Key1&lt;/Key&gt;</dd>
-</dl>
-<p>&lt;/Object&gt;
-&lt;Object&gt;</p>
-<blockquote>
-<div>&lt;Key&gt;Key2&lt;/Key&gt;</div></blockquote>
-<p>&lt;/Object&gt;</p>
-</div></blockquote>
-<p>&lt;/Delete&gt;</p>
 </div>
 <div class="section" id="get-object">
 <span id="id20"></span><h2>GET Object<a class="headerlink" href="#get-object" title="Permalink to this headline">¶</a></h2>
 <p>Retrieves an object&#8217;s content.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>GET /myfile HTTP/1.1
-Host: mybucket.service.uri
-Date: &lt;date&gt;
-Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">GET</span> <span class="o">/</span><span class="n">myfile</span> <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>
+<span class="n">Host</span><span class="p">:</span> <span class="n">mybucket</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">uri</span>
+<span class="n">Date</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">date</span><span class="o">&gt;</span>
+<span class="n">Authorization</span><span class="p">:</span> <span class="n">AWS</span> <span class="o">&lt;</span><span class="n">key</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">signature</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-python"><div class="highlight"><pre>Content-Type: text/plain
-Content-Length: 5
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="n">text</span><span class="o">/</span><span class="n">plain</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">Length</span><span class="p">:</span> <span class="mi">5</span>
 
-foo\r\n
+<span class="n">foo</span>\<span class="n">r</span>\<span class="n">n</span>
 </pre></div>
 </div>
 </div>
@@ -872,15 +820,15 @@ foo\r\n
 <p>Asserts that an object exists and that permissions to retrieve it are met and returns
 metadata.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>HEAD /myfile HTTP/1.1
-Host: mybucket.service.uri
-Date: &lt;date&gt;
-Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">HEAD</span> <span class="o">/</span><span class="n">myfile</span> <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>
+<span class="n">Host</span><span class="p">:</span> <span class="n">mybucket</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">uri</span>
+<span class="n">Date</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">date</span><span class="o">&gt;</span>
+<span class="n">Authorization</span><span class="p">:</span> <span class="n">AWS</span> <span class="o">&lt;</span><span class="n">key</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">signature</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-python"><div class="highlight"><pre>Content-Type: text/plain
-Content-Length: 5
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="n">text</span><span class="o">/</span><span class="n">plain</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">Length</span><span class="p">:</span> <span class="mi">5</span>
 </pre></div>
 </div>
 </div>
@@ -888,21 +836,21 @@ Content-Length: 5
 <span id="id22"></span><h2>PUT Object<a class="headerlink" href="#put-object" title="Permalink to this headline">¶</a></h2>
 <p>Uploads an object.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>PUT /myfile HTTP/1.1
-Host: mybucket.service.uri
-Date: &lt;date&gt;
-Authorization: AWS &lt;key&gt;:&lt;signature&gt;
-Content-MD5: &lt;md5-checksum&gt;
-Content-Length: 5
-Expect: 100-continue
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">PUT</span> <span class="o">/</span><span class="n">myfile</span> <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>
+<span class="n">Host</span><span class="p">:</span> <span class="n">mybucket</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">uri</span>
+<span class="n">Date</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">date</span><span class="o">&gt;</span>
+<span class="n">Authorization</span><span class="p">:</span> <span class="n">AWS</span> <span class="o">&lt;</span><span class="n">key</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">signature</span><span class="o">&gt;</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">MD5</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">md5</span><span class="o">-</span><span class="n">checksum</span><span class="o">&gt;</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">Length</span><span class="p">:</span> <span class="mi">5</span>
+<span class="n">Expect</span><span class="p">:</span> <span class="mi">100</span><span class="o">-</span><span class="k">continue</span>
 
-foo\r\n
+<span class="n">foo</span>\<span class="n">r</span>\<span class="n">n</span>
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 100 Continue
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">100</span> <span class="n">Continue</span>
 
-HTTP/1.1 200 Ok
+<span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">200</span> <span class="n">Ok</span>
 </pre></div>
 </div>
 <p>Objects may be uploaded with header ACLs, as described
@@ -912,14 +860,14 @@ in <a class="reference internal" href="#acl-headers">ACL Headers</a></p>
 <span id="id23"></span><h2>DELETE Object<a class="headerlink" href="#delete-object" title="Permalink to this headline">¶</a></h2>
 <p>Destroys an object.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>DELETE /myfile HTTP/1.1
-Host: mybucket.service.uri
-Date: &lt;date&gt;
-Authorization: AWS &lt;key&gt;:&lt;signature&gt;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">DELETE</span> <span class="o">/</span><span class="n">myfile</span> <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>
+<span class="n">Host</span><span class="p">:</span> <span class="n">mybucket</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">uri</span>
+<span class="n">Date</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">date</span><span class="o">&gt;</span>
+<span class="n">Authorization</span><span class="p">:</span> <span class="n">AWS</span> <span class="o">&lt;</span><span class="n">key</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">signature</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 204 No Content
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">204</span> <span class="n">No</span> <span class="n">Content</span>
 </pre></div>
 </div>
 </div>
@@ -927,14 +875,14 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 <span id="id24"></span><h2>GET Object ACL<a class="headerlink" href="#get-object-acl" title="Permalink to this headline">¶</a></h2>
 <p>Retrieves the ACL of an object.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>GET /myfile?acl HTTP/1.1
+<div class="highlight-default"><div class="highlight"><pre><span></span>GET /myfile?acl HTTP/1.1
 Host: mybucket.service.uri
 Date: &lt;date&gt;
 Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </pre></div>
 </div>
 <p>Sample Response</p>
-<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;AccessControlPolicy&gt;</span>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;AccessControlPolicy&gt;</span>
   <span class="nt">&lt;Owner&gt;</span>
     <span class="nt">&lt;ID&gt;</span>test@example.com<span class="nt">&lt;/ID&gt;</span>
     <span class="nt">&lt;DisplayName&gt;</span>test@example.com<span class="nt">&lt;/DisplayName&gt;</span>
@@ -966,7 +914,7 @@ Please refer to <a class="reference internal" href="#acl-headers">ACL Headers</a
 of Canned and Simple Header ACLs, which may also be used
 when initiating multipart uploads or uploading objects.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>PUT /myfile?acl HTTP/1.1
+<div class="highlight-default"><div class="highlight"><pre><span></span>PUT /myfile?acl HTTP/1.1
 Host: mybucket.service.uri
 Date: &lt;date&gt;
 Authorization: AWS &lt;key&gt;:&lt;signature&gt;
@@ -990,7 +938,7 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 200 OK
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">200</span> <span class="n">OK</span>
 </pre></div>
 </div>
 </div>
@@ -1004,25 +952,21 @@ then to promote these parts into a single object.</p>
 <p>This request initiates a multipart upload, and yields a new
 upload ID.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>POST /myfile?uploads HTTP/1.1
+<div class="highlight-default"><div class="highlight"><pre><span></span>POST /myfile?uploads HTTP/1.1
 Host: mybucket.service.uri
 Date: &lt;date&gt;
 Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-python"><div class="highlight"><pre>.. sourcecode: xml
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;InitiateMultipartUploadResult</span> <span class="na">xmlns=</span><span class="s">&quot;http://s3.amazonaws.com/doc/2006-03-01/&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Bucket&gt;</span>mybucket<span class="nt">&lt;/Bucket&gt;</span>
+  <span class="nt">&lt;Key&gt;</span>myfile<span class="nt">&lt;/Key&gt;</span>
+  <span class="nt">&lt;UploadId&gt;</span>1d4bfa70-26f6-4819-97dd-275bf040f03f<span class="nt">&lt;/UploadId&gt;</span>
+<span class="nt">&lt;/InitiateMultipartUploadResult&gt;</span>
 </pre></div>
 </div>
-<blockquote>
-<div><p>&lt;?xml version=&#8221;1.0&#8221; encoding=&#8221;UTF-8&#8221;?&gt;
-&lt;InitiateMultipartUploadResult xmlns=&#8221;<a class="reference external" href="http://s3.amazonaws.com/doc/2006-03-01/">http://s3.amazonaws.com/doc/2006-03-01/</a>&#8220;&gt;</p>
-<blockquote>
-<div>&lt;Bucket&gt;mybucket&lt;/Bucket&gt;
-&lt;Key&gt;myfile&lt;/Key&gt;
-&lt;UploadId&gt;1d4bfa70-26f6-4819-97dd-275bf040f03f&lt;/UploadId&gt;</div></blockquote>
-<p>&lt;/InitiateMultipartUploadResult&gt;</p>
-</div></blockquote>
 <p>The ID may then be used in subsequent calls to <a class="reference internal" href="#put-object-upload">PUT Object upload</a>, <a class="reference internal" href="#delete-object-upload">DELETE Object upload</a>
 and <a class="reference internal" href="#post-object-upload">POST Object upload</a>.</p>
 <p>Additionally, header ACLs may be supplied to determine the access control for the
@@ -1034,7 +978,7 @@ headers.</p>
 <p>Add a part to an ongoing upload. This request works in a similar fashion than
 the <a class="reference internal" href="#put-object">PUT Object</a> call.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>PUT /myfile?uploadId=1d4bfa70-26f6-4819-97dd-275bf040f03f&amp;partNumber=1 HTTP/1.1
+<div class="highlight-default"><div class="highlight"><pre><span></span>PUT /myfile?uploadId=1d4bfa70-26f6-4819-97dd-275bf040f03f&amp;partNumber=1 HTTP/1.1
 Host: mybucket.service.uri
 Date: &lt;date&gt;
 Authorization: AWS &lt;key&gt;:&lt;signature&gt;
@@ -1046,9 +990,9 @@ foo\r\n
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 100 Continue
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">100</span> <span class="n">Continue</span>
 
-HTTP/1.1 200 Ok
+<span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">200</span> <span class="n">Ok</span>
 </pre></div>
 </div>
 </div>
@@ -1056,14 +1000,14 @@ HTTP/1.1 200 Ok
 <span id="id28"></span><h2>DELETE Object upload<a class="headerlink" href="#delete-object-upload" title="Permalink to this headline">¶</a></h2>
 <p>Aborts an ongoing multipart upload.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>DELETE /myfile?uploadId=1d4bfa70-26f6-4819-97dd-275bf040f03f HTTP/1.1
+<div class="highlight-default"><div class="highlight"><pre><span></span>DELETE /myfile?uploadId=1d4bfa70-26f6-4819-97dd-275bf040f03f HTTP/1.1
 Host: mybucket.service.uri
 Date: &lt;date&gt;
 Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-python"><div class="highlight"><pre>HTTP/1.1 204 No Content
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span> <span class="mi">204</span> <span class="n">No</span> <span class="n">Content</span>
 </pre></div>
 </div>
 </div>
@@ -1075,14 +1019,14 @@ request input.</p>
 <p>This process may take a while to finish and will thus emit whitespace at regular
 intervals to make sure the connection stays up.</p>
 <p>Sample Request:</p>
-<div class="highlight-python"><div class="highlight"><pre>POST /myfile?uploadId=1d4bfa70-26f6-4819-97dd-275bf040f03f HTTP/1.1
+<div class="highlight-default"><div class="highlight"><pre><span></span>POST /myfile?uploadId=1d4bfa70-26f6-4819-97dd-275bf040f03f HTTP/1.1
 Host: mybucket.service.uri
 Date: &lt;date&gt;
 Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </pre></div>
 </div>
 <p>Sample Response:</p>
-<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;CompleteMultipartUpload&gt;</span>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;CompleteMultipartUpload&gt;</span>
   <span class="nt">&lt;Part&gt;</span>
     <span class="nt">&lt;PartNumber&gt;</span>1<span class="nt">&lt;/PartNumber&gt;</span>
     <span class="nt">&lt;ETag&gt;</span>&quot;acbd18db4cc2f85cedef654fccc4a4d8&quot;<span class="nt">&lt;/ETag&gt;</span>
@@ -1107,15 +1051,19 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </div>
 
 
+           </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="developer.html" class="btn btn-neutral float-right" title="Developer Guide" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="developer.html" class="btn btn-neutral float-right" title="Developer Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="administrator.html" class="btn btn-neutral" title="Administrator Guide" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="administrator.html" class="btn btn-neutral" title="Administrator Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -1125,9 +1073,10 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
   <div role="contentinfo">
     <p>
         &copy; Copyright 2014, exoscale.
+
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -1148,7 +1097,8 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
             VERSION:'strong-poseidon',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>

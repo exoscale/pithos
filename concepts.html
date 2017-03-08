@@ -30,6 +30,9 @@
   
 
   
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="pithos strong-poseidon documentation" href="index.html"/>
         <link rel="next" title="Administrator Guide" href="administrator.html"/>
         <link rel="prev" title="Quickstart Guide" href="quickstart.html"/> 
@@ -41,21 +44,32 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-        
-          <a href="index.html" class="icon icon-home"> pithos
-        
+          
+            <a href="index.html" class="icon icon-home"> pithos
+          
 
-        
-        </a>
+          
+          </a>
 
-        
+          
+            
+            
+              <div class="version">
+                0.6.0
+              </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -64,34 +78,16 @@
   </form>
 </div>
 
-        
-      </div>
+          
+        </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
-          
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#obtaining-pithos">Obtaining pithos</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#binary-releases">Binary releases</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#requirements">Requirements</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#runtime-requirements">Runtime requirements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#build-requirements">Build requirements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#minimal-configuration">Minimal configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#running-pithos">Running pithos</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#command-line-arguments">Command line arguments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-the-standalone-version">Running the standalone version</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-against-an-existing-cluster">Running against an existing cluster</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Design and Concepts</a><ul>
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Design and Concepts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#s3-concepts">S3 Concepts</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#terminology">Terminology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#a-global-bucket-namespace">A global bucket namespace</a></li>
@@ -108,139 +104,72 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="administrator.html">Administrator Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#overview-of-configuration">Overview of configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#choosing-your-topology">Choosing your topology</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuration-file">Configuration file</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#logging-configuration">Logging configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#global-options">Global options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#keystore-configuration">Keystore configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#bucketstore-configuration">Bucketstore configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#metastore-configuration">Metastore configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#blobstore-configuration">Blobstore configuration</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#reporter-configuration">Reporter Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#using-non-default-stores">Using non-default stores</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuring-apache-cassandra">Configuring Apache Cassandra</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#bucketstore-and-metastore-clusters">Bucketstore and Metastore Clusters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#blobstore-clusters">Blobstore clusters</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#enabling-ssl">Enabling SSL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#reverse-proxying-pithos">Reverse proxying pithos</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">S3 API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#soap-vs-rest">Soap vs. Rest</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#api-feature-matrix">API Feature matrix</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#common-headers">Common Headers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#operations-overview">Operations Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-service">GET Service</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket">GET Bucket</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#head-bucket">HEAD Bucket</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket">PUT Bucket</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket">DELETE Bucket</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-cors">GET Bucket CORS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-cors">PUT Bucket CORS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket-cors">DELETE Bucket CORS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-acl">GET Bucket ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-acl">PUT Bucket ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket-acl">DELETE Bucket ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-lifecycle">GET Bucket lifecycle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-lifecycle">PUT Bucket lifecycle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket-lifecycle">DELETE Bucket lifecycle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-versioning">PUT Bucket versioning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-versioning">GET Bucket versioning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-location">GET Bucket location</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-policy">GET Bucket policy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-uploads">GET Bucket uploads</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#post-bucket-delete">POST Bucket delete</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-object">GET Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#head-object">HEAD Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-object">PUT Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-object">DELETE Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-object-acl">GET Object ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-object-acl">PUT Object ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#post-object-uploads">POST Object uploads</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-object-upload">PUT Object upload</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-object-upload">DELETE Object upload</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#post-object-upload">POST Object upload</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#specifying-acls">Specifying ACLs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api.html#acl-headers">ACL Headers</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#request-signature">Request Signature</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#building-pithos-from-source">Building Pithos from source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#contributing-to-pithos">Contributing to pithos</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#creating-alternative-store-implementations">Creating alternative store implementations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#convergeable">Convergeable</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#crudable">Crudable</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#clojure-lang-ilookup">clojure.lang.ILookup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#bucketstore">Bucketstore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#metastore">Metastore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#blobstore">Blobstore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#reporter">Reporter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#an-alternative-keystore">An alternative keystore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#an-alternative-reporter">An alternative reporter</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="clients.html">Client compatibility list</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#s3cmd">s3cmd</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#boto">boto</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#libcloud">libcloud</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#cyberduck">cyberduck</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#owncloud">owncloud</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#s3fs-s3-fuse-support">s3fs - s3 fuse support</a></li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#wal-e-continuous-archiving-for-postgres">WAL-E - continuous archiving for Postgres</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="clients.html#archiving-wal-files">Archiving WAL files</a></li>
-<li class="toctree-l3"><a class="reference internal" href="clients.html#restoring-from-archived-wal-files">Restoring from archived WAL files</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="clients.html#elasticsearch-index-backup-and-restore">elasticsearch - index backup and restore</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="administrator.html">Administrator Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">S3 API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clients.html">Client compatibility list</a></li>
 </ul>
 
+            
           
-        
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">pithos</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pithos</a>
+        
       </nav>
 
 
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Design and Concepts</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Design and Concepts</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/concepts.txt" rel="nofollow"> View page source</a>
+            
+            <a href="_sources/concepts.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
-          <div role="main" class="document">
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="design-and-concepts">
 <h1>Design and Concepts<a class="headerlink" href="#design-and-concepts" title="Permalink to this headline">¶</a></h1>
@@ -340,11 +269,11 @@ keystore to provide an association from API key to tenant information.</p>
 <p>Out of the box, <em>pithos</em> only ships with a simple config-file based keystore,
 but writing a separate one is trivial and covered in the developer documentation.</p>
 <p>A key lookup in the keystore should yield a map of the following attributes:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
-  <span class="s">&quot;master&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-  <span class="s">&quot;tenant&quot;</span><span class="p">:</span> <span class="s">&quot;tenant name&quot;</span><span class="p">,</span>
-  <span class="s">&quot;secret&quot;</span><span class="p">:</span> <span class="s">&quot;secret key&quot;</span><span class="p">,</span>
-  <span class="s">&quot;memberof&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;group1&quot;</span><span class="p">,</span> <span class="s">&quot;group2&quot;</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;master&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+  <span class="s2">&quot;tenant&quot;</span><span class="p">:</span> <span class="s2">&quot;tenant name&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;secret&quot;</span><span class="p">:</span> <span class="s2">&quot;secret key&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;memberof&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;group1&quot;</span><span class="p">,</span> <span class="s2">&quot;group2&quot;</span><span class="p">]</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -634,15 +563,19 @@ by default.</p>
 </div>
 
 
+           </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="administrator.html" class="btn btn-neutral float-right" title="Administrator Guide" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="administrator.html" class="btn btn-neutral float-right" title="Administrator Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="quickstart.html" class="btn btn-neutral" title="Quickstart Guide" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="quickstart.html" class="btn btn-neutral" title="Quickstart Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -652,9 +585,10 @@ by default.</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2014, exoscale.
+
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -675,7 +609,8 @@ by default.</p>
             VERSION:'strong-poseidon',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>

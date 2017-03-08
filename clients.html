@@ -30,6 +30,9 @@
   
 
   
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="pithos strong-poseidon documentation" href="index.html"/>
         <link rel="prev" title="Developer Guide" href="developer.html"/> 
 
@@ -40,21 +43,32 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-        
-          <a href="index.html" class="icon icon-home"> pithos
-        
+          
+            <a href="index.html" class="icon icon-home"> pithos
+          
 
-        
-        </a>
+          
+          </a>
 
-        
+          
+            
+            
+              <div class="version">
+                0.6.0
+              </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -63,135 +77,21 @@
   </form>
 </div>
 
-        
-      </div>
+          
+        </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
-          
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#obtaining-pithos">Obtaining pithos</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#binary-releases">Binary releases</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#requirements">Requirements</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#runtime-requirements">Runtime requirements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#build-requirements">Build requirements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#minimal-configuration">Minimal configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#running-pithos">Running pithos</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#command-line-arguments">Command line arguments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-the-standalone-version">Running the standalone version</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-against-an-existing-cluster">Running against an existing cluster</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="concepts.html">Design and Concepts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#s3-concepts">S3 Concepts</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#terminology">Terminology</a></li>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#a-global-bucket-namespace">A global bucket namespace</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#cassandra-concepts">Cassandra concepts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#pithos-properties">Pithos properties</a></li>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html#pithos-architecture">Pithos Architecture</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-keystore">The Keystore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-bucketstore">The Bucketstore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-metastore">The Metastore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#the-blobstore">The Blobstore</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="administrator.html">Administrator Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#overview-of-configuration">Overview of configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#choosing-your-topology">Choosing your topology</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuration-file">Configuration file</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#logging-configuration">Logging configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#global-options">Global options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#keystore-configuration">Keystore configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#bucketstore-configuration">Bucketstore configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#metastore-configuration">Metastore configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#blobstore-configuration">Blobstore configuration</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#reporter-configuration">Reporter Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#using-non-default-stores">Using non-default stores</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#configuring-apache-cassandra">Configuring Apache Cassandra</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#bucketstore-and-metastore-clusters">Bucketstore and Metastore Clusters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="administrator.html#blobstore-clusters">Blobstore clusters</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#enabling-ssl">Enabling SSL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="administrator.html#reverse-proxying-pithos">Reverse proxying pithos</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">S3 API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#soap-vs-rest">Soap vs. Rest</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#api-feature-matrix">API Feature matrix</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#common-headers">Common Headers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#operations-overview">Operations Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-service">GET Service</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket">GET Bucket</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#head-bucket">HEAD Bucket</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket">PUT Bucket</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket">DELETE Bucket</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-cors">GET Bucket CORS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-cors">PUT Bucket CORS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket-cors">DELETE Bucket CORS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-acl">GET Bucket ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-acl">PUT Bucket ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket-acl">DELETE Bucket ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-lifecycle">GET Bucket lifecycle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-lifecycle">PUT Bucket lifecycle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-bucket-lifecycle">DELETE Bucket lifecycle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-bucket-versioning">PUT Bucket versioning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-versioning">GET Bucket versioning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-location">GET Bucket location</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-policy">GET Bucket policy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-bucket-uploads">GET Bucket uploads</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#post-bucket-delete">POST Bucket delete</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-object">GET Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#head-object">HEAD Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-object">PUT Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-object">DELETE Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#get-object-acl">GET Object ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-object-acl">PUT Object ACL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#post-object-uploads">POST Object uploads</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#put-object-upload">PUT Object upload</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#delete-object-upload">DELETE Object upload</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#post-object-upload">POST Object upload</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#specifying-acls">Specifying ACLs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api.html#acl-headers">ACL Headers</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#request-signature">Request Signature</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#building-pithos-from-source">Building Pithos from source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#contributing-to-pithos">Contributing to pithos</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer.html#creating-alternative-store-implementations">Creating alternative store implementations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#convergeable">Convergeable</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#crudable">Crudable</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#clojure-lang-ilookup">clojure.lang.ILookup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#bucketstore">Bucketstore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#metastore">Metastore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#blobstore">Blobstore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#reporter">Reporter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#an-alternative-keystore">An alternative keystore</a></li>
-<li class="toctree-l3"><a class="reference internal" href="developer.html#an-alternative-reporter">An alternative reporter</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Client compatibility list</a><ul>
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Design and Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="administrator.html">Administrator Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">S3 API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Client compatibility list</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#s3cmd">s3cmd</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#boto">boto</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#libcloud">libcloud</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cyberduck">cyberduck</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#owncloud">owncloud</a></li>
@@ -202,44 +102,79 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#elasticsearch-index-backup-and-restore">elasticsearch - index backup and restore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws-languages-sdks">AWS Languages SDKs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shell-awscli">Shell (awscli)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-boto3">Python (boto3)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-boto">Python (boto)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#net">.NET</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#java">Java</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clojure">Clojure</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
+            
           
-        
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">pithos</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pithos</a>
+        
       </nav>
 
 
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Client compatibility list</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Client compatibility list</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/clients.txt" rel="nofollow"> View page source</a>
+            
+            <a href="_sources/clients.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
-          <div role="main" class="document">
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="client-compatibility-list">
 <h1>Client compatibility list<a class="headerlink" href="#client-compatibility-list" title="Permalink to this headline">¶</a></h1>
@@ -248,13 +183,13 @@
 <h2>s3cmd<a class="headerlink" href="#s3cmd" title="Permalink to this headline">¶</a></h2>
 <p>Fully tested with the current API coverage. Here is a minimal
 configuration you can put in <code class="docutils literal"><span class="pre">~/.s3cfg</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre>[default]
-host_base = s3.example.com
-host_bucket = %(bucket)s.s3.example.com
-access_key = YOUR_ACCESS_KEY
-secret_key = YOUR_SECRET_KEY
-use_https = True
-signature_v2 = True
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">default</span><span class="p">]</span>
+<span class="n">host_base</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+<span class="n">host_bucket</span> <span class="o">=</span> <span class="o">%</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span><span class="n">s</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+<span class="n">access_key</span> <span class="o">=</span> <span class="n">YOUR_ACCESS_KEY</span>
+<span class="n">secret_key</span> <span class="o">=</span> <span class="n">YOUR_SECRET_KEY</span>
+<span class="n">use_https</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">signature_v2</span> <span class="o">=</span> <span class="kc">True</span>
 </pre></div>
 </div>
 <p>Adapt with your credentials and replace <code class="docutils literal"><span class="pre">s3.example.com</span></code> with the
@@ -262,29 +197,25 @@ value you specified for <code class="docutils literal"><span class="pre">service
 if Pithos is served over TLS. Currently pithos doesn&#8217;t support v4
 signatures so the <code class="docutils literal"><span class="pre">signature_v2</span></code> flag is necessary.</p>
 <p>When testing locally, the following configuration can be used:</p>
-<div class="highlight-python"><div class="highlight"><pre>[default]
-host_base = s3.example.com
-host_bucket = %(bucket)s.s3.example.com
-access_key = YOUR_ACCESS_KEY
-secret_key = YOUR_SECRET_KEY
-use_https = False
-signature_v2 = True
-proxy_host = localhost
-proxy_port = 8080
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">default</span><span class="p">]</span>
+<span class="n">host_base</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+<span class="n">host_bucket</span> <span class="o">=</span> <span class="o">%</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span><span class="n">s</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+<span class="n">access_key</span> <span class="o">=</span> <span class="n">YOUR_ACCESS_KEY</span>
+<span class="n">secret_key</span> <span class="o">=</span> <span class="n">YOUR_SECRET_KEY</span>
+<span class="n">use_https</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">signature_v2</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">proxy_host</span> <span class="o">=</span> <span class="n">localhost</span>
+<span class="n">proxy_port</span> <span class="o">=</span> <span class="mi">8080</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="boto">
-<h2>boto<a class="headerlink" href="#boto" title="Permalink to this headline">¶</a></h2>
-<p>Fully tested with the current API coverage.</p>
 </div>
 <div class="section" id="libcloud">
 <h2>libcloud<a class="headerlink" href="#libcloud" title="Permalink to this headline">¶</a></h2>
 <p>Working support with the S3 provider:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">libcloud.storage.types</span> <span class="kn">import</span> <span class="n">Provider</span>
-<span class="kn">from</span> <span class="nn">libcloud.storage.providers</span> <span class="kn">import</span> <span class="n">get_driver</span>
-<span class="n">cls</span> <span class="o">=</span> <span class="n">get_driver</span><span class="p">(</span><span class="n">Provider</span><span class="o">.</span><span class="n">S3</span><span class="p">)</span>
-<span class="n">driver</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="s">&#39;api key&#39;</span><span class="p">,</span> <span class="s">&#39;api secret key&#39;</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s">&#39;s3.example.com&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">libcloud.storage.types</span> <span class="k">import</span> <span class="n">Provider</span>
+<span class="kn">from</span> <span class="nn">libcloud.storage.providers</span> <span class="k">import</span> <span class="n">get_driver</span>
+<span class="bp">cls</span> <span class="o">=</span> <span class="n">get_driver</span><span class="p">(</span><span class="n">Provider</span><span class="o">.</span><span class="n">S3</span><span class="p">)</span>
+<span class="n">driver</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="s1">&#39;api key&#39;</span><span class="p">,</span> <span class="s1">&#39;api secret key&#39;</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s1">&#39;s3.example.com&#39;</span><span class="p">)</span>
 <span class="n">driver</span><span class="o">.</span><span class="n">list_containers</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -302,11 +233,11 @@ proxy_port = 8080
 <p>Working support. If you specified <code class="docutils literal"><span class="pre">s3.example.com</span></code> as
 <code class="docutils literal"><span class="pre">service-uri</span></code>, you can mount the bucket <code class="docutils literal"><span class="pre">bucket</span></code> with the
 following command:</p>
-<div class="highlight-python"><div class="highlight"><pre>s3fs bucket /mnt/bucket -o url=https://s3.example.com
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">s3fs</span> <span class="n">bucket</span> <span class="o">/</span><span class="n">mnt</span><span class="o">/</span><span class="n">bucket</span> <span class="o">-</span><span class="n">o</span> <span class="n">url</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">s3</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
 </pre></div>
 </div>
 <p>The credentials have to be specified in <code class="docutils literal"><span class="pre">~/.passwd-s3fs</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre>YOUR_ACCESS_KEY:YOUR_SECRET_KEY
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">YOUR_ACCESS_KEY</span><span class="p">:</span><span class="n">YOUR_SECRET_KEY</span>
 </pre></div>
 </div>
 </div>
@@ -337,10 +268,10 @@ Configure WAL-E with the following environment variables:</p>
 <div class="section" id="archiving-wal-files">
 <h3>Archiving WAL files<a class="headerlink" href="#archiving-wal-files" title="Permalink to this headline">¶</a></h3>
 <p>Postgresql needs the following settings in <code class="docutils literal"><span class="pre">postresql.conf</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre>wal_level = archive
-archive_mode = on
-archive_command = &#39;envdir /etc/wal-e.d/env /path/to/wal-e wal-push %p&#39;
-archive_timeout = 60
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">wal_level</span> <span class="o">=</span> <span class="n">archive</span>
+<span class="n">archive_mode</span> <span class="o">=</span> <span class="n">on</span>
+<span class="n">archive_command</span> <span class="o">=</span> <span class="s1">&#39;envdir /etc/wal-e.d/env /path/to/wal-e wal-push %p&#39;</span>
+<span class="n">archive_timeout</span> <span class="o">=</span> <span class="mi">60</span>
 </pre></div>
 </div>
 <p>Once postgres is setup to send WAL files, make a base backup with <code class="docutils literal"><span class="pre">envdir</span>
@@ -349,12 +280,12 @@ archive_timeout = 60
 <div class="section" id="restoring-from-archived-wal-files">
 <h3>Restoring from archived WAL files<a class="headerlink" href="#restoring-from-archived-wal-files" title="Permalink to this headline">¶</a></h3>
 <p>Pull a base backup:</p>
-<div class="highlight-python"><div class="highlight"><pre>envdir /etc/wal-e.d/env /path/to/wal-e backup-fetch /path/to/postgres/data LATEST
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">envdir</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">wal</span><span class="o">-</span><span class="n">e</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="n">env</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">wal</span><span class="o">-</span><span class="n">e</span> <span class="n">backup</span><span class="o">-</span><span class="n">fetch</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">postgres</span><span class="o">/</span><span class="n">data</span> <span class="n">LATEST</span>
 </pre></div>
 </div>
 <p>Create a <code class="docutils literal"><span class="pre">recovery.conf</span></code> file in the postgres data dir with the following
 content:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">restore_command</span> <span class="o">=</span> <span class="s">&#39;envdir /etc/wal-e.d/env /path/to/wal-e wal-fetch &quot;</span><span class="si">%f</span><span class="s">&quot; &quot;%p&quot;&#39;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">restore_command</span> <span class="o">=</span> <span class="s1">&#39;envdir /etc/wal-e.d/env /path/to/wal-e wal-fetch &quot;</span><span class="si">%f</span><span class="s1">&quot; &quot;%p&quot;&#39;</span>
 </pre></div>
 </div>
 <p>Start postgresql and check the logs to see its restore status.</p>
@@ -365,17 +296,17 @@ content:</p>
 <p>Snapshotting and restoring indices to Pithos is supported thanks to the <a class="reference external" href="https://github.com/elasticsearch/elasticsearch-cloud-aws">AWS
 Cloud Plugin</a>. To configure a snapshot repository that points to your pithos
 installation, simply add to your <code class="docutils literal"><span class="pre">/etc/elasticsearch/elasticsearch.yml</span></code>:</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">cloud</span><span class="p-Indicator">:</span>
-  <span class="l-Scalar-Plain">aws</span><span class="p-Indicator">:</span>
-    <span class="l-Scalar-Plain">access_key</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">&lt;your key&gt;</span>
-    <span class="l-Scalar-Plain">secret_key</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">&lt;your secret&gt;</span>
-    <span class="l-Scalar-Plain">s3</span><span class="p-Indicator">:</span>
-      <span class="l-Scalar-Plain">protocol</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https</span>
-      <span class="l-Scalar-Plain">endpoint</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">s3.example.com</span>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">cloud</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">aws</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">access_key</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;your key&gt;</span>
+    <span class="l l-Scalar l-Scalar-Plain">secret_key</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;your secret&gt;</span>
+    <span class="l l-Scalar l-Scalar-Plain">s3</span><span class="p p-Indicator">:</span>
+      <span class="l l-Scalar l-Scalar-Plain">protocol</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">https</span>
+      <span class="l l-Scalar l-Scalar-Plain">endpoint</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">s3.example.com</span>
 </pre></div>
 </div>
 <p>Then create your repository:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ curl -XPUT &#39;http://localhost:9200/_snapshot/pithos&#39; -d &#39;{
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ curl -XPUT &#39;http://localhost:9200/_snapshot/pithos&#39; -d &#39;{
     &quot;type&quot;: &quot;s3&quot;,
     &quot;settings&quot;: {
         &quot;bucket&quot;: &quot;es-snapshots&quot;
@@ -385,7 +316,7 @@ installation, simply add to your <code class="docutils literal"><span class="pre
 </div>
 <p>Starting with version 2.4.2 of the plugin, all settings can be provided
 per-repository:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ curl -XPUT &#39;http://localhost:9200/_snapshot/pithos&#39; -d &#39;{
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ curl -XPUT &#39;http://localhost:9200/_snapshot/pithos&#39; -d &#39;{
     &quot;type&quot;: &quot;s3&quot;,
     &quot;settings&quot;: {
         &quot;bucket&quot;: &quot;es-snapshots&quot;,
@@ -398,16 +329,129 @@ per-repository:</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="aws-languages-sdks">
+<h2>AWS Languages SDKs<a class="headerlink" href="#aws-languages-sdks" title="Permalink to this headline">¶</a></h2>
+<p>In general, AWS Language SDKs can work with Pithos with the following
+configuration:</p>
+<ul>
+<li><p class="first">In <code class="docutils literal"><span class="pre">~/.aws/config</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">default</span><span class="p">]</span>
+<span class="n">s3</span> <span class="o">=</span>
+    <span class="n">signature_version</span> <span class="o">=</span> <span class="n">s3</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">In <code class="docutils literal"><span class="pre">~/.aws/credentials</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">default</span><span class="p">]</span>
+<span class="n">aws_access_key_id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">your</span> <span class="n">key</span><span class="o">&gt;</span>
+<span class="n">aws_secret_access_key</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">your</span> <span class="n">secret</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>You can have multiple profiles instead of altering the <code class="docutils literal"><span class="pre">[default]</span></code>
+configuration. Simply repeat configuration sections and name them <code class="docutils literal"><span class="pre">[profile</span>
+<span class="pre">&lt;profile</span> <span class="pre">name&gt;]</span></code></p>
+<div class="section" id="shell-awscli">
+<h3>Shell (awscli)<a class="headerlink" href="#shell-awscli" title="Permalink to this headline">¶</a></h3>
+<p>Install <a class="reference external" href="https://aws.amazon.com/cli/">awscli</a>, then:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">aws</span> <span class="n">s3</span> <span class="n">ls</span> <span class="o">--</span><span class="n">endpoint</span><span class="o">-</span><span class="n">url</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">your</span><span class="o">-</span><span class="n">endpoint</span>
+</pre></div>
+</div>
+<p>To use a non-default profile:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">aws</span> <span class="n">s3</span> <span class="n">ls</span> <span class="o">--</span><span class="n">endpoint</span><span class="o">-</span><span class="n">url</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">your</span><span class="o">-</span><span class="n">endpoint</span> <span class="o">--</span><span class="n">profile</span><span class="o">=&lt;</span><span class="n">profile</span><span class="o">-</span><span class="n">name</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="python-boto3">
+<h3>Python (boto3)<a class="headerlink" href="#python-boto3" title="Permalink to this headline">¶</a></h3>
+<p>Install <a class="reference external" href="https://boto3.readthedocs.io/en/latest/">boto3</a> and create a Pithos client like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">boto3.session</span>
+
+<span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s1">&#39;s3&#39;</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="o">=</span><span class="s1">&#39;https://pithos-endpoint&#39;</span><span class="p">)</span>
+<span class="n">client</span><span class="o">.</span><span class="n">list_buckets</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>To use a non-default profile:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">boto3.session</span>
+<span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">profile_name</span><span class="o">=</span><span class="s1">&#39;profile-name&#39;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s1">&#39;s3&#39;</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="o">=</span><span class="s1">&#39;https://pithos-endpoint&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="python-boto">
+<h3>Python (boto)<a class="headerlink" href="#python-boto" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="http://boto.cloudhackers.com/en/latest/">Boto</a> version 2 is boto3&#8217;s ancestor but is still widely used. It doesn&#8217;t
+take <code class="docutils literal"><span class="pre">~/.aws/*</span></code> configuration files into account.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">boto.s3.connection</span> <span class="kn">import</span> <span class="n">S3Connection</span><span class="p">,</span> <span class="n">OrdinaryCallingFormat</span>
+
+<span class="n">connection</span> <span class="o">=</span> <span class="n">S3Connection</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">secret</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s1">&#39;pithos-endpoint&#39;</span><span class="p">,</span>
+                          <span class="n">port</span><span class="o">=</span><span class="mi">443</span><span class="p">,</span> <span class="n">is_secure</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                          <span class="n">calling_format</span><span class="o">=</span><span class="n">OrdinaryCallingFormat</span><span class="p">())</span>
+<span class="n">bucket</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">get_bucket</span><span class="p">(</span><span class="s1">&#39;your-bucket&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="net">
+<h3>.NET<a class="headerlink" href="#net" title="Permalink to this headline">¶</a></h3>
+<p>Install <a class="reference external" href="https://www.nuget.org/packages/AWSSDK.S3/">AWSSDK.S3</a>, then:</p>
+<div class="highlight-csharp"><div class="highlight"><pre><span></span><span class="n">Amazon</span><span class="p">.</span><span class="n">AWSConfigsS3</span><span class="p">.</span><span class="n">UseSignatureVersion4</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+<span class="kt">var</span> <span class="n">config</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Amazon</span><span class="p">.</span><span class="n">S3</span><span class="p">.</span><span class="n">AmazonS3Config</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">ServiceURL</span> <span class="p">=</span> <span class="n">host</span><span class="p">,</span>
+    <span class="n">SignatureVersion</span> <span class="p">=</span> <span class="s">&quot;s3&quot;</span><span class="p">,</span>
+<span class="p">};</span>
+<span class="kt">var</span> <span class="n">client</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Amazon</span><span class="p">.</span><span class="n">S3</span><span class="p">.</span><span class="n">AmazonS3Client</span><span class="p">(</span><span class="n">apikey</span><span class="p">,</span> <span class="n">secretKey</span><span class="p">,</span> <span class="n">config</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="java">
+<h3>Java<a class="headerlink" href="#java" title="Permalink to this headline">¶</a></h3>
+<p>Install <a class="reference external" href="https://aws.amazon.com/sdk-for-java/">AWS SDK for Java</a>, then:</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">com.amazonaws.ClientConfiguration</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.amazonaws.services.s3.AmazonS3Client</span><span class="o">;</span>
+
+<span class="n">ClientConfiguration</span> <span class="n">config</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClientConfiguration</span><span class="o">();</span>
+<span class="n">config</span><span class="o">.</span><span class="na">setSignerOverride</span><span class="o">(</span><span class="s">&quot;S3SignerType&quot;</span><span class="o">);</span>
+<span class="n">AmazonS3Client</span> <span class="n">s3</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AmazonS3Client</span><span class="o">(</span><span class="n">config</span><span class="o">);</span>
+<span class="n">s3</span><span class="o">.</span><span class="na">setEndpoint</span><span class="o">(</span><span class="s">&quot;https://your-endpoint&quot;</span><span class="o">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="clojure">
+<h3>Clojure<a class="headerlink" href="#clojure" title="Permalink to this headline">¶</a></h3>
+<p>Install <a class="reference external" href="https://aws.amazon.com/sdk-for-java/">AWS SDK for Java</a>, then:</p>
+<div class="highlight-clojure"><div class="highlight"><pre><span></span><span class="p">(</span><span class="kd">ns </span><span class="nv">sos.core</span>
+<span class="p">(</span><span class="ss">:import</span> <span class="nv">com.amazonaws.ClientConfiguration</span>
+         <span class="nv">com.amazonaws.services.s3.AmazonS3Client</span>
+         <span class="nv">java.util.Date</span><span class="p">))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">test-s3</span>
+  <span class="p">[]</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">opts</span>   <span class="p">(</span><span class="nb">doto </span><span class="p">(</span><span class="nf">ClientConfiguration.</span><span class="p">)</span>
+                 <span class="p">(</span><span class="nf">.setSignerOverride</span> <span class="s">&quot;S3SignerType&quot;</span><span class="p">))</span>
+        <span class="nv">client</span> <span class="p">(</span><span class="nb">doto </span><span class="p">(</span><span class="nf">AmazonS3Client.</span> <span class="nv">opts</span><span class="p">)</span>
+                 <span class="p">(</span><span class="nf">.setEndpoint</span> <span class="s">&quot;https://your-endpoint&quot;</span><span class="p">))]</span>
+    <span class="p">(</span><span class="nf">.generatePresignedUrl</span> <span class="nv">client</span> <span class="s">&quot;batman&quot;</span> <span class="s">&quot;foo.txt&quot;</span> <span class="p">(</span><span class="nf">Date.</span><span class="p">))))</span>
+</pre></div>
+</div>
+</div>
+</div>
 </div>
 
 
+           </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="developer.html" class="btn btn-neutral" title="Developer Guide" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="developer.html" class="btn btn-neutral" title="Developer Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -417,9 +461,10 @@ per-repository:</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2014, exoscale.
+
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -440,7 +485,8 @@ per-repository:</p>
             VERSION:'strong-poseidon',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>
