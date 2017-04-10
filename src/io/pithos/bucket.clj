@@ -10,7 +10,12 @@
                                      delete update limit]]
             [io.pithos.util  :refer [iso8601-timestamp]]
             [io.pithos.system :as system]
-            [io.pithos.store :as store]))
+            [io.pithos.store :as store]
+            [clojure.data.xml     :refer [parse-str emit-str indent-str]]
+            [clojure.zip          :refer [xml-zip node root]]
+            [clojure.data.zip     :refer [children]]
+            [clojure.data.zip.xml :refer [xml-> xml1-> text]]
+            [io.pithos.xml        :refer [seq->xml]]))
 
 (defprotocol Bucketstore
   "The bucketstore contains the schema migration function,
@@ -70,6 +75,35 @@
   "Bucket destruction"
   [bucket]
   (delete :bucket (where [[= :bucket bucket]])))
+
+(defn safe-xml-zip
+  "Ingest an XML representation, safely, throwing explicit
+   and details errors."
+  [src]
+  (try
+    (let [tree          (xml-zip (parse-str src))
+          {:keys [tag]} (root tree)]
+      (when-not (= :CreateBucketConfiguration tag)
+        (throw (ex-info "XML Root Node should be AccessControlPolicy"
+                        {:type :invalid-xml-root-node
+                         :expected :CreateBucketConfiguration
+                         :got      tag})))
+      tree)
+    (catch clojure.lang.ExceptionInfo e
+      (throw e))
+    (catch Exception e
+      (throw (ex-info "Invalid XML in Bucket Body"
+                      {:type :invalid-bucket-xml
+                       :status-code 400})))))
+
+(defn xml->location
+  "Given an XML source, try to parse it and return valid"
+  [src]
+  (let [xml-tree (safe-xml-zip src)
+        location (xml1-> xml-tree
+                        :LocationConstraint
+                        text)]
+    location))
 
 (defn cassandra-bucket-store
   "Given a cluster configuration, reify an instance of Bucketstore.
