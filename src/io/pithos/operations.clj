@@ -217,11 +217,13 @@
 
 (defn put-bucket
   "Creates a bucket"
-  [{{:keys [tenant]} :authorization :keys [bucket] :as request} system]
+  [{{:keys [tenant]} :authorization :keys [bucket body] :as request} system]
   (validate-bucket-name! bucket)
   (let [target-acl (perms/header-acl tenant tenant (:headers request))]
     (store/create! (system/bucketstore system) tenant bucket
-                   {:acl target-acl})
+                   (merge {:acl target-acl}
+                          (if (not (nil? body))
+                            {:region (-> (slurp body) (bucket/xml->location))})))
     (-> (response)
         (header "Location" (str "/" bucket))
         (header "Connection" "close"))))
