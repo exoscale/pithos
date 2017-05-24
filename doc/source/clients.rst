@@ -46,6 +46,18 @@ Working support with the S3 provider::
     driver = cls('api key', 'api secret key', host='s3.example.com')
     driver.list_containers()
 
+rclone
+--------
+
+Working support with the S3 provider::
+
+    RCLONE_CONFIG_<remote>_TYPE=s3
+    RCLONE_CONFIG_<remote>_ACCESS_KEY_ID=YOUR_ACCESS_KEY
+    RCLONE_CONFIG_<remote>_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
+    RCLONE_CONFIG_<remote>_REGION=other-v2-signature
+    RCLONE_CONFIG_<remote>_ENDPOINT=s3.example.com
+    RCLONE_CONFIG_<remote>_ACL=private
+
 cyberduck
 ---------
 
