@@ -30,9 +30,6 @@
   
 
   
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="pithos strong-poseidon documentation" href="index.html"/>
         <link rel="prev" title="Developer Guide" href="developer.html"/> 
 
@@ -43,7 +40,6 @@
 
 <body class="wy-body-for-nav" role="document">
 
-   
   <div class="wy-grid-for-nav">
 
     
@@ -93,6 +89,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Client compatibility list</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#s3cmd">s3cmd</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#libcloud">libcloud</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rclone">rclone</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cyberduck">cyberduck</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#owncloud">owncloud</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#s3fs-s3-fuse-support">s3fs - s3 fuse support</a></li>
@@ -108,7 +105,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#python-boto">Python (boto)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#net">.NET</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#java">Java</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#clojure">Clojure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#php">PHP</a></li>
 </ul>
 </li>
 </ul>
@@ -125,10 +122,8 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">pithos</a>
-        
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">pithos</a>
       </nav>
 
 
@@ -137,40 +132,23 @@
         <div class="rst-content">
           
 
-
-
-
-
-
-
-
-
-
-
-
+ 
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
-
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
-      <li>Client compatibility list</li>
-    
-    
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Client compatibility list</li>
       <li class="wy-breadcrumbs-aside">
         
-            
-            <a href="_sources/clients.rst.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/clients.txt" rel="nofollow"> View page source</a>
           
         
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -214,9 +192,21 @@ signatures so the <code class="docutils literal"><span class="pre">signature_v2<
 <p>Working support with the S3 provider:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">libcloud.storage.types</span> <span class="k">import</span> <span class="n">Provider</span>
 <span class="kn">from</span> <span class="nn">libcloud.storage.providers</span> <span class="k">import</span> <span class="n">get_driver</span>
-<span class="bp">cls</span> <span class="o">=</span> <span class="n">get_driver</span><span class="p">(</span><span class="n">Provider</span><span class="o">.</span><span class="n">S3</span><span class="p">)</span>
-<span class="n">driver</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="s1">&#39;api key&#39;</span><span class="p">,</span> <span class="s1">&#39;api secret key&#39;</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s1">&#39;s3.example.com&#39;</span><span class="p">)</span>
+<span class="n">cls</span> <span class="o">=</span> <span class="n">get_driver</span><span class="p">(</span><span class="n">Provider</span><span class="o">.</span><span class="n">S3</span><span class="p">)</span>
+<span class="n">driver</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="s1">&#39;api key&#39;</span><span class="p">,</span> <span class="s1">&#39;api secret key&#39;</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s1">&#39;s3.example.com&#39;</span><span class="p">)</span>
 <span class="n">driver</span><span class="o">.</span><span class="n">list_containers</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="rclone">
+<h2>rclone<a class="headerlink" href="#rclone" title="Permalink to this headline">¶</a></h2>
+<p>Working support with the S3 provider:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">RCLONE_CONFIG_</span><span class="o">&lt;</span><span class="n">remote</span><span class="o">&gt;</span><span class="n">_TYPE</span><span class="o">=</span><span class="n">s3</span>
+<span class="n">RCLONE_CONFIG_</span><span class="o">&lt;</span><span class="n">remote</span><span class="o">&gt;</span><span class="n">_ACCESS_KEY_ID</span><span class="o">=</span><span class="n">YOUR_ACCESS_KEY</span>
+<span class="n">RCLONE_CONFIG_</span><span class="o">&lt;</span><span class="n">remote</span><span class="o">&gt;</span><span class="n">_SECRET_ACCESS_KEY</span><span class="o">=</span><span class="n">YOUR_SECRET_KEY</span>
+<span class="n">RCLONE_CONFIG_</span><span class="o">&lt;</span><span class="n">remote</span><span class="o">&gt;</span><span class="n">_REGION</span><span class="o">=</span><span class="n">other</span><span class="o">-</span><span class="n">v2</span><span class="o">-</span><span class="n">signature</span>
+<span class="n">RCLONE_CONFIG_</span><span class="o">&lt;</span><span class="n">remote</span><span class="o">&gt;</span><span class="n">_ENDPOINT</span><span class="o">=</span><span class="n">s3</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+<span class="n">RCLONE_CONFIG_</span><span class="o">&lt;</span><span class="n">remote</span><span class="o">&gt;</span><span class="n">_ACL</span><span class="o">=</span><span class="n">private</span>
 </pre></div>
 </div>
 </div>
@@ -419,21 +409,26 @@ take <code class="docutils literal"><span class="pre">~/.aws/*</span></code> con
 </pre></div>
 </div>
 </div>
-<div class="section" id="clojure">
-<h3>Clojure<a class="headerlink" href="#clojure" title="Permalink to this headline">¶</a></h3>
-<p>Install <a class="reference external" href="https://aws.amazon.com/sdk-for-java/">AWS SDK for Java</a>, then:</p>
-<div class="highlight-clojure"><div class="highlight"><pre><span></span><span class="p">(</span><span class="kd">ns </span><span class="nv">sos.core</span>
-<span class="p">(</span><span class="ss">:import</span> <span class="nv">com.amazonaws.ClientConfiguration</span>
-         <span class="nv">com.amazonaws.services.s3.AmazonS3Client</span>
-         <span class="nv">java.util.Date</span><span class="p">))</span>
+<div class="section" id="php">
+<h3>PHP<a class="headerlink" href="#php" title="Permalink to this headline">¶</a></h3>
+<p>Install <a class="reference external" href="http://docs.aws.amazon.com/aws-sdk-php/v2/guide/installation.html">PHP AWS SDK</a> - important: Only Version2 is suitable (Version 3 only supports SignatureVersion 4, which is not yet implemented). After install, use something like this:</p>
+<div class="highlight-php"><div class="highlight"><pre><span></span><span class="x">// connect</span>
+<span class="x">$s3Client=Aws\S3\S3Client::factory([</span>
+<span class="x">    &#39;base_url&#39;=&gt;&#39;https://your-endpoint.com&#39;,</span>
+<span class="x">    &#39;key&#39;=&gt;&#39;your-key&#39;,</span>
+<span class="x">    &#39;secret&#39;=&gt;&#39;your-secret&#39;,</span>
+<span class="x">    &#39;region&#39;=&gt;&#39;region&#39;, // must be filled with something, even if you have no regions</span>
+<span class="x">]);</span>
 
-<span class="p">(</span><span class="kd">defn </span><span class="nv">test-s3</span>
-  <span class="p">[]</span>
-  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">opts</span>   <span class="p">(</span><span class="nb">doto </span><span class="p">(</span><span class="nf">ClientConfiguration.</span><span class="p">)</span>
-                 <span class="p">(</span><span class="nf">.setSignerOverride</span> <span class="s">&quot;S3SignerType&quot;</span><span class="p">))</span>
-        <span class="nv">client</span> <span class="p">(</span><span class="nb">doto </span><span class="p">(</span><span class="nf">AmazonS3Client.</span> <span class="nv">opts</span><span class="p">)</span>
-                 <span class="p">(</span><span class="nf">.setEndpoint</span> <span class="s">&quot;https://your-endpoint&quot;</span><span class="p">))]</span>
-    <span class="p">(</span><span class="nf">.generatePresignedUrl</span> <span class="nv">client</span> <span class="s">&quot;batman&quot;</span> <span class="s">&quot;foo.txt&quot;</span> <span class="p">(</span><span class="nf">Date.</span><span class="p">))))</span>
+<span class="x">// list all files in bucket</span>
+<span class="x">$iterator = $s3Client-&gt;getIterator(&#39;ListObjects&#39;, array(</span>
+<span class="x">    &#39;Bucket&#39; =&gt; $bucket,</span>
+<span class="x">    &#39;Prefix&#39; =&gt; &#39;foo&#39;</span>
+<span class="x">));</span>
+
+<span class="x">foreach ($iterator as $object) {</span>
+<span class="x">    echo $object[&#39;Key&#39;] . &quot;\n&quot;;</span>
+<span class="x">}</span>
 </pre></div>
 </div>
 </div>
@@ -442,16 +437,13 @@ take <code class="docutils literal"><span class="pre">~/.aws/*</span></code> con
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="developer.html" class="btn btn-neutral" title="Developer Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="developer.html" class="btn btn-neutral" title="Developer Guide" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -485,8 +477,7 @@ take <code class="docutils literal"><span class="pre">~/.aws/*</span></code> con
             VERSION:'strong-poseidon',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
+            HAS_SOURCE:  true
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>
