@@ -27,7 +27,7 @@
 
 (def ^{:doc "List of known tags in grantees"}
   valid-grantee-tag?
-  #{:ID :DisplayName :URI})
+  #{:ID :DisplayName :URI :EmailAddress})
 
 (def ^{:doc "List of known URIs"}
   known-uris
@@ -43,9 +43,10 @@
   (let [{:keys [tag content]} (node n)
         text                  (first content)]
     (when (and (valid-grantee-tag? tag) (string? text))
-      (if (= :URI tag)
-        (hash-map tag (or (known-uris text) text))
-        (hash-map tag text)))))
+      (cond
+        (= :URI tag)          (hash-map tag (or (known-uris text) text))
+        (= :EmailAddress tag) (hash-map :ID text)
+        :else                 (hash-map tag text)))))
 
 (defn node->grantee
   "Produce a valid grantee."
