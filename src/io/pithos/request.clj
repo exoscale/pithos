@@ -5,6 +5,7 @@
             [clojure.tools.logging            :refer [debug info warn error]]
             [clojure.pprint                   :refer [pprint]]
             [io.pithos.sig                    :refer [validate check-sig anonymous]]
+            [io.pithos.sig4                   :refer [validate4]]
             [io.pithos.system                 :refer [service-uri keystore]]
             [io.pithos.util                   :refer [string->pattern uri-decode]]
             [clout.core                       :as c]
@@ -168,6 +169,11 @@
   [req]
   (assoc req :reqid (uuid/random)))
 
+(defn assoc-orig-uri
+  "Assoc a random UUID to a request"
+  [req]
+  (assoc req :orig-uri (get req :uri)))
+
 (defn assoc-params
   "Parse, keywordize and store query arguments"
   [{:keys [query-string] :as req}]
@@ -221,7 +227,8 @@
                                                 .getBytes
                                                 base64/decode))
                                    true)))
-
+    (contains? (get req :headers) "authorization")
+    (assoc req :authorization (validate4 (keystore system) req))
     :else
     (let [auth   (validate (keystore system) req)
           master (:master auth)
@@ -253,6 +260,7 @@
 
     (-> req
         (insert-id)
+        (assoc-orig-uri)
         (assoc-params)
         (rewrite-host)
         (rewrite-bucket)
