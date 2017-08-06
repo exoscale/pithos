@@ -3,8 +3,7 @@
             [clojure.tools.logging     :refer [info debug]]
             [clj-time.core :as time]
             [clj-time.format :as format])
-  (:import  [org.apache.http.entity StringEntity]
-            [javax.crypto Mac]
+  (:import  [javax.crypto Mac]
             [javax.crypto.spec SecretKeySpec]
             [java.security MessageDigest]))
 
@@ -75,10 +74,24 @@
 (defn canonical-uri [request]
   (get request :orig-uri))
 
+(defn- double-escape [^String x]
+  (.replace (.replace x "\\" "\\\\") "$" "\\$"))
+
+(defn percent-encode [^String unencoded]
+  (->> (.getBytes unencoded "UTF-8")
+       (map (partial format "%%%02X"))
+       (str/join)))
+
+(defn escape [unencoded]
+  (str/replace
+    unencoded
+    #"[^A-Za-z0-9_~.-]+"
+    #(double-escape (percent-encode %))))
+
 (defn canonical-query-string [request]
   (str/join "&"
     (->> (get request :params)
-         (map (juxt (comp name key) (comp str/trim (fn [input] (if (nil? input) "" input)) val)))
+         (map (juxt (comp name key) (comp escape str/trim (fn [input] (if (nil? input) "" input)) val)))
          (sort-by first)
          (map (partial str/join "="))
     )))
