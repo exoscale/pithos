@@ -71,27 +71,33 @@
 (defn canonical-verb [request]
   ( -> (get request :request-method) name str/upper-case))
 
-(defn canonical-uri [request]
-  (get request :orig-uri))
-
 (defn- double-escape [^String x]
   (.replace (.replace x "\\" "\\\\") "$" "\\$"))
 
-(defn percent-encode [^String unencoded]
+(defn- percent-encode [^String unencoded]
   (->> (.getBytes unencoded "UTF-8")
        (map (partial format "%%%02X"))
        (str/join)))
 
-(defn escape [unencoded]
+(defn uri-escape [unencoded]
+  (str/replace
+    unencoded
+    #"[^A-Za-z0-9_~.-/]+"
+    #(double-escape (percent-encode %))))
+
+(defn query-escape [unencoded]
   (str/replace
     unencoded
     #"[^A-Za-z0-9_~.-]+"
     #(double-escape (percent-encode %))))
 
+(defn canonical-uri [request]
+  (uri-escape (get request :orig-uri)))
+
 (defn canonical-query-string [request]
   (str/join "&"
     (->> (get request :params)
-         (map (juxt (comp name key) (comp escape str/trim (fn [input] (if (nil? input) "" input)) val)))
+         (map (juxt (comp name key) (comp query-escape str/trim (fn [input] (if (nil? input) "" input)) val)))
          (sort-by first)
          (map (partial str/join "="))
     )))
