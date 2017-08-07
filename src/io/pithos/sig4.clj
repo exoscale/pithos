@@ -2,7 +2,8 @@
   (:require [clojure.string :as str]
             [clojure.tools.logging     :refer [info debug]]
             [clj-time.core :as time]
-            [clj-time.format :as format])
+            [clj-time.format :as format]
+            [ring.util.codec                  :as codec])
   (:import  [javax.crypto Mac]
             [javax.crypto.spec SecretKeySpec]
             [java.security MessageDigest]))
@@ -95,12 +96,19 @@
   (uri-escape (get request :orig-uri)))
 
 (defn canonical-query-string [request]
-  (str/join "&"
-    (->> (get request :params)
-         (map (juxt (comp name key) (comp query-escape str/trim (fn [input] (if (nil? input) "" input)) val)))
-         (sort-by first)
-         (map (partial str/join "="))
-    )))
+  (let [
+    query-string (get request :query-string)
+    decoded (and (seq query-string) (codec/form-decode query-string))
+    params  (cond (map? decoded)    decoded
+                  (string? decoded) {decoded nil}
+                  :else            {})]
+
+    (str/join "&"
+      (->> params
+           (map (juxt (comp name key) (comp query-escape str/trim (fn [input] (if (nil? input) "" input)) val)))
+           (sort-by first)
+           (map (partial str/join "="))
+      ))))
 
 (defn canonical-headers [request, include-headers]
     (str/join "\n"
@@ -136,17 +144,19 @@
 
 (defn string-to-sign [request request-time authorization]
   """ Format a request into a canonicalized representation for signing """
-  (str/join "\n" [
-    "AWS4-HMAC-SHA256"
-    (format/unparse (format/formatters :basic-date-time-no-ms) request-time)
-    (str/join "/" [
-      (format/unparse (format/formatters :basic-date) request-time)
-      (get authorization :region)
-      (get authorization :service)
-      "aws4_request"
-    ])
-    (hex (sha256 (bytes (canonical-request request (get authorization :signed-headers)))))
-  ]))
+  (let [canonical-request (canonical-request request (get authorization :signed-headers))]
+    (debug "canonical-request" canonical-request)
+    (str/join "\n" [
+      "AWS4-HMAC-SHA256"
+      (format/unparse (format/formatters :basic-date-time-no-ms) request-time)
+      (str/join "/" [
+        (format/unparse (format/formatters :basic-date) request-time)
+        (get authorization :region)
+        (get authorization :service)
+        "aws4_request"
+      ])
+      (hex (sha256 (bytes canonical-request)))
+    ])))
 
 (defn signature [signing-key, string-to-sign]
   """ Sign a canonicalized representation of the request with a signing key """
