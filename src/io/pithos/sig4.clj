@@ -115,12 +115,13 @@
 
 (defn hash-payload [request]
   """ Hash the entire body. FIXME: This has a side effect, body can only be read once. """
-  (-> (get request :body)
-      (slurp)
-      (bytes)
-      (sha256)
-      (hex)
-  ))
+  ;;(-> (get request :body)
+  ;;    (slurp)
+  ;;    (bytes)
+  ;;    (sha256)
+  ;;    (hex)
+  ;;))
+  (hex (sha256 (get request :contents))))
 
 (defn canonical-request [request include-headers]
   (str/join "\n" [
@@ -128,13 +129,13 @@
     (canonical-uri request)
     (canonical-query-string request)
     (canonical-headers request include-headers)
-    (str "\n" (signed-headers include-headers))
+    ""
+    (signed-headers include-headers)
     (hash-payload request)
   ]))
 
 (defn string-to-sign [request request-time authorization]
   """ Format a request into a canonicalized representation for signing """
-  (debug "canonical-request", (canonical-request request (get authorization :signed-headers)))
   (str/join "\n" [
     "AWS4-HMAC-SHA256"
     (format/unparse (format/formatters :basic-date-time-no-ms) request-time)

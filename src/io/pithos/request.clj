@@ -4,6 +4,7 @@
   (:require [clojure.string                   :refer [lower-case join]]
             [clojure.tools.logging            :refer [debug info warn error]]
             [clojure.pprint                   :refer [pprint]]
+            [clojure.java.io                  :as io]
             [io.pithos.sig                    :refer [validate check-sig anonymous]]
             [io.pithos.sig4                   :refer [validate4]]
             [io.pithos.system                 :refer [service-uri keystore]]
@@ -14,7 +15,9 @@
             [ring.util.codec                  :as codec]
             [clojure.data.codec.base64        :as base64]
             [cheshire.core                    :as json]
-            [qbits.alia.uuid                  :as uuid]))
+            [qbits.alia.uuid                  :as uuid])
+  (:import  [java.io ByteArrayInputStream]
+            [java.io ByteArrayOutputStream]))
 
 (def known
   "known query args"
@@ -174,6 +177,13 @@
   [req]
   (assoc req :orig-uri (get req :uri)))
 
+(defn preserve-body [request]
+  (let [buffer (ByteArrayOutputStream.)
+        _ (io/copy (get request :body) buffer)
+        bytes (.toByteArray buffer)]
+    (assoc request :body (ByteArrayInputStream. bytes) :contents bytes)
+  ))
+
 (defn assoc-params
   "Parse, keywordize and store query arguments"
   [{:keys [query-string] :as req}]
@@ -262,6 +272,7 @@
         (insert-id)
         (assoc-orig-uri)
         (assoc-params)
+        (preserve-body)
         (rewrite-host)
         (rewrite-bucket)
 
