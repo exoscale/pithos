@@ -1,0 +1,24 @@
+FROM clojure:lein-2.6.1 AS builder
+
+WORKDIR /pithos
+
+COPY project.clj /pithos/project.clj
+RUN cd /pithos && lein deps
+
+COPY . /pithos
+RUN cd /pithos && lein uberjar && mv target/pithos-*-standalone.jar /pithos-standalone.jar
+
+
+FROM openjdk:jre-alpine
+
+RUN apk --no-cache add netcat-openbsd
+
+RUN addgroup -S pithos && adduser -S -g pithos pithos
+RUN mkdir /etc/pithos /pithos && chown pithos:pithos /etc/pithos /pithos
+USER pithos
+
+COPY --from=builder /pithos-standalone.jar /pithos-standalone.jar
+COPY docker/docker-entrypoint.prod.sh /docker-entrypoint.sh
+COPY docker/pithos.yaml /etc/pithos/pithos.yaml
+
+CMD ["/docker-entrypoint.sh"]
