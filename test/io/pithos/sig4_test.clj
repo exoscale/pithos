@@ -1,8 +1,7 @@
 (ns io.pithos.sig4-test
   (:require [clojure.test   :refer :all]
             [clojure.string :refer [join]]
-            [io.pithos.sig4  :refer [canonical-request is-signed-by? parse-authorization request-time string-to-sign signature signing-key]])
-  (:import  [java.io StringReader]))
+            [io.pithos.sig4  :refer [canonical-request is-signed-by? parse-authorization request-time string-to-sign signature signing-key]]))
 
 (deftest sig4-canonical-request
   (testing "get-utf8"
@@ -10,12 +9,12 @@
                                          "host" "example.amazonaws.com"
                                          "authorization" "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20150830/us-east-1/service/aws4_request, SignedHeaders=host;x-amz-date, Signature=8318018e0b0f223aa2bbf98705b62bb787dc9c0e678f255a891fd03141be5d85"}
                                :request-method "GET"
-                               :uri "/ሴ"
-                               :params {}
-                               :body (StringReader. "")} ["x-amz-date", "host"])
+                               :orig-uri "/ሴ"
+                               :query-string ""
+                               :contents (.getBytes "")} ["x-amz-date", "host"])
 
             (join "\n" ["GET"
-                        "/ሴ"
+                        "/%E1%88%B4"
                         ""
                         "host:example.amazonaws.com"
                         "x-amz-date:20150830T123600Z"
@@ -28,9 +27,9 @@
                                          "host" "example.amazonaws.com"
                                          "authorization" "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20150830/us-east-1/service/aws4_request, SignedHeaders=host;x-amz-date, Signature=5fa00fa31553b73ebf1942676e86291e8372ff2a2260956d9b8aae1d763fbf31"}
                                :request-method "GET"
-                               :uri "/"
-                               :params {}
-                               :body (StringReader. "")} ["x-amz-date", "host"])
+                               :orig-uri "/"
+                               :query-string ""
+                               :contents (.getBytes "")} ["x-amz-date", "host"])
 
             (join "\n" ["GET"
                         "/"
@@ -46,9 +45,9 @@
                                          "host" "example.amazonaws.com"
                                          "authorization" "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20150830/us-east-1/service/aws4_request, SignedHeaders=host;x-amz-date, Signature=a67d582fa61cc504c4bae71f336f98b97f1ea3c7a6bfe1b6e45aec72011b9aeb"}
                                :request-method "GET"
-                               :uri "/"
-                               :params {"Param1" "value1"}
-                               :body (StringReader. "")} ["x-amz-date", "host"])
+                               :orig-uri "/"
+                               :query-string "Param1=value1"
+                               :contents (.getBytes "")} ["x-amz-date", "host"])
 
             (join "\n" ["GET"
                         "/"
@@ -64,9 +63,9 @@
                                          "host" "example.amazonaws.com"
                                          "authorization" "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20150830/us-east-1/service/aws4_request, SignedHeaders=host;x-amz-date, Signature=b97d918cfa904a5beff61c982a1b6f458b799221646efd99d3219ec94cdf2500"}
                                :request-method "GET"
-                               :uri "/"
-                               :params {"Param2" "value2" "Param1" "value1"}
-                               :body (StringReader. "")} ["x-amz-date", "host"])
+                               :orig-uri "/"
+                               :query-string "Param2=value2&Param1=value1"
+                               :contents (.getBytes "")} ["x-amz-date", "host"])
 
             (join "\n" ["GET"
                         "/"
@@ -82,9 +81,9 @@
                                          "host" "example.amazonaws.com"
                                          "authorization" "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20150830/us-east-1/service/aws4_request, SignedHeaders=host;x-amz-date, Signature=9c3e54bfcdf0b19771a7f523ee5669cdf59bc7cc0884027167c21bb143a40197"}
                                :request-method "GET"
-                               :uri "/"
-                               :params {"-._~0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" "-._~0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"}
-                               :body (StringReader. "")} ["x-amz-date", "host"])
+                               :orig-uri "/"
+                               :query-string "-._~0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz=-._~0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                               :contents (.getBytes "")} ["x-amz-date", "host"])
 
             (join "\n" ["GET"
                         "/"
@@ -100,13 +99,13 @@
                                          "host" "example.amazonaws.com"
                                          "authorization" "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20150830/us-east-1/service/aws4_request, SignedHeaders=host;x-amz-date, Signature=2cdec8eed098649ff3a119c94853b13c643bcf08f8b0a1d91e12c9027818dd04"}
                                :request-method "GET"
-                               :uri "/"
-                               :params {"ሴ" "bar"}
-                               :body (StringReader. "")} ["x-amz-date", "host"])
+                               :orig-uri "/"
+                               :query-string "ሴ=bar"
+                               :contents (.getBytes "")} ["x-amz-date", "host"])
 
             (join "\n" ["GET"
                         "/"
-                        "ሴ=bar"
+                        "%E1%88%B4=bar"
                         "host:example.amazonaws.com"
                         "x-amz-date:20150830T123600Z"
                         ""
@@ -118,9 +117,9 @@
                                          "host" "example.amazonaws.com"
                                          "authorization" "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20150830/us-east-1/service/aws4_request, SignedHeaders=host;x-amz-date, Signature=5da7c1a2acd57cee7505fc6676e4e544621c30862966e37dddb68e92efbe5d6b"}
                                :request-method "POST"
-                               :uri "/"
-                               :params {}
-                               :body (StringReader. "")} ["x-amz-date", "host"])
+                               :orig-uri "/"
+                               :query-string ""
+                               :contents (.getBytes "")} ["x-amz-date", "host"])
 
             (join "\n" ["POST"
                         "/"
@@ -130,6 +129,44 @@
                         ""
                         "host;x-amz-date"
                         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"])))
+  )
+  (testing "regression-dash"
+    (is (= (canonical-request {:headers {"x-amz-date" "20150830T123600Z"
+                                         "host" "example.amazonaws.com"
+                                         "authorization" "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20150830/us-east-1/service/aws4_request, SignedHeaders=host;x-amz-date, Signature=abab"}
+                               :request-method "POST"
+                               :orig-uri "/cd-1.iso"
+                               :query-string ""
+                               :contents (.getBytes "")} ["x-amz-date", "host"])
+
+            (join "\n" ["POST"
+                        "/cd-1.iso"
+                        ""
+                        "host:example.amazonaws.com"
+                        "x-amz-date:20150830T123600Z"
+                        ""
+                        "host;x-amz-date"
+                        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"])))
+  )
+  (testing "regression-unsigned-payload"
+    (is (= (canonical-request {:headers {"x-amz-date" "20150830T123600Z"
+                                         "x-amz-content-sha256" "UNSIGNED-PAYLOAD"
+                                         "host" "example.amazonaws.com"
+                                         "authorization" "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20150830/us-east-1/service/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=abab"}
+                               :request-method "POST"
+                               :orig-uri "/"
+                               :query-string ""
+                               :contents (.getBytes "")} ["x-amz-content-sha256", "x-amz-date", "host"])
+
+            (join "\n" ["POST"
+                        "/"
+                        ""
+                        "host:example.amazonaws.com"
+                        "x-amz-content-sha256:UNSIGNED-PAYLOAD"
+                        "x-amz-date:20150830T123600Z"
+                        ""
+                        "host;x-amz-content-sha256;x-amz-date"
+                        "UNSIGNED-PAYLOAD"])))
   )
 )
 
@@ -145,9 +182,9 @@
                                            "host" "example.amazonaws.com"
                                            "authorization" "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20150830/us-east-1/service/aws4_request, SignedHeaders=host;x-amz-date, Signature=5fa00fa31553b73ebf1942676e86291e8372ff2a2260956d9b8aae1d763fbf31"}
                                  :request-method "GET"
-                                 :uri "/"
-                                 :params {}
-                                 :body (StringReader. "")})
+                                 :orig-uri "/"
+                                 :query-string ""
+                                 :contents (.getBytes "")})
 
             (join "\n" ["AWS4-HMAC-SHA256"
                         "20150830T123600Z"
@@ -168,9 +205,9 @@
                                       "host" "example.amazonaws.com"
                                       "authorization" "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20150830/us-east-1/service/aws4_request, SignedHeaders=host;x-amz-date, Signature=5fa00fa31553b73ebf1942676e86291e8372ff2a2260956d9b8aae1d763fbf31"}
                                  :request-method "GET"
-                                 :uri "/"
-                                 :params {}
-                                 :body (StringReader. "")})
+                                 :orig-uri "/"
+                                 :query-string ""
+                                 :contents (.getBytes "")})
 
             "5fa00fa31553b73ebf1942676e86291e8372ff2a2260956d9b8aae1d763fbf31"))
   )
@@ -185,9 +222,9 @@
                                       "host" "example.amazonaws.com"
                                       "authorization" "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20150830/us-east-1/service/aws4_request, SignedHeaders=host;x-amz-date, Signature=5fa00fa31553b73ebf1942676e86291e8372ff2a2260956d9b8aae1d763fbf31"}
                                  :request-method "GET"
-                                 :uri "/"
-                                 :params {}
-                                 :body (StringReader. "")}))
+                                 :orig-uri "/"
+                                 :query-string ""
+                                 :contents (.getBytes "")}))
   )
 
   (testing "real-captured-request-1"
@@ -199,8 +236,8 @@
                                       "content-length" "0"
                                       "authorization" "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20170806/us-east-1/s3/aws4_request,SignedHeaders=host;x-amz-content-sha256;x-amz-date,Signature=fdb4f1256d5c5a204d05d8126249a29d766b45d2c78c0908389714b87d949d20"}
                                  :request-method "GET"
-                                 :uri "/test/"
-                                 :params {"location" nil}
-                                 :body (StringReader. "")}))
+                                 :orig-uri "/test/"
+                                 :query-string "location="
+                                 :contents (.getBytes "")}))
   )
 )

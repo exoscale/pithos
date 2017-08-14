@@ -89,7 +89,7 @@
 (defn query-escape [unencoded]
   (str/replace
     unencoded
-    #"[^A-Za-z0-9_~.-]+"
+    #"[^A-Za-z0-9_~.\-]+"
     #(double-escape (percent-encode %))))
 
 (defn canonical-uri [request]
@@ -105,7 +105,7 @@
 
     (str/join "&"
       (->> params
-           (map (juxt (comp name key) (comp query-escape str/trim (fn [input] (if (nil? input) "" input)) val)))
+           (map (juxt (comp query-escape name key) (comp query-escape str/trim (fn [input] (if (nil? input) "" input)) val)))
            (sort-by first)
            (map (partial str/join "="))
       ))))
@@ -129,11 +129,12 @@
   ;;    (sha256)
   ;;    (hex)
   ;;))
-  (cond
-    (= (get (get request :headers) "x-amz-content-sha256") "UNSIGNED-PAYLOAD")
-    "UNSIGNED-PAYLOAD"
-    :else
-    (hex (sha256 (get request :contents)))))
+  (let [headers (get request :headers)]
+    (cond
+      (and (contains? headers "x-amz-content-sha256") (= (get headers "x-amz-content-sha256") "UNSIGNED-PAYLOAD"))
+      "UNSIGNED-PAYLOAD"
+      :else
+      (hex (sha256 (get request :contents))))))
 
 (defn canonical-request [request include-headers]
   (str/join "\n" [
