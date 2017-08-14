@@ -83,7 +83,7 @@
 (defn uri-escape [unencoded]
   (str/replace
     unencoded
-    #"[^A-Za-z0-9_~.-/]+"
+    #"[^A-Za-z0-9_~.\-/]+"
     #(double-escape (percent-encode %))))
 
 (defn query-escape [unencoded]
