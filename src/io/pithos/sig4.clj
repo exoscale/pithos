@@ -129,7 +129,11 @@
   ;;    (sha256)
   ;;    (hex)
   ;;))
-  (hex (sha256 (get request :contents))))
+  (cond
+    (= (get (get request :headers) "x-amz-content-sha256") "UNSIGNED-PAYLOAD")
+    "UNSIGNED-PAYLOAD"
+    :else
+    (hex (sha256 (get request :contents)))))
 
 (defn canonical-request [request include-headers]
   (str/join "\n" [
