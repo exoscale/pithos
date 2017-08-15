@@ -1,7 +1,7 @@
 (ns io.pithos.request
   "This namespace provides all necessary wrapper functions to validate and
    augment the incoming request map."
-  (:require [clojure.string                   :refer [lower-case join]]
+  (:require [clojure.string                   :refer [lower-case join starts-with?]]
             [clojure.tools.logging            :refer [debug info warn error]]
             [clojure.pprint                   :refer [pprint]]
             [clojure.java.io                  :as io]
@@ -237,7 +237,7 @@
                                                 .getBytes
                                                 base64/decode))
                                    true)))
-    (contains? (get req :headers) "authorization")
+    (and (contains? (get req :headers) "authorization") (starts-with? (get (get req :headers) "authorization") "AWS4-"))
     (assoc req :authorization (validate4 (keystore system) req))
     :else
     (let [auth   (validate (keystore system) req)
