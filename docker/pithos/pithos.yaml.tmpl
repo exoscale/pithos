@@ -7,7 +7,7 @@ logging:
   console: true
 
 options:
-  service-uri: s3.example.com
+  service-uri: {{ getv "/pithos/service/uri" "s3.example.com" }}
   default-region: myregion
 
 keystore:
@@ -23,18 +23,18 @@ keystore:
 
 bucketstore:
   default-region: myregion
-  cluster: "localhost"
+  cluster: {{ getv "/pithos/cassandra/host" "cassandra" }}
   keyspace: storage
 
 regions:
   myregion:
     metastore:
-      cluster: "localhost"
+      cluster: {{ getv "/pithos/cassandra/host" "cassandra" }}
       keyspace: storage
 
     storage-classes:
       standard:
-        cluster: "localhost"
+        cluster: {{ getv "/pithos/cassandra/host" "cassandra" }}
         keyspace: storage
         max-chunk: "128k"
         max-block-chunk: 1024

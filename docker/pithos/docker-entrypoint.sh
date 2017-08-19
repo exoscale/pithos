@@ -1,22 +1,15 @@
-#!/bin/bash
+#!/bin/sh
 
 set -eux
 
-cp doc/pithos.yaml /etc/pithos/
-sed -i \
-  -e "s/localhost/cassandra/g" \
-  -e "s/level: info/level: debug/" \
-  /etc/pithos/pithos.yaml
+export PITHOS_CASSANDRA_HOST=${PITHOS_CASSANDRA_HOST:-cassandra}
+export PITHOS_SERVICE_URI=${PITHOS_SERVICE_URI:-s3.example.com}
 
-readonly version=$(awk '/\(defproject/{gsub("\"", "", $3);print $3}' project.clj)
-readonly target="target/pithos-${version}-standalone.jar"
-
-if [[ ! -f "${target}" ]]; then
-  lein uberjar
-fi
+confd -onetime -backend env
 
 # wait for cassandra being ready
-until netcat -z -w 2 cassandra 9042; do sleep 1; done
+until nc -z -w 2 $PITHOS_CASSANDRA_HOST 9042; do sleep 1; done
 
-java -jar "${target}" -a install-schema
-exec java -jar "${target}" -a api-run
+java -jar /pithos-standalone.jar -a install-schema || true
+
+exec java -jar /pithos-standalone.jar -a api-run
