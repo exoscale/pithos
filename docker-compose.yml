@@ -13,16 +13,14 @@ services:
   pithos:
     build:
       context: .
-      dockerfile: Dockerfile.prod
-    ports:
-      - "8080:8080"
+      dockerfile: docker/pithos/Dockerfile
     depends_on:
       - cassandra
 
   nginx-proxy:
     build:
-      context: nginx
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/nginx/Dockerfile
     volumes:
       - nginx_tls:/etc/nginx/external/
     depends_on:

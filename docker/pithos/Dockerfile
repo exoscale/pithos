@@ -5,7 +5,7 @@ WORKDIR /pithos
 COPY project.clj /pithos/project.clj
 RUN cd /pithos && lein deps
 
-COPY . /pithos
+COPY src /pithos/src
 RUN cd /pithos && lein uberjar && mv target/pithos-*-standalone.jar /pithos-standalone.jar
 
 
@@ -18,7 +18,7 @@ RUN mkdir /etc/pithos /pithos && chown pithos:pithos /etc/pithos /pithos
 USER pithos
 
 COPY --from=builder /pithos-standalone.jar /pithos-standalone.jar
-COPY docker/docker-entrypoint.prod.sh /docker-entrypoint.sh
-COPY docker/pithos.yaml /etc/pithos/pithos.yaml
+COPY docker/pithos/docker-entrypoint.sh /docker-entrypoint.sh
+COPY docker/pithos/pithos.yaml /etc/pithos/pithos.yaml
 
 CMD ["/docker-entrypoint.sh"]
