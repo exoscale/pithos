@@ -6,7 +6,7 @@
             [clojure.pprint                   :refer [pprint]]
             [clojure.java.io                  :as io]
             [io.pithos.sig                    :refer [validate check-sig anonymous]]
-            [io.pithos.sig4                   :refer [validate4]]
+            [io.pithos.sig4                   :refer [validate4 sha256-input-stream]]
             [io.pithos.system                 :refer [service-uri keystore]]
             [io.pithos.util                   :refer [string->pattern uri-decode]]
             [clout.core                       :as c]
@@ -177,12 +177,11 @@
   [req]
   (assoc req :orig-uri (get req :uri)))
 
-(defn preserve-body [request]
-  (let [buffer (ByteArrayOutputStream.)
-        _ (io/copy (get request :body) buffer)
-        bytes (.toByteArray buffer)]
-    (assoc request :body (ByteArrayInputStream. bytes) :contents bytes)
-  ))
+(defn protect-body-stream [request]
+  (let [headers (get request :headers)]
+    (if (and (contains? headers "x-amz-content-sha256") (not= (get headers "x-amz-content-sha256") "UNSIGNED-PAYLOAD"))
+      (assoc request :body (sha256-input-stream (get request :body) (get headers "x-amz-content-sha256"))))
+      request))
 
 (defn assoc-params
   "Parse, keywordize and store query arguments"
@@ -272,7 +271,7 @@
         (insert-id)
         (assoc-orig-uri)
         (assoc-params)
-        (preserve-body)
+        (protect-body-stream)
         (rewrite-host)
         (rewrite-bucket)
 

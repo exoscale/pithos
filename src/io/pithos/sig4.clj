@@ -8,6 +8,7 @@
             [javax.crypto.spec SecretKeySpec]
             [java.security MessageDigest]))
 
+
 (defn parse-authorization [request]
   """
   Parse an AWS SIG4 authorization header.. e.g.
@@ -122,19 +123,10 @@
   (str/join ";" (sort-by first include-headers)))
 
 (defn hash-payload [request]
-  """ Hash the entire body. FIXME: This has a side effect, body can only be read once. """
-  ;;(-> (get request :body)
-  ;;    (slurp)
-  ;;    (bytes)
-  ;;    (sha256)
-  ;;    (hex)
-  ;;))
-  (let [headers (get request :headers)]
-    (cond
-      (and (contains? headers "x-amz-content-sha256") (= (get headers "x-amz-content-sha256") "UNSIGNED-PAYLOAD"))
-      "UNSIGNED-PAYLOAD"
-      :else
-      (hex (sha256 (get request :contents))))))
+  """ Hash the entire body. Thankfully this is done for us - its in the
+  x-amz-content-sha256 and we have wrapped :body in something that will error
+  if the stream is closed before reading out content matching the sha """
+  (get (get request :headers) "x-amz-content-sha256"))
 
 (defn canonical-request [request include-headers]
   (str/join "\n" [
@@ -181,6 +173,30 @@
     (= signature (get authorization :signature))
   )
 )
+
+(defn sha256-input-stream [body, goal-hash]
+  """ Wrap a body stream with a hashing adapter that will throw if the data is invalid """
+  (let [hash (MessageDigest/getInstance "SHA-256")]
+    (proxy [java.io.InputStream] []
+      (close []
+        (try
+          ;; Calculate final digest and if doesn't match expected value - throw
+          (if (not= goal-hash (hex (.digest hash)))
+            ;; FIXME: Is there a more appropriate error here?
+            (throw (ex-info "body signature is incorrect"
+              {:type :signature-does-not-match
+                :status-code 403
+                :expected goal-hash
+                :to-sign ""
+                })))
+          (finally (.close body)))
+         )
+
+      (read [^bytes ba]
+        (let [bytes_read (.read body ba)]
+          (if (not= bytes_read -1) (.update hash ba 0 bytes_read))
+          bytes_read))
+    )))
 
 (defn validate4
   [keystore request]
