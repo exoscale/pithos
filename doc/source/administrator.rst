@@ -79,7 +79,7 @@ The following keys are recognized:
   supply your own ```logback.xml`` file.
 
 .. _unilog: https://github.com/pyr/unilog
-.. _logack: http://logback.qos.ch
+.. _logback: http://logback.qos.ch
 
 
 Global options
