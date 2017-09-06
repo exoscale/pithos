@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -85,7 +87,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Design and Concepts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#s3-concepts">S3 Concepts</a><ul>
@@ -178,10 +183,10 @@ its interaction with Apache Cassandra.</p>
 <div class="section" id="s3-concepts">
 <span id="id1"></span><h2>S3 Concepts<a class="headerlink" href="#s3-concepts" title="Permalink to this headline">¶</a></h2>
 <p>Since <em>pithos</em> exposes the AWS S3 API, some of its properties have direct impact on
-pithos&#8217;s design.</p>
+pithos’s design.</p>
 <div class="section" id="terminology">
 <h3>Terminology<a class="headerlink" href="#terminology" title="Permalink to this headline">¶</a></h3>
-<p>If you&#8217;re not familiar with S3, the following terms need clarification:</p>
+<p>If you’re not familiar with S3, the following terms need clarification:</p>
 <dl class="docutils">
 <dt>Bucket</dt>
 <dd>A bucket is a named container for objects. A bucket belongs to a region
@@ -208,10 +213,10 @@ first served and hold very little information. The most important properties sto
 in a bucket are:</p>
 <ul class="simple">
 <li>The bucket name</li>
-<li>The bucket&#8217;s tenant</li>
-<li>The bucket&#8217;s ACL</li>
-<li>The bucket&#8217;s CORS configuration</li>
-<li>The region the bucket&#8217;s objects will be stored in</li>
+<li>The bucket’s tenant</li>
+<li>The bucket’s ACL</li>
+<li>The bucket’s CORS configuration</li>
+<li>The region the bucket’s objects will be stored in</li>
 </ul>
 </div>
 </div>
@@ -240,7 +245,7 @@ schema. It can be seen as the equivalent of an SQL table.</dd>
 <p><em>pithos</em> strives to provide an eventual consistent system, enforcing
 validity through clients.</p>
 <p>There is a single operation throughout <em>pithos</em> which necessitates some
-transactional properties: the act of claiming a bucket&#8217;s ownership.
+transactional properties: the act of claiming a bucket’s ownership.
 As it stands, given the current implementation of the bucketstore, this
 operation may return inconsistent results.</p>
 <p>All other operations in <em>pithos</em> are commutative and may be retried

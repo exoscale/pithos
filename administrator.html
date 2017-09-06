@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -85,7 +87,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="concepts.html">Design and Concepts</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Administrator Guide</a><ul>
@@ -244,7 +249,7 @@ the main pithos configuration file.</p>
 </ul>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">If you wish to configure logging in ways that pithos&#8217; configuration
+<p class="last">If you wish to configure logging in ways that pithos’ configuration
 file does not support, <code class="docutils literal"><span class="pre">logging:</span> <span class="pre">{external:</span> <span class="pre">true}</span></code> in the config
 will prevent <em>pithos</em> from attempting to modify logging and let you
 supply your own <code class="docutils literal"><span class="pre">`logback.xml</span></code> file.</p>
@@ -368,12 +373,12 @@ a third-party one:</p>
 and unobtrusive dependency injection syntax. What this allows you
 to do is provide your own implementation of stores.</p>
 <p>One of the typical use-cases would be to swap the default <em>keystore</em>
-implementation with one which is able to interface with your infrastructure&#8217;s
+implementation with one which is able to interface with your infrastructure’s
 credential store.</p>
 <p>If you have an alternative keystore implementation you will need to fulfill
 these two steps to be able to use it:</p>
 <ul class="simple">
-<li>Make sure the compiled code is available on the JVM&#8217;s <a class="reference external" href="http://docs.oracle.com/javase/tutorial/essential/environment/paths.html">classpath</a></li>
+<li>Make sure the compiled code is available on the JVM’s <a class="reference external" href="http://docs.oracle.com/javase/tutorial/essential/environment/paths.html">classpath</a></li>
 <li>Instruct <em>pithos</em> to use it instead of the default through the <code class="docutils literal"><span class="pre">use</span></code> directive.</li>
 </ul>
 <p>Pretending you have an alternative <em>keystore</em> implementation exposed as the
@@ -399,7 +404,7 @@ for <em>bucketstore</em>, <em>metatstore</em>, <em>blobstore</em> and even <em>s
 </div>
 <div class="section" id="configuring-apache-cassandra">
 <h2>Configuring Apache Cassandra<a class="headerlink" href="#configuring-apache-cassandra" title="Permalink to this headline">¶</a></h2>
-<p>This section is in no way a replacement for Apache Cassandra&#8217;s documentation, but
+<p>This section is in no way a replacement for Apache Cassandra’s documentation, but
 a few pointers can be helpful when configuring your clusters for <em>pithos</em>.</p>
 <div class="section" id="bucketstore-and-metastore-clusters">
 <h3>Bucketstore and Metastore Clusters<a class="headerlink" href="#bucketstore-and-metastore-clusters" title="Permalink to this headline">¶</a></h3>
@@ -413,7 +418,7 @@ a few pointers can be helpful when configuring your clusters for <em>pithos</em>
 <dt>Strong replication</dt>
 <dd>Metadata corruption could have a strong impact on your cluster, apart from
 data leakage, it would make it much harder to get back to stored data, as
-such you&#8217;ll need to</dd>
+such you’ll need to</dd>
 <dt>Fast access</dt>
 <dd>It would make sense to store <em>pithos</em> metadata on SSD-backed storage, to
 provide fast access to metadata.</dd>

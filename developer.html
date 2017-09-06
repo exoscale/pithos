@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -85,7 +87,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="concepts.html">Design and Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="administrator.html">Administrator Guide</a></li>
@@ -237,7 +242,7 @@ which are gathered in this protocol:</p>
 <dt><code class="docutils literal"><span class="pre">fetch</span></code></dt>
 <dd>Retrieve metadata from buckets or objects (unused in blobstores)</dd>
 <dt><code class="docutils literal"><span class="pre">update!</span></code></dt>
-<dd>Updates an object&#8217;s or bucket&#8217;s metadata (unused in blobstores)</dd>
+<dd>Updates an object’s or bucket’s metadata (unused in blobstores)</dd>
 <dt><code class="docutils literal"><span class="pre">create!</span></code></dt>
 <dd>Insert a bucket (unused in metastores and blobstores)</dd>
 <dt><code class="docutils literal"><span class="pre">delete!</span></code></dt>
@@ -291,7 +296,7 @@ the expected output is a map containing the keys:</p>
 <dt><code class="docutils literal"><span class="pre">abort-multipart-upload!</span></code></dt>
 <dd>Aborts a multipart upload</dd>
 <dt><code class="docutils literal"><span class="pre">update-part!</span></code></dt>
-<dd>Updates a multipart upload&#8217;s part metadata</dd>
+<dd>Updates a multipart upload’s part metadata</dd>
 <dt><code class="docutils literal"><span class="pre">initiate-upload!</span></code></dt>
 <dd>Stores metadata for a multipart upload</dd>
 <dt><code class="docutils literal"><span class="pre">get-upload-details</span></code></dt>
@@ -362,7 +367,7 @@ an event.</p>
 <div class="section" id="an-alternative-keystore">
 <h3>An alternative keystore<a class="headerlink" href="#an-alternative-keystore" title="Permalink to this headline">¶</a></h3>
 <p>The simplest example would be to create an alternative keystore.
-Let&#8217;s pretend a simple, non-authenticated API is used to provide
+Let’s pretend a simple, non-authenticated API is used to provide
 credential results.</p>
 <div class="highlight-clojure"><div class="highlight"><pre><span></span><span class="p">(</span><span class="kd">ns </span><span class="nv">com.example.http-keystore</span>
   <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">qbits.jet.client.http</span> <span class="ss">:as</span> <span class="nv">http</span><span class="p">]</span>

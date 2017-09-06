@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -85,7 +87,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="concepts.html">Design and Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="administrator.html">Administrator Guide</a></li>
@@ -320,7 +325,7 @@ provided by pithos.</p>
 <p class="first admonition-title">Note</p>
 <p class="last"><em>pithos</em> currently supports version 3 of the request signature method.</p>
 </div>
-<p class="last">When the header isn&#8217;t provided, the request will be treated as anonymous.</p>
+<p class="last">When the header isn’t provided, the request will be treated as anonymous.</p>
 </dd>
 <dt><code class="docutils literal"><span class="pre">Date</span></code> and <code class="docutils literal"><span class="pre">x-amz-date</span></code></dt>
 <dd>Specifies the date at which the date was present, when <code class="docutils literal"><span class="pre">x-amz-date</span></code> is
@@ -561,7 +566,7 @@ This request accepts <strong>no</strong> parameters.</p>
 <div class="section" id="get-bucket-cors">
 <span id="id6"></span><h2>GET Bucket CORS<a class="headerlink" href="#get-bucket-cors" title="Permalink to this headline">¶</a></h2>
 <p>Retrieves the stored CORS profile for the bucket.
-A bucket&#8217;s CORS profile determines how pithos will treat
+A bucket’s CORS profile determines how pithos will treat
 <em>OPTIONS</em> request made to both buckets and objects.</p>
 <p>Sample Request:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>GET /?cors HTTP/1.1
@@ -624,7 +629,7 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </div>
 <div class="section" id="get-bucket-acl">
 <span id="id9"></span><h2>GET Bucket ACL<a class="headerlink" href="#get-bucket-acl" title="Permalink to this headline">¶</a></h2>
-<p>Retrieve a bucket&#8217;s ACL.</p>
+<p>Retrieve a bucket’s ACL.</p>
 <p>Sample Request:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>GET /?acl HTTP/1.1
 Host: mybucket.service.uri
@@ -654,7 +659,7 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </div>
 <div class="section" id="put-bucket-acl">
 <span id="id10"></span><h2>PUT Bucket ACL<a class="headerlink" href="#put-bucket-acl" title="Permalink to this headline">¶</a></h2>
-<p>Update a bucket&#8217;s ACL. ACLs may be provided in one of three ways.</p>
+<p>Update a bucket’s ACL. ACLs may be provided in one of three ways.</p>
 <ul class="simple">
 <li>As a canned ACL in HTTP headers</li>
 <li>As a simple ACL in HTTP headers</li>
@@ -753,7 +758,7 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 <div class="section" id="get-bucket-policy">
 <span id="id18"></span><h2>GET Bucket policy<a class="headerlink" href="#get-bucket-policy" title="Permalink to this headline">¶</a></h2>
 <p>Mock API call, provided for compatibility with some clients which
-always reports a bucket&#8217;s policy as inexistent.</p>
+always reports a bucket’s policy as inexistent.</p>
 </div>
 <div class="section" id="get-bucket-uploads">
 <span id="id19"></span><h2>GET Bucket uploads<a class="headerlink" href="#get-bucket-uploads" title="Permalink to this headline">¶</a></h2>
@@ -785,21 +790,27 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </pre></div>
 </div>
 <p>Sample Request Body:</p>
-<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
-<span class="nt">&lt;Delete&gt;</span>
-    <span class="nt">&lt;Object&gt;</span>
-         <span class="nt">&lt;Key&gt;</span>Key1<span class="nt">&lt;/Key&gt;</span>
-    <span class="nt">&lt;/Object&gt;</span>
-    <span class="nt">&lt;Object&gt;</span>
-         <span class="nt">&lt;Key&gt;</span>Key2<span class="nt">&lt;/Key&gt;</span>
-    <span class="nt">&lt;/Object&gt;</span>
-<span class="nt">&lt;/Delete&gt;</span>
+<div class="highlight-xml"><div class="highlight"><pre><span></span>
 </pre></div>
 </div>
+<p>&lt;?xml version=”1.0” encoding=”UTF-8”?&gt;
+&lt;Delete&gt;</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>&lt;Object&gt;</dt>
+<dd>&lt;Key&gt;Key1&lt;/Key&gt;</dd>
+</dl>
+<p>&lt;/Object&gt;
+&lt;Object&gt;</p>
+<blockquote>
+<div>&lt;Key&gt;Key2&lt;/Key&gt;</div></blockquote>
+<p>&lt;/Object&gt;</p>
+</div></blockquote>
+<p>&lt;/Delete&gt;</p>
 </div>
 <div class="section" id="get-object">
 <span id="id20"></span><h2>GET Object<a class="headerlink" href="#get-object" title="Permalink to this headline">¶</a></h2>
-<p>Retrieves an object&#8217;s content.</p>
+<p>Retrieves an object’s content.</p>
 <p>Sample Request:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">GET</span> <span class="o">/</span><span class="n">myfile</span> <span class="n">HTTP</span><span class="o">/</span><span class="mf">1.1</span>
 <span class="n">Host</span><span class="p">:</span> <span class="n">mybucket</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">uri</span>
@@ -903,7 +914,7 @@ Authorization: AWS &lt;key&gt;:&lt;signature&gt;
 </div>
 <div class="section" id="put-object-acl">
 <span id="id25"></span><h2>PUT Object ACL<a class="headerlink" href="#put-object-acl" title="Permalink to this headline">¶</a></h2>
-<p>Update an object&#8217;s ACL. ACLs may be provided in one of three ways.</p>
+<p>Update an object’s ACL. ACLs may be provided in one of three ways.</p>
 <ul class="simple">
 <li>As a canned ACL in HTTP headers</li>
 <li>As a simple ACL in HTTP headers</li>

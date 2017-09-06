@@ -597,15 +597,15 @@ Sample Request Body:
 
 .. sourcecode:: xml
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <Delete>
-        <Object>
-             <Key>Key1</Key>
-        </Object>
-        <Object>
-             <Key>Key2</Key>
-        </Object>
-    </Delete>	                
+<?xml version="1.0" encoding="UTF-8"?>
+<Delete>
+    <Object>
+         <Key>Key1</Key>
+    </Object>
+    <Object>
+         <Key>Key2</Key>
+    </Object>
+</Delete>	                
 
 
 .. _GET Object:

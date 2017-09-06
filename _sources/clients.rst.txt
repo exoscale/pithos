@@ -46,6 +46,31 @@ Working support with the S3 provider::
     driver = cls('api key', 'api secret key', host='s3.example.com')
     driver.list_containers()
 
+rclone
+--------
+
+Working support with the S3 provider::
+
+    RCLONE_CONFIG_<remote>_TYPE=s3
+    RCLONE_CONFIG_<remote>_ACCESS_KEY_ID=YOUR_ACCESS_KEY
+    RCLONE_CONFIG_<remote>_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
+    RCLONE_CONFIG_<remote>_REGION=other-v2-signature
+    RCLONE_CONFIG_<remote>_ENDPOINT=s3.example.com
+    RCLONE_CONFIG_<remote>_ACL=private
+
+Ansible
+-------
+
+Sample task configuration to list a bucket using the signature V2 by using the
+scheme ``fakes3`` *(= http)* or ``fakes3s`` *(= https)*::
+
+    - name: List bucket content
+      aws_s3:
+        s3_url: "fakes3s://s3.example.com"
+        bucket: "my_bucket"
+        mode: list
+      register: my_bucket_content
+
 cyberduck
 ---------
 
@@ -249,31 +274,37 @@ Install `AWS SDK for Java`_, then:
     config.setSignerOverride("S3SignerType");
     AmazonS3Client s3 = new AmazonS3Client(config);
     s3.setEndpoint("https://your-endpoint");
+    
+PHP
+```
 
-Clojure
-```````
+Install `PHP AWS SDK`_ - important: Only Version2 is suitable (Version 3 only supports SignatureVersion 4, which is not yet implemented). After install, use something like this:
 
-Install `AWS SDK for Java`_, then:
+.. code-block:: php
 
-.. code-block:: clojure
+    // connect
+    $s3Client=Aws\S3\S3Client::factory([
+        'base_url'=>'https://your-endpoint.com',
+        'key'=>'your-key',
+        'secret'=>'your-secret',
+        'region'=>'region', // must be filled with something, even if you have no regions
+    ]);
+   
+    // list all files in bucket
+    $iterator = $s3Client->getIterator('ListObjects', array(
+        'Bucket' => $bucket,
+        'Prefix' => 'foo'
+    ));
 
-  (ns sos.core
-  (:import com.amazonaws.ClientConfiguration
-           com.amazonaws.services.s3.AmazonS3Client
-           java.util.Date))
-
-  (defn test-s3
-    []
-    (let [opts   (doto (ClientConfiguration.)
-                   (.setSignerOverride "S3SignerType"))
-          client (doto (AmazonS3Client. opts)
-                   (.setEndpoint "https://your-endpoint"))]
-      (.generatePresignedUrl client "batman" "foo.txt" (Date.))))
-
+    foreach ($iterator as $object) {
+        echo $object['Key'] . "\n";
+    }
 
 .. _awscli: https://aws.amazon.com/cli/
 .. _boto3: https://boto3.readthedocs.io/en/latest/
 .. _Boto: http://boto.cloudhackers.com/en/latest/
 .. _AWSSDK.S3: https://www.nuget.org/packages/AWSSDK.S3/
 .. _AWS SDK for Java: https://aws.amazon.com/sdk-for-java/
+.. _PHP AWS SDK: http://docs.aws.amazon.com/aws-sdk-php/v2/guide/installation.html
+
 

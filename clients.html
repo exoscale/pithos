@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -30,6 +32,9 @@
   
 
   
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="pithos strong-poseidon documentation" href="index.html"/>
         <link rel="prev" title="Developer Guide" href="developer.html"/> 
 
@@ -40,6 +45,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -80,7 +86,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="concepts.html">Design and Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="administrator.html">Administrator Guide</a></li>
@@ -90,6 +99,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#s3cmd">s3cmd</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#libcloud">libcloud</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rclone">rclone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ansible">Ansible</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cyberduck">cyberduck</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#owncloud">owncloud</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#s3fs-s3-fuse-support">s3fs - s3 fuse support</a></li>
@@ -122,8 +132,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">pithos</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pithos</a>
+        
       </nav>
 
 
@@ -132,23 +144,40 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Client compatibility list</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Client compatibility list</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/clients.txt" rel="nofollow"> View page source</a>
+            
+            <a href="_sources/clients.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -172,7 +201,7 @@ configuration you can put in <code class="docutils literal"><span class="pre">~/
 </div>
 <p>Adapt with your credentials and replace <code class="docutils literal"><span class="pre">s3.example.com</span></code> with the
 value you specified for <code class="docutils literal"><span class="pre">service-uri</span></code>.  <code class="docutils literal"><span class="pre">use_https</span></code> is needed only
-if Pithos is served over TLS. Currently pithos doesn&#8217;t support v4
+if Pithos is served over TLS. Currently pithos doesn’t support v4
 signatures so the <code class="docutils literal"><span class="pre">signature_v2</span></code> flag is necessary.</p>
 <p>When testing locally, the following configuration can be used:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">default</span><span class="p">]</span>
@@ -192,8 +221,8 @@ signatures so the <code class="docutils literal"><span class="pre">signature_v2<
 <p>Working support with the S3 provider:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">libcloud.storage.types</span> <span class="k">import</span> <span class="n">Provider</span>
 <span class="kn">from</span> <span class="nn">libcloud.storage.providers</span> <span class="k">import</span> <span class="n">get_driver</span>
-<span class="n">cls</span> <span class="o">=</span> <span class="n">get_driver</span><span class="p">(</span><span class="n">Provider</span><span class="o">.</span><span class="n">S3</span><span class="p">)</span>
-<span class="n">driver</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="s1">&#39;api key&#39;</span><span class="p">,</span> <span class="s1">&#39;api secret key&#39;</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s1">&#39;s3.example.com&#39;</span><span class="p">)</span>
+<span class="bp">cls</span> <span class="o">=</span> <span class="n">get_driver</span><span class="p">(</span><span class="n">Provider</span><span class="o">.</span><span class="n">S3</span><span class="p">)</span>
+<span class="n">driver</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="s1">&#39;api key&#39;</span><span class="p">,</span> <span class="s1">&#39;api secret key&#39;</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s1">&#39;s3.example.com&#39;</span><span class="p">)</span>
 <span class="n">driver</span><span class="o">.</span><span class="n">list_containers</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -207,6 +236,19 @@ signatures so the <code class="docutils literal"><span class="pre">signature_v2<
 <span class="n">RCLONE_CONFIG_</span><span class="o">&lt;</span><span class="n">remote</span><span class="o">&gt;</span><span class="n">_REGION</span><span class="o">=</span><span class="n">other</span><span class="o">-</span><span class="n">v2</span><span class="o">-</span><span class="n">signature</span>
 <span class="n">RCLONE_CONFIG_</span><span class="o">&lt;</span><span class="n">remote</span><span class="o">&gt;</span><span class="n">_ENDPOINT</span><span class="o">=</span><span class="n">s3</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
 <span class="n">RCLONE_CONFIG_</span><span class="o">&lt;</span><span class="n">remote</span><span class="o">&gt;</span><span class="n">_ACL</span><span class="o">=</span><span class="n">private</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="ansible">
+<h2>Ansible<a class="headerlink" href="#ansible" title="Permalink to this headline">¶</a></h2>
+<p>Sample task configuration to list a bucket using the signature V2 by using the
+scheme <code class="docutils literal"><span class="pre">fakes3</span></code> <em>(= http)</em> or <code class="docutils literal"><span class="pre">fakes3s</span></code> <em>(= https)</em>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">List</span> <span class="n">bucket</span> <span class="n">content</span>
+  <span class="n">aws_s3</span><span class="p">:</span>
+    <span class="n">s3_url</span><span class="p">:</span> <span class="s2">&quot;fakes3s://s3.example.com&quot;</span>
+    <span class="n">bucket</span><span class="p">:</span> <span class="s2">&quot;my_bucket&quot;</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="nb">list</span>
+  <span class="n">register</span><span class="p">:</span> <span class="n">my_bucket_content</span>
 </pre></div>
 </div>
 </div>
@@ -372,7 +414,7 @@ configuration. Simply repeat configuration sections and name them <code class="d
 </div>
 <div class="section" id="python-boto">
 <h3>Python (boto)<a class="headerlink" href="#python-boto" title="Permalink to this headline">¶</a></h3>
-<p><a class="reference external" href="http://boto.cloudhackers.com/en/latest/">Boto</a> version 2 is boto3&#8217;s ancestor but is still widely used. It doesn&#8217;t
+<p><a class="reference external" href="http://boto.cloudhackers.com/en/latest/">Boto</a> version 2 is boto3’s ancestor but is still widely used. It doesn’t
 take <code class="docutils literal"><span class="pre">~/.aws/*</span></code> configuration files into account.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">boto.s3.connection</span> <span class="kn">import</span> <span class="n">S3Connection</span><span class="p">,</span> <span class="n">OrdinaryCallingFormat</span>
 
@@ -437,13 +479,16 @@ take <code class="docutils literal"><span class="pre">~/.aws/*</span></code> con
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="developer.html" class="btn btn-neutral" title="Developer Guide" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="developer.html" class="btn btn-neutral" title="Developer Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -477,7 +522,8 @@ take <code class="docutils literal"><span class="pre">~/.aws/*</span></code> con
             VERSION:'strong-poseidon',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>
