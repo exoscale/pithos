@@ -58,6 +58,19 @@ Working support with the S3 provider::
     RCLONE_CONFIG_<remote>_ENDPOINT=s3.example.com
     RCLONE_CONFIG_<remote>_ACL=private
 
+Ansible
+-------
+
+Sample task configuration to list a bucket using the signature V2 by using the
+scheme ``fakes3`` *(= http)* or ``fakes3s`` *(= https)*::
+
+    - name: List bucket content
+      aws_s3:
+        s3_url: "fakes3s://s3.example.com"
+        bucket: "my_bucket"
+        mode: list
+      register: my_bucket_content
+
 cyberduck
 ---------
 
