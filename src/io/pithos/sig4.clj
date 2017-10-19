@@ -203,14 +203,18 @@
   (let [
     authorization (parse-authorization request)
     secret-key (get (get keystore (get authorization :access-key)) :secret)
-    is-valid-signature (is-signed-by? request authorization secret-key)]
+    is-valid-signature (is-signed-by? request authorization secret-key)
+    auth (get keystore (get authorization :access-key))
+    retval (cond
+      is-valid-signature
+      (update-in auth [:memberof] concat ["authenticated-users" "anonymous"])
+      :else
+      {:tenant :anonymous :memberof ["anonymous"]}
+      )]
     (debug "request" request)
     (debug "authorization" (get keystore (get authorization :access-key)))
     (debug "secret" secret-key)
     (debug "is-valid-sig" is-valid-signature)
-    (cond
-      is-valid-signature
-      {:tenant (get authorization :tenant) :memberof ["authenticated-users", "anonymous"]}
-      :else
-      {:tenant :anonymous :memberof ["anonymous"]}
-      )))
+    (debug "retval" retval)
+    retval
+    ))
