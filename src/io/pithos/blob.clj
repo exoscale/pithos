@@ -154,7 +154,7 @@
     :as   config}]
   (let [copts   (dissoc config :read-consistency :write-consistency)
         session (store/cassandra-store copts)
-        rdcty   (or (some-> read-consistency keyword) :one)
+        rdcty   (or (some-> read-consistency keyword) :quorum)
         wrcty   (or (some-> write-consistency keyword) :quorum)
         read!   (fn [query] (a/execute session query {:consistency rdcty}))
         write!  (fn [query] (a/execute session query {:consistency wrcty}))
