@@ -267,14 +267,29 @@ Install `AWS SDK for Java`_, then:
 
 .. code-block:: java
 
+    // works with the latest (last confirmed version: 1.11.123) AWS Java SDK
+
     import com.amazonaws.ClientConfiguration;
     import com.amazonaws.services.s3.AmazonS3Client;
 
     ClientConfiguration config = new ClientConfiguration();
     config.setSignerOverride("S3SignerType");
+    
     AmazonS3Client s3 = new AmazonS3Client(config);
     s3.setEndpoint("https://your-endpoint");
+
+ 
+    // You can eliminate the credentials file by instead passing in (or reading from your own config file) 
+    // credentials as below:
+    // AWSCredentials credentials = new BasicAWSCredentials("AKIAIOSFODNN7EXAMPLE", 
+    //    "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY");
+    // AmazonS3 s3 = new AmazonS3Client(credentials, config);
     
+    // if your endpoint is hosted on a non standard port for example,
+    //    s3.setEndpoint("http://your-endpoint:8081"); 
+    // then your pithos.yaml server-uri should also include the port for example: 
+    //    server-uri : your-endpoint:8081 
+
 PHP
 ```
 
