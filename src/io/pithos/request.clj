@@ -1,10 +1,12 @@
 (ns io.pithos.request
   "This namespace provides all necessary wrapper functions to validate and
    augment the incoming request map."
-  (:require [clojure.string                   :refer [lower-case join]]
+  (:require [clojure.string                   :refer [lower-case join starts-with?]]
             [clojure.tools.logging            :refer [debug info warn error]]
             [clojure.pprint                   :refer [pprint]]
+            [clojure.java.io                  :as io]
             [io.pithos.sig                    :refer [validate check-sig anonymous]]
+            [io.pithos.sig4                   :refer [validate4 sha256-input-stream]]
             [io.pithos.system                 :refer [service-uri keystore]]
             [io.pithos.util                   :refer [string->pattern uri-decode]]
             [clout.core                       :as c]
@@ -13,7 +15,9 @@
             [ring.util.codec                  :as codec]
             [clojure.data.codec.base64        :as base64]
             [cheshire.core                    :as json]
-            [qbits.alia.uuid                  :as uuid]))
+            [qbits.alia.uuid                  :as uuid])
+  (:import  [java.io ByteArrayInputStream]
+            [java.io ByteArrayOutputStream]))
 
 (def known
   "known query args"
@@ -168,6 +172,17 @@
   [req]
   (assoc req :reqid (uuid/random)))
 
+(defn assoc-orig-uri
+  "Assoc a random UUID to a request"
+  [req]
+  (assoc req :orig-uri (get req :uri)))
+
+(defn protect-body-stream [request]
+  (let [headers (get request :headers)]
+    (if (and (contains? headers "x-amz-content-sha256") (not= (get headers "x-amz-content-sha256") "UNSIGNED-PAYLOAD"))
+      (assoc request :body (sha256-input-stream (get request :body) (get headers "x-amz-content-sha256"))))
+      request))
+
 (defn assoc-params
   "Parse, keywordize and store query arguments"
   [{:keys [query-string] :as req}]
@@ -221,7 +236,8 @@
                                                 .getBytes
                                                 base64/decode))
                                    true)))
-
+    (and (contains? (get req :headers) "authorization") (starts-with? (get (get req :headers) "authorization") "AWS4-"))
+    (assoc req :authorization (validate4 (keystore system) req))
     :else
     (let [auth   (validate (keystore system) req)
           master (:master auth)
@@ -253,7 +269,9 @@
 
     (-> req
         (insert-id)
+        (assoc-orig-uri)
         (assoc-params)
+        (protect-body-stream)
         (rewrite-host)
         (rewrite-bucket)
 

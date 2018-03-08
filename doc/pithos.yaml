@@ -15,6 +15,12 @@ keystore:
       master: true
       tenant: test@example.com
       secret: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+    AKIDEXAMPLE:
+      master: true
+      tenant: test@example.com
+      secret: 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY'
+
+
 bucketstore:
   default-region: myregion
   cluster: "localhost"
