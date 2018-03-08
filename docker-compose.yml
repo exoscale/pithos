@@ -1,0 +1,30 @@
+version: '3.3'
+
+volumes:
+  cassandra: {}
+  nginx_tls: {}
+
+services:
+  cassandra:
+    image: cassandra:2.1
+    volumes:
+     - cassandra:/var/lib/cassandra
+
+  pithos:
+    build:
+      context: .
+      dockerfile: docker/pithos/Dockerfile
+    depends_on:
+      - cassandra
+
+  nginx-proxy:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    volumes:
+      - nginx_tls:/etc/nginx/external/
+    depends_on:
+      - pithos
+    ports:
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"

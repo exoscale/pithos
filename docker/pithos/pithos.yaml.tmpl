@@ -1,0 +1,40 @@
+service:
+  host: "0.0.0.0"
+  port: 8080
+
+logging:
+  level: info
+  console: true
+
+options:
+  service-uri: {{ getv "/pithos/service/uri" "s3.example.com" }}
+  default-region: myregion
+
+keystore:
+  keys:
+    AKIAIOSFODNN7EXAMPLE:
+      master: true
+      tenant: test@example.com
+      secret: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+    AKIDEXAMPLE:
+      master: true
+      tenant: test@example.com
+      secret: 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY'
+
+bucketstore:
+  default-region: myregion
+  cluster: {{ getv "/pithos/cassandra/host" "cassandra" }}
+  keyspace: storage
+
+regions:
+  myregion:
+    metastore:
+      cluster: {{ getv "/pithos/cassandra/host" "cassandra" }}
+      keyspace: storage
+
+    storage-classes:
+      standard:
+        cluster: {{ getv "/pithos/cassandra/host" "cassandra" }}
+        keyspace: storage
+        max-chunk: "128k"
+        max-block-chunk: 1024

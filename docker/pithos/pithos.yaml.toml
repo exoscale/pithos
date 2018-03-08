@@ -1,0 +1,7 @@
+[template]
+src = "pithos.yaml.tmpl"
+dest = "/etc/pithos/pithos.yaml"
+keys = [
+    "/pithos/service/uri",
+    "/pithos/cassandra/host",
+]
