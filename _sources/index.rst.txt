@@ -31,12 +31,12 @@ Compatibility
 Simplicity
   Pithos was built with ease of use and operability in mind. It should be easy to get started, require as few moving parts as possible and still be relatively easy to extend for larger installations. Pithos is distributed as a single executable JAR-file and relies on a YAML configuration file. As many of the JVM specifics are hidden from the administrator.
 
-*pithos* is sponsored by exoscale_
+*pithos* is sponsored by Exoscale_
 
 .. _Cassandra: http://cassandra.apache.org/
 .. _s3cmd: http://s3tools.org/
 .. _boto: https://github.com/boto/boto
-.. _exoscale: https://exoscale.ch
+.. _exoscale: https://www.exoscale.com
 
 .. toctree::
    :maxdepth: 2
