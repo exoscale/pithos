@@ -98,7 +98,7 @@ Common Headers
 
   .. note::
 
-    *pithos* currently supports version 3 of the request signature method.
+    *pithos* currently supports version 2 of the request signature method.
 
   When the header isn't provided, the request will be treated as anonymous.
 
