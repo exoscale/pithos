@@ -1,3 +1,12 @@
+:warning: Project not under active development :warning:
+-------------------------------------------------------------------
+
+We're working on open-sourcing another iteration of pithos which offers much better protocol support and better performances.
+
+No release date known yet
+
+
+
 pithos: cassandra object storage
 --------------------------------
 
